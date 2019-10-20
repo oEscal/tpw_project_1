@@ -2,7 +2,6 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from rest_api.settings import MAX_JOURNEY, MIN_JOURNEY
 
-
 # Create your models here.
 
 
