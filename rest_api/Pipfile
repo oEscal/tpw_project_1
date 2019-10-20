@@ -7,6 +7,11 @@ verify_ssl = true
 
 [packages]
 django = "*"
+djangorestframework = "==3.7.7"
+django-rest-swagger = "*"
+requests = "*"
+mysqlclient = "*"
+python3-docutils = "*"
 
 [requires]
 python_version = "3.6"

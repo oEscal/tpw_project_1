@@ -22,7 +22,7 @@ class Team(models.Model):
     name = models.CharField(max_length=200)
     foundation_date = models.DateField()
     logo = models.ImageField(null=True, blank=True)
-    stadium = models.OneToOneRel(Stadium)
+    stadium = models.OneToOneField(Stadium, on_delete=models.CASCADE)
 
 
 class Game(models.Model):
@@ -32,7 +32,7 @@ class Game(models.Model):
         MaxValueValidator(MAX_JOURNEY),
         MinValueValidator(MIN_JOURNEY)
     ])
-    stadium = models.ManyToOneRel(Stadium)
+    stadium = models.ForeignKey(Stadium, on_delete=models.CASCADE)
     team = models.ManyToManyField(Team)
     shots = models.IntegerField(validators=[
         MinValueValidator(0)
@@ -45,39 +45,35 @@ class Game(models.Model):
         MinValueValidator(0)
     ])
 
-class Player_position(models.Model):
+
+class Position(models.Model):
     id = models.IntegerField(primary_key=True)
-    name = models.CharField(max_length=1000)
+    name = models.CharField(max_length=200)
 
 
 class Player(models.Model):
     id = models.IntegerField(primary_key=True)
-    name = models.CharField(max_length=1000)
-    birth_data = models.DateField(blank=True)
-    photo = models.TextField(blank=True)
-    nick = models.CharField(max_length=1000, blank=True)
-    position_id = models.ForeignKey(Player_position)
-    team = models.ManyToManyField(Team)
+    name = models.CharField(max_length=200)
+    birth_date = models.DateField(null=True, blank=True)
+    photo = models.ImageField(null=True, blank=True)
+    nick = models.CharField(max_length=200, null=True, blank=True)
+    position = models.ForeignKey(Position, on_delete=models.CASCADE)
+    team = models.ForeignKey(Team, on_delete=models.CASCADE)
 
 
-class Player_function(object):
+class KindEvent(models.Model):
     id = models.IntegerField(primary_key=True)
-    name = models.CharField(max_length=1000)
-
-class Player_play_game(models.Model):
-    player_id = models.ForeignKey(Player, primary_key=True)
-    game_id = models.ForeignKey(Game, primary_key=True)
-    function_id = models.ForeignKey(Player_function, primary_key=True)
-
-
-class Kind_event(models.Model):
-    id = models.IntegerField(primary_key=True)
-    name = models.CharField(max_length=1000)
+    name = models.CharField(max_length=200)
 
 
 class Event(models.Model):
-    minute = models.IntegerField(primary_key=True)
-    player_id = models.ForeignKey(Player, primary_key=True)
-    game_id = models.ForeignKey()
-    event_id = models.ForeignKey(Kind_event)
+    minute = models.IntegerField(primary_key=True, validators=[
+        MinValueValidator(0)
+    ])
 
+
+class PlayerPlayGame(models.Model):
+    id = models.IntegerField(primary_key=True)
+    player = models.ForeignKey(Player, on_delete=models.CASCADE)
+    game = models.ForeignKey(Game, on_delete=models.CASCADE)
+    event = models.ManyToManyField(Event)
