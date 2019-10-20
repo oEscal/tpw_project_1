@@ -124,3 +124,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 STATIC_URL = '/static/'
+
+
+# constants
+MAX_JOURNEY = 34
+MIN_JOURNEY = 1
