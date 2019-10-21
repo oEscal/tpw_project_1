@@ -1,5 +1,6 @@
 from rest_framework import serializers
-from rest_framework.compat import MinValueValidator
+
+from api.models import *
 
 
 class UserLoginSerializer(serializers.Serializer):
@@ -17,3 +18,22 @@ class StadiumSerializer(serializers.Serializer):
         ]
     )
     picture = serializers.ImageField(required=False)
+
+
+class TeamSerializer(serializers.Serializer):
+    name = serializers.CharField(required=True, max_length=200)
+    foundation_date = serializers.DateField(required=False)
+    logo = serializers.ImageField(required=False)
+    stadium_name = serializers.CharField(required=True, max_length=200)
+
+
+class GameSerializer(serializers.Serializer):
+    id = serializers.IntegerField(required=True)
+    date = serializers.IntegerField(required=True)
+    journey = serializers.IntegerField(required=True,
+                                       validators=[MaxValueValidator(MAX_JOURNEY), MinValueValidator(MIN_JOURNEY)])
+    stadium = serializers.CharField(required=True, max_length=200)
+    team = serializers.CharField(required=True, max_length=200)
+    shots = serializers.IntegerField(validators=[MinValueValidator(0)])
+    ball_possession = serializers.IntegerField(required=True, validators=[MaxValueValidator(100), MinValueValidator(0)])
+    corners = serializers.IntegerField(validators=[MinValueValidator(0)])

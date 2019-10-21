@@ -1,15 +1,14 @@
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
-from rest_framework.authtoken.models import Token
-
 from django.views.decorators.csrf import csrf_exempt
+from rest_framework.authtoken.models import Token
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
-from rest_framework.decorators import api_view, permission_classes
 from rest_framework.status import *
 
-from api.serializers import *
 import rest_api.queries as queries
+from api.serializers import *
 
 
 def verify_if_admin(user):
@@ -32,10 +31,10 @@ def whoami(user):
 
 def create_response(message, status, token=None, data=None):
     return Response({
-            "message": message,
-            "data": data,
-            "token": token,
-        }, status=status)
+        "message": message,
+        "data": data,
+        "token": token,
+    }, status=status)
 
 
 @api_view(["POST"])
@@ -70,7 +69,8 @@ def add_stadium(request):
     try:
         stadium_serializer = StadiumSerializer(data=request.data)
         if not stadium_serializer.is_valid():
-            return create_response("Dados inválidos!", HTTP_400_BAD_REQUEST, token=token, data=stadium_serializer.errors)
+            return create_response("Dados inválidos!", HTTP_400_BAD_REQUEST, token=token,
+                                   data=stadium_serializer.errors)
 
         add_status, message = queries.add_stadium(stadium_serializer.data)
         return create_response(message, HTTP_200_OK if add_status else HTTP_404_NOT_FOUND, token=token)
@@ -82,7 +82,34 @@ def add_stadium(request):
 @csrf_exempt
 @api_view(["POST"])
 def add_team(request):
-    print(request.user)
-    return Response({
-        "message": verify_if_admin(request.user),
-    }, status=HTTP_200_OK)
+    if not verify_if_admin(request.user):
+        return create_response("Login Invalido!", HTTP_401_UNAUTHORIZED)
+
+    token = Token.objects.get(user=request.user).key
+    try:
+        team_serializer = TeamSerializer(data=request.data)
+        if not team_serializer.is_valid():
+            return create_response("Dados invalidos!", HTTP_400_BAD_REQUEST, token=token, data=team_serializer.errors)
+
+        add_status, message = queries.add_team(team_serializer.data)
+        return create_response(message, HTTP_200_OK if add_status else HTTP_404_NOT_FOUND, token=token)
+    except Exception as e:
+        print(e)
+        return create_response("Erro a adicionar nova equipa!", HTTP_403_FORBIDDEN, token=token)
+
+
+#@csrf_exempt
+#@api_view(["POST"])
+#def add_game(request):
+#    if not verify_if_admin(request.user):
+#        return create_response("Login Invalido!", HTTP_401_UNAUTHORIZED)
+#
+#    token = Token.objects.get(user=request.user).key
+#    try:
+#        game_serializer = GameSerializer(data=request.data)
+#        if not game_serializer.is_valid():
+#            return create_response("Dados invalidos!", HTTP_400_BAD_REQUEST, token=token, data=game_serializer.error)
+#
+#    except Exception as e:
+#        print(e)
+#        return create_response("Erro ad adicionar jogo!", HTTP_403_FORBIDDEN, token=token)
