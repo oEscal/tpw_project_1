@@ -6,9 +6,8 @@ from rest_api.settings import MAX_JOURNEY, MIN_JOURNEY
 
 
 class Stadium(models.Model):
-    id = models.IntegerField(primary_key=True)
+    address = models.CharField(max_length=200, primary_key=True)
     name = models.CharField(max_length=200)
-    address = models.CharField(max_length=200)
     number_seats = models.IntegerField(
         validators=[
             MinValueValidator(0)
@@ -18,8 +17,7 @@ class Stadium(models.Model):
 
 
 class Team(models.Model):
-    id = models.IntegerField(primary_key=True)
-    name = models.CharField(max_length=200)
+    name = models.CharField(primary_key=True, max_length=200)
     foundation_date = models.DateField()
     logo = models.ImageField(null=True, blank=True)
     stadium = models.OneToOneField(Stadium, on_delete=models.CASCADE)

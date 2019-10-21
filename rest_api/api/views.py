@@ -6,10 +6,10 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.status import HTTP_200_OK, HTTP_404_NOT_FOUND, HTTP_400_BAD_REQUEST
+from rest_framework.status import *
 
-from api.serializers import UserLoginSerializer
-
+from api.serializers import *
+import rest_api.queries as queries
 
 
 def verify_if_admin(user):
@@ -30,12 +30,20 @@ def whoami(user):
     return user.username
 
 
+def create_response(message, status, token=None, data=None):
+    return Response({
+            "message": message,
+            "data": data,
+            "token": token,
+        }, status=status)
+
+
 @api_view(["POST"])
 @permission_classes((AllowAny,))
 def login(request):
     login_serializer = UserLoginSerializer(data=request.data)
     if not login_serializer.is_valid():
-        return Response(login_serializer.errors, status=HTTP_400_BAD_REQUEST)
+        return create_response("Dados inválidos!", HTTP_404_NOT_FOUND, data=login_serializer.errors)
 
     user = authenticate(
         username=login_serializer.data['username'],
@@ -44,16 +52,31 @@ def login(request):
 
     if not user:
         message = "Login inválido!"
-        return Response({
-            'detail': message
-        }, status=HTTP_404_NOT_FOUND)
+        return create_response(message, HTTP_404_NOT_FOUND)
 
     # TOKEN STUFF
     token, _ = Token.objects.get_or_create(user=user)
 
-    return Response({
-        'token': token.key
-    }, status=HTTP_200_OK)
+    return create_response("Login feito com sucesso", HTTP_200_OK, token=token.key)
+
+
+@csrf_exempt
+@api_view(["POST"])
+def add_stadium(request):
+    if not verify_if_admin(request.user):
+        return create_response("Login inválido!", HTTP_401_UNAUTHORIZED)
+
+    token = Token.objects.get(user=request.user).key
+    try:
+        stadium_serializer = StadiumSerializer(data=request.data)
+        if not stadium_serializer.is_valid():
+            return create_response("Dados inválidos!", HTTP_400_BAD_REQUEST, token=token, data=stadium_serializer.errors)
+
+        add_status, message = queries.add_stadium(stadium_serializer.data)
+        return create_response(message, HTTP_200_OK if add_status else HTTP_404_NOT_FOUND, token=token)
+    except Exception as e:
+        print(e)
+        return create_response("Erro a adicionar novo estádio!", HTTP_403_FORBIDDEN, token=token)
 
 
 @csrf_exempt
