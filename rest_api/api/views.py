@@ -83,7 +83,7 @@ def add_stadium(request):
 @api_view(["POST"])
 def add_team(request):
     if not verify_if_admin(request.user):
-        return create_response("Login Inválido!", HTTP_401_UNAUTHORIZED)
+        return create_response("Login inválido!", HTTP_401_UNAUTHORIZED)
 
     token = Token.objects.get(user=request.user).key
     try:
@@ -102,7 +102,7 @@ def add_team(request):
 @api_view(["POST"])
 def add_player(request):
     if not verify_if_admin(request.user):
-        return create_response("Login Inválido", HTTP_401_UNAUTHORIZED)
+        return create_response("Login inválido", HTTP_401_UNAUTHORIZED)
 
     token = Token.objects.get(user=request.user).key
     try:

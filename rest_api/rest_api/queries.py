@@ -49,16 +49,8 @@ def add_team(data):
 
 
 def add_player(data):
-    position = Position.objects.filter(name=data['position_name'])
-    if not position.exists():  # verificar se a posição escolhida existe
-        return False, "Posição escolhida não existe!"
-
-    team = Team.objects.filter(name=data['team_name'])
-    if not team.exists():  # verificar se a equipa escolhida existe
-        return False, "Equipa escolhida não existe!"
-
-    if Player.objects.filter(team=team[0], name=data[
-        'name']):  # verificar se o nome selecionado para o jogador já nao se encontra na equipa
+    # verify is player already is on that team
+    if Player.objects.filter(team__name=data['team_name'], name=data['name']):
         return False, "Ja existe um jogador come este nome na equipa!"
 
     try:
@@ -68,10 +60,14 @@ def add_player(data):
             birth_date=data['birth_date'] if 'birth_date' in data else None,
             photo=data['photo'] if 'photo' in data else None,
             nick=data['nick'] if 'nick' in data else None,
-            position=position[0],
-            team=team[0]
+            position=Position.objects.get(name=data['position_name']),
+            team=Team.objects.get(name=data['team_name'])
         )
         return True, "Jogador adicionado com sucesso"
+    except Position.DoesNotExist:
+        return False, "Posição escolhida não existe!"
+    except Team.DoesNotExist:
+        return False, "Equipa escolhida não existe!"
     except Exception as e:
         print(e)
         return False, "Erro na base de dados a adicionar um jogador"
