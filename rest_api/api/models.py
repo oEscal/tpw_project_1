@@ -67,13 +67,16 @@ class KindEvent(models.Model):
 
 
 class Event(models.Model):
-    minute = models.IntegerField(primary_key=True, validators=[
+    id = models.IntegerField(primary_key=True)
+    minute = models.IntegerField(validators=[
         MinValueValidator(0)
     ])
 
 
 class PlayerPlayGame(models.Model):
-    id = models.IntegerField(primary_key=True)
     player = models.ForeignKey(Player, on_delete=models.CASCADE)
     game = models.ForeignKey(Game, on_delete=models.CASCADE)
     event = models.ManyToManyField(Event)
+
+    class Meta:
+        unique_together = (("player", "game"),)

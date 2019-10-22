@@ -1,4 +1,5 @@
-from django.db.models import Max
+from django.db import transaction
+from django.db.models import Max, Q
 
 from api.models import *
 
@@ -71,3 +72,25 @@ def add_player(data):
     except Exception as e:
         print(e)
         return False, "Erro na base de dados a adicionar um jogador"
+
+
+def add_event(data):
+    transaction.set_autocommit(False)
+
+    try:
+        new_event = Event.objects.create(
+            id=next_id(Event),
+            minute=data['minute']
+        )
+
+        player_play_game = PlayerPlayGame.objects.get(Q(player__id=data['player']) & Q(game__id=data['game']))
+        player_play_game.event.add(new_event)
+
+        return True, "Evento adicionado com sucesso"
+    except PlayerPlayGame.DoesNotExist:
+        transaction.rollback()
+        return False, "Este jogador não está adicionado a este jogo!"
+    except Exception as e:
+        transaction.rollback()
+        print(e)
+        return False, "Erro na base de dados a adicionar novo evento"

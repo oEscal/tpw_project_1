@@ -102,7 +102,7 @@ def add_team(request):
 @api_view(["POST"])
 def add_player(request):
     if not verify_if_admin(request.user):
-        return create_response("Login inválido", HTTP_401_UNAUTHORIZED)
+        return create_response("Login inválido!", HTTP_401_UNAUTHORIZED)
 
     token = Token.objects.get(user=request.user).key
     try:
@@ -111,6 +111,30 @@ def add_player(request):
             return create_response("Dados inválidos!", HTTP_400_BAD_REQUEST, token=token, data=player_serializer.errors)
 
         add_status, message = queries.add_player(player_serializer.data)
+        return create_response(message, HTTP_200_OK if add_status else HTTP_404_NOT_FOUND, token=token)
+    except Exception as e:
+        print(e)
+        return create_response("Erro ao adicionar jogador!", HTTP_403_FORBIDDEN, token=token)
+
+
+@csrf_exempt
+@api_view(["POST"])
+def add_event(request):
+    if not verify_if_admin(request.user):
+        return create_response("Login inválido!", HTTP_401_UNAUTHORIZED)
+
+    token = Token.objects.get(user=request.user).key
+    try:
+        event_serializer = GamePlayerEventSerializer(data=request.data)
+        if not event_serializer.is_valid():
+            return create_response(
+                "Dados inválidos!",
+                HTTP_400_BAD_REQUEST,
+                token=token,
+                data=event_serializer.errors
+            )
+
+        add_status, message = queries.add_event(event_serializer.data)
         return create_response(message, HTTP_200_OK if add_status else HTTP_404_NOT_FOUND, token=token)
     except Exception as e:
         print(e)
