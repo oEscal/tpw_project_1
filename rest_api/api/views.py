@@ -108,7 +108,11 @@ def add_game(request):
     try:
         game_serializer = GameSerializer(data=request.data)
         if not game_serializer.is_valid():
-            return create_response("Dados inválidos!", HTTP_400_BAD_REQUEST, token=token, data=game_serializer.errors)
+            return create_response("Dados inválidos!", HTTP_400_BAD_REQUEST, token=token,
+                                   data=game_serializer.errors)
+
+        add_status, message = queries.add_game(game_serializer.data)
+        return create_response(message, HTTP_200_OK if add_status else HTTP_404_NOT_FOUND, token=token)
     except Exception as e:
         print(e)
-        return create_response("Erro ao adicionar jogo!", HTTP_403_FORBIDDEN, token=token)
+        return create_response("Erro a adicionar jogo!", HTTP_403_FORBIDDEN, token=token)

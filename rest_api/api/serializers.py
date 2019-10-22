@@ -24,7 +24,7 @@ class TeamSerializer(serializers.Serializer):
     name = serializers.CharField(required=True, max_length=200)
     foundation_date = serializers.DateField(required=False)
     logo = serializers.ImageField(required=False)
-    stadium_name = serializers.CharField(required=True, max_length=200)
+    stadium = serializers.CharField(required=True, max_length=200)
 
 
 class GameSerializer(serializers.Serializer):
@@ -34,10 +34,13 @@ class GameSerializer(serializers.Serializer):
         MinValueValidator(MIN_JOURNEY)
     ])
     stadium = serializers.CharField(required=True, max_length=200)
-    team = serializers.ListField(required=True, min_length=2, max_length=2, child=serializers.CharField())
-    shots = serializers.IntegerField(validators=[MinValueValidator(0)])
-    ball_possession = serializers.IntegerField(required=True, validators=[
-        MaxValueValidator(100),
-        MinValueValidator(0)
-    ])
-    corners = serializers.IntegerField(validators=[MinValueValidator(0)])
+    teams = serializers.ListField(required=True, min_length=2, max_length=2, child=serializers.CharField(max_length=200))
+    shots = serializers.ListField(required=True, min_length=2, max_length=2,
+                                  child=serializers.IntegerField(validators=[MinValueValidator(0)]))
+    ball_possessions = serializers.ListField(required=True, min_length=2, max_length=2,
+                                             child=serializers.IntegerField(required=True, validators=[
+                                                MaxValueValidator(100),
+                                                MinValueValidator(0)
+                                             ]))
+    corners = serializers.ListField(required=True, min_length=2, max_length=2,
+                                    child=serializers.IntegerField(validators=[MinValueValidator(0)]))
