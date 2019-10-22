@@ -68,8 +68,10 @@ def add_game(data):
             team_model = Team.objects.get(name=data['teams'][i])
 
             # verify if these teams already have had at least one game on that day
-            if Game.objects.filter(Q(date=data['date']) & Q(team=team_model)):
+            if Game.objects.filter(Q(date=data['date']) & Q(team=team_model)).exists():
                 return False, f"A equipa {data['teams'][i]} já jogou no referido dia!"
+            if Game.objects.filter(Q(journey=data['journey']) & Q(team=team_model)):
+                return False, f"A equipa {data['teams'][i]} já jogou na referida jornada!"
 
             GameStatus.objects.create(
                 game=new_game,
@@ -96,7 +98,7 @@ def add_game(data):
 def add_player(data):
     # verify is player already is on that team
     if Player.objects.filter(team__name=data['team_name'], name=data['name']):
-        return False, "Ja existe um jogador come este nome na equipa!"
+        return False, "Ja existe um jogador com este nome na equipa!"
 
     try:
         Player.objects.create(
