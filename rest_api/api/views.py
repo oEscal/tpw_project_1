@@ -83,13 +83,13 @@ def add_stadium(request):
 @api_view(["POST"])
 def add_team(request):
     if not verify_if_admin(request.user):
-        return create_response("Login Invalido!", HTTP_401_UNAUTHORIZED)
+        return create_response("Login Inválido!", HTTP_401_UNAUTHORIZED)
 
     token = Token.objects.get(user=request.user).key
     try:
         team_serializer = TeamSerializer(data=request.data)
         if not team_serializer.is_valid():
-            return create_response("Dados invalidos!", HTTP_400_BAD_REQUEST, token=token, data=team_serializer.errors)
+            return create_response("Dados inválidos!", HTTP_400_BAD_REQUEST, token=token, data=team_serializer.errors)
 
         add_status, message = queries.add_team(team_serializer.data)
         return create_response(message, HTTP_200_OK if add_status else HTTP_404_NOT_FOUND, token=token)

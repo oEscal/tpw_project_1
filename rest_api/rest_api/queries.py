@@ -28,30 +28,39 @@ def add_stadium(data):
 def add_team(data):
     stadium_name = data['stadium_name']
     stadium_object = Stadium.objects.filter(name=stadium_name)
+
     if not stadium_object.exists():
-        return "False", "Estadio não existente!"
+        return False, "Estadio não existente!"
+
+    if Team.objects.filter(name=data['name']).exists():
+        return False, "Uma equipa com o mesmo nome já existe!"
+
+    if Team.objects.filter(stadium__name=stadium_name).exists():
+        return False, "Este estádio já está associado a uma equipa!"
 
     try:
-        Team.objects.create(name=data['name'], foundation_date=data['foundation_date'] if 'name' in data else None,
+        Team.objects.create(name=data['name'],
+                            foundation_date=data['foundation_date'] if 'foundation_date' in data else None,
                             logo=data['logo'] if 'logo' in data else None, stadium=stadium_object[0])
-        return True, "Equipa adicionada com sucesso "
+        return True, "Equipa adicionada com sucesso"
     except Exception as e:
         print(e)
         return False, "Erro na base de dados a adicionar a nova equipa!"
 
 
-def add_game(data):
-    try:
-        # TODO -> algumas verificações pre-Jogo
-        Team.objects.create(id=data['id'],
-                            date=data['date'],
-                            journey=data['journey'],
-                            stadium=data['stadium'],
-                            # team=data['team'],meter isto, so nao meti pq nao esta no serializer
-                            shots=data['shots'] if 'shots' in data else None,
-                            ball_possession=data['ball_possession'],
-                            corners=data['corners'] if 'corners' in data else None)
-        return True, "Equipa adicionada com sucesso"
-    except Exception as e:
-        print(e)
-        return False, "Erro na base de dados a adicionar o novo jogo!"
+# def add_game(data):
+#     try:
+#         # TODO -> algumas verificações pre-Jogo
+#         Team.objects.create(id=data['id'],
+#                             date=data['date'],
+#                             journey=data['journey'],
+#                             stadium=data['stadium'],
+#                             # team=data['team'],meter isto, so nao meti pq nao esta no serializer
+#                             shots=data['shots'] if 'shots' in data else None,
+#                             ball_possession=data['ball_possession'],
+#                             corners=data['corners'] if 'corners' in data else None)
+#         return True, "Equipa adicionada com sucesso"
+#     except Exception as e:
+#         print(e)
+#         return False, "Erro na base de dados a adicionar o novo jogo!"
+#
