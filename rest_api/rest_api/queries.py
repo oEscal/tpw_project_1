@@ -16,6 +16,7 @@ def add_stadium(data):
     try:
         if Stadium.objects.filter(name=data['name']).exists():
             return False, "Um estádio com o mesmo nome já existe!"
+
         Stadium.objects.create(
             name=data['name'], address=data['address'], number_seats=data['number_seats'],
             picture=data['picture'] if 'picture' in data else None
