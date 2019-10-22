@@ -169,7 +169,7 @@ def add_player_to_game(request):
 
     token = Token.objects.get(user=request.user).key
     try:
-        player_game_serializer = PlayerPlayGame(data=request.data)
+        player_game_serializer = PlayerGameSerializer(data=request.data)
         if not player_game_serializer.is_valid():
             return create_response("Dados inválidos!", HTTP_400_BAD_REQUEST, token=token,
                                    data=player_game_serializer.errors)
@@ -178,4 +178,4 @@ def add_player_to_game(request):
         return create_response(message, HTTP_200_OK if add_status else HTTP_404_NOT_FOUND, token=token)
     except Exception as e:
         print(e)
-        return create_response("Erro a jogador ao jogo!", HTTP_403_FORBIDDEN, token=token)
+        return create_response("Erro a adicionar jogador ao jogo!", HTTP_403_FORBIDDEN, token=token)

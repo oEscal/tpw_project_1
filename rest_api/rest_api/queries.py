@@ -152,12 +152,12 @@ def add_event(data):
 def add_player_to_game(data):
     try:
         # verify if player is already on that game
-        if PlayerPlayGame.objects.filter(Q(game__id=data['game'] & Q(player__id=data['id']))).exists():
+        if PlayerPlayGame.objects.filter(Q(game__id=data['game']) & Q(player__id=data['player'])).exists():
             return False, "Jogador já adicionado a este jogo!"
 
         PlayerPlayGame.objects.create(
             game=Game.objects.get(id=data['game']),
-            player=Player.objects.get(id=data['id'])
+            player=Player.objects.get(id=data['player'])
         )
 
         return True, "Jogador adicionado com sucesso ao jogo"
