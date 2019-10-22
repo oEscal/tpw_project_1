@@ -48,19 +48,30 @@ def add_team(data):
         return False, "Erro na base de dados a adicionar a nova equipa!"
 
 
-# def add_game(data):
-#     try:
-#         # TODO -> algumas verificações pre-Jogo
-#         Team.objects.create(id=data['id'],
-#                             date=data['date'],
-#                             journey=data['journey'],
-#                             stadium=data['stadium'],
-#                             # team=data['team'],meter isto, so nao meti pq nao esta no serializer
-#                             shots=data['shots'] if 'shots' in data else None,
-#                             ball_possession=data['ball_possession'],
-#                             corners=data['corners'] if 'corners' in data else None)
-#         return True, "Equipa adicionada com sucesso"
-#     except Exception as e:
-#         print(e)
-#         return False, "Erro na base de dados a adicionar o novo jogo!"
-#
+def add_player(data):
+    position = Position.objects.filter(name=data['position_name'])
+    if not position.exists():  # verificar se a posição escolhida existe
+        return False, "Posição escolhida não existe!"
+
+    team = Team.objects.filter(name=data['team_name'])
+    if not team.exists():  # verificar se a equipa escolhida existe
+        return False, "Equipa escolhida não existe!"
+
+    if Player.objects.filter(team=team[0], name=data[
+        'name']):  # verificar se o nome selecionado para o jogador já nao se encontra na equipa
+        return False, "Ja existe um jogador come este nome na equipa!"
+
+    try:
+        Player.objects.create(
+            id=next_id(Player),
+            name=data['name'],
+            birth_date=data['birth_date'] if 'birth_date' in data else None,
+            photo=data['photo'] if 'photo' in data else None,
+            nick=data['nick'] if 'nick' in data else None,
+            position=position[0],
+            team=team[0]
+        )
+        return True, "Jogador adicionado com sucesso"
+    except Exception as e:
+        print(e)
+        return False, "Erro na base de dados a adicionar um jogador"

@@ -1,6 +1,8 @@
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+
 from rest_api.settings import MAX_JOURNEY, MIN_JOURNEY
+
 
 # Create your models here.
 
@@ -46,7 +48,7 @@ class Game(models.Model):
 
 class Position(models.Model):
     id = models.IntegerField(primary_key=True)
-    name = models.CharField(max_length=200)
+    name = models.CharField(max_length=200, unique=True)
 
 
 class Player(models.Model):

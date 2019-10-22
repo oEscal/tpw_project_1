@@ -27,14 +27,12 @@ class TeamSerializer(serializers.Serializer):
     stadium_name = serializers.CharField(required=True, max_length=200)
 
 
-# class GameSerializer(serializers.Serializer):
-#     id = serializers.IntegerField(required=True)
-#     date = serializers.IntegerField(required=True)
-#     journey = serializers.IntegerField(required=True,
-#                                        validators=[MaxValueValidator(MAX_JOURNEY), MinValueValidator(MIN_JOURNEY)])
-#     stadium = serializers.CharField(required=True, max_length=200)
-#     team = serializers.CharField(required=True, max_length=200)
-#     shots = serializers.IntegerField(validators=[MinValueValidator(0)])
-#     ball_possession = serializers.IntegerField(required=True, validators=[MaxValueValidator(100), MinValueValidator(0)])
-#     corners = serializers.IntegerField(validators=[MinValueValidator(0)])
-#
+class PlayerSerializer(serializers.Serializer):
+    name = serializers.CharField(required=True, max_length=200)
+    birth_date = serializers.DateField(required=False)
+    photo = serializers.ImageField(required=False)
+    nick = serializers.CharField(required=False, max_length=200)
+    position_name = serializers.CharField(required=True, max_length=200)
+    team_name = serializers.CharField(required=True, max_length=200)
+
+
