@@ -25,5 +25,5 @@ urlpatterns = [
     path('add_team', add_team, name='add_team'),
     path('add_player', add_player, name='add_player'),
     path('add_event', add_event, name='add_event'),
-    # path('add_game', add_game, name='add_game'),
+    path('add_game', add_game, name='add_game'),
 ]

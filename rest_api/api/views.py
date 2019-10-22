@@ -139,3 +139,23 @@ def add_event(request):
     except Exception as e:
         print(e)
         return create_response("Erro ao adicionar jogador!", HTTP_403_FORBIDDEN, token=token)
+
+
+@csrf_exempt
+@api_view(["POST"])
+def add_game(request):
+    if not verify_if_admin(request.user):
+        return create_response("Login Inválido!", HTTP_401_UNAUTHORIZED)
+
+    token = Token.objects.get(user=request.user).key
+    try:
+        game_serializer = GameSerializer(data=request.data)
+        if not game_serializer.is_valid():
+            return create_response("Dados inválidos!", HTTP_400_BAD_REQUEST, token=token,
+                                   data=game_serializer.errors)
+
+        add_status, message = queries.add_game(game_serializer.data)
+        return create_response(message, HTTP_200_OK if add_status else HTTP_404_NOT_FOUND, token=token)
+    except Exception as e:
+        print(e)
+        return create_response("Erro a adicionar jogo!", HTTP_403_FORBIDDEN, token=token)

@@ -40,3 +40,22 @@ class GamePlayerEventSerializer(serializers.Serializer):
     game = serializers.IntegerField(required=True, validators=[MinValueValidator(0)])
     player = serializers.IntegerField(required=True, validators=[MinValueValidator(0)])
     minute = serializers.IntegerField(required=True, validators=[MinValueValidator(0)])
+
+
+class GameSerializer(serializers.Serializer):
+    date = serializers.DateField(required=True)
+    journey = serializers.IntegerField(required=True, validators=[
+        MaxValueValidator(MAX_JOURNEY),
+        MinValueValidator(MIN_JOURNEY)
+    ])
+    stadium = serializers.CharField(required=True, max_length=200)
+    teams = serializers.ListField(required=True, min_length=2, max_length=2, child=serializers.CharField(max_length=200))
+    shots = serializers.ListField(required=True, min_length=2, max_length=2,
+                                  child=serializers.IntegerField(validators=[MinValueValidator(0)]))
+    ball_possessions = serializers.ListField(required=True, min_length=2, max_length=2,
+                                             child=serializers.IntegerField(required=True, validators=[
+                                                MaxValueValidator(100),
+                                                MinValueValidator(0)
+                                             ]))
+    corners = serializers.ListField(required=True, min_length=2, max_length=2,
+                                    child=serializers.IntegerField(validators=[MinValueValidator(0)]))

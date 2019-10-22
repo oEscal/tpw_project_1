@@ -27,26 +27,69 @@ def add_stadium(data):
 
 
 def add_team(data):
-    stadium_name = data['stadium_name']
-    stadium_object = Stadium.objects.filter(name=stadium_name)
-
-    if not stadium_object.exists():
-        return False, "Estadio não existente!"
-
-    if Team.objects.filter(name=data['name']).exists():
-        return False, "Uma equipa com o mesmo nome já existe!"
-
-    if Team.objects.filter(stadium__name=stadium_name).exists():
-        return False, "Este estádio já está associado a uma equipa!"
-
     try:
-        Team.objects.create(name=data['name'],
-                            foundation_date=data['foundation_date'] if 'foundation_date' in data else None,
-                            logo=data['logo'] if 'logo' in data else None, stadium=stadium_object[0])
+        stadium = data['stadium']
+        if Team.objects.filter(name=data['name']).exists():
+            return False, "Uma equipa com o mesmo nome já existe!"
+        if Team.objects.filter(stadium__address=stadium).exists():
+            return False, "Este estádio já está associado a uma equipa!"
+
+        Team.objects.create(
+            name=data['name'],
+            foundation_date=data['foundation_date'] if 'foundation_date' in data else None,
+            logo=data['logo'] if 'logo' in data else None,
+            stadium=Stadium.objects.get(address=stadium)
+        )
         return True, "Equipa adicionada com sucesso"
+    except Stadium.DoesNotExist:
+        return False, "Estadio não existente!"
     except Exception as e:
         print(e)
         return False, "Erro na base de dados a adicionar a nova equipa!"
+
+
+def add_game(data):
+    transaction.set_autocommit(False)
+
+    try:
+        # verify ball possession percentage
+        if sum(data['ball_possessions']) != 100:
+            return False, "A soma das posses de bola das duas equipas deve ser igual a 100!"
+
+        new_game = Game.objects.create(
+            id=next_id(Game),
+            date=data['date'],
+            journey=data['journey'],
+            stadium=Stadium.objects.get(address=data['stadium']),
+        )
+
+        for i in range(len(data['teams'])):
+            team_model = Team.objects.get(name=data['teams'][i])
+
+            # verify if these teams already have had at least one game on that day
+            if Game.objects.filter(Q(date=data['date']) & Q(team=team_model)):
+                return False, f"A equipa {data['teams'][i]} já jogou no referido dia!"
+
+            GameStatus.objects.create(
+                game=new_game,
+                team=team_model,
+                shots=data['shots'][i],
+                ball_possession=data['ball_possessions'][i],
+                corners=data['corners'][i]
+            )
+
+        transaction.set_autocommit(True)
+        return True, "Jogo adicionado com sucesso"
+    except Team.DoesNotExist:
+        transaction.rollback()
+        return False, "Pelo menos uma das equipas não existe!"
+    except Stadium.DoesNotExist:
+        transaction.rollback()
+        return False, "Estádio enexistente!"
+    except Exception as e:
+        transaction.rollback()
+        print(e)
+        return False, "Erro na base de dados a adicionar o novo jogo!"
 
 
 def add_player(data):
