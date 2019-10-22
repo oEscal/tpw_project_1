@@ -25,13 +25,18 @@ class Team(models.Model):
 
 class Game(models.Model):
     id = models.IntegerField(primary_key=True)
-    date = models.DateTimeField()
+    date = models.DateField()
     journey = models.IntegerField(validators=[
         MaxValueValidator(MAX_JOURNEY),
         MinValueValidator(MIN_JOURNEY)
     ])
     stadium = models.ForeignKey(Stadium, on_delete=models.CASCADE)
-    team = models.ManyToManyField(Team)
+    team = models.ManyToManyField(Team, through='GameStatus')
+
+
+class GameStatus(models.Model):
+    game = models.ForeignKey(Game, on_delete=models.CASCADE)
+    team = models.ForeignKey(Team, on_delete=models.CASCADE)
     shots = models.IntegerField(validators=[
         MinValueValidator(0)
     ])
