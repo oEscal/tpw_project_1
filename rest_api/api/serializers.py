@@ -59,3 +59,8 @@ class GameSerializer(serializers.Serializer):
                                              ]))
     corners = serializers.ListField(required=True, min_length=2, max_length=2,
                                     child=serializers.IntegerField(validators=[MinValueValidator(0)]))
+
+
+class PlayerGameSerializer(serializers.Serializer):
+    game = serializers.IntegerField(required=True, validators=[MinValueValidator(0)])
+    player = serializers.IntegerField(required=True, validators=[MinValueValidator(0)])

@@ -117,13 +117,19 @@ def add_player(data):
         return False, "Equipa escolhida não existe!"
     except Exception as e:
         print(e)
-        return False, "Erro na base de dados a adicionar um jogador"
+        return False, "Erro na base de dados a adicionar um jogador!"
 
 
 def add_event(data):
     transaction.set_autocommit(False)
 
     try:
+        # verify if that player already have an event on that minute on that game
+        if PlayerPlayGame.objects.filter(
+              Q(player__id=data['player']) & Q(game__id=data['game']) & Q(event__minute=data['minute'])
+        ).exists():
+            return False, "Jogador já possui um evento nesse minuto nesse jogo!"
+
         new_event = Event.objects.create(
             id=next_id(Event),
             minute=data['minute']
@@ -132,6 +138,7 @@ def add_event(data):
         player_play_game = PlayerPlayGame.objects.get(Q(player__id=data['player']) & Q(game__id=data['game']))
         player_play_game.event.add(new_event)
 
+        transaction.set_autocommit(True)
         return True, "Evento adicionado com sucesso"
     except PlayerPlayGame.DoesNotExist:
         transaction.rollback()
@@ -139,4 +146,25 @@ def add_event(data):
     except Exception as e:
         transaction.rollback()
         print(e)
-        return False, "Erro na base de dados a adicionar novo evento"
+        return False, "Erro na base de dados a adicionar novo evento!"
+
+
+def add_player_to_game(data):
+    try:
+        # verify if player is already on that game
+        if PlayerPlayGame.objects.filter(Q(game__id=data['game'] & Q(player__id=data['id']))).exists():
+            return False, "Jogador já adicionado a este jogo!"
+
+        PlayerPlayGame.objects.create(
+            game=Game.objects.get(id=data['game']),
+            player=Player.objects.get(id=data['id'])
+        )
+
+        return True, "Jogador adicionado com sucesso ao jogo"
+    except Game.DoesNotExist:
+        return False, "Jogo não existente!"
+    except Player.DoesNotExist:
+        return False, "Jogador não existente!"
+    except Exception as e:
+        print(e)
+        return False, "Erro na base de dados a adicionar novo jogador ao jogo"

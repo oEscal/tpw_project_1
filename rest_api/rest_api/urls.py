@@ -26,4 +26,5 @@ urlpatterns = [
     path('add_player', add_player, name='add_player'),
     path('add_event', add_event, name='add_event'),
     path('add_game', add_game, name='add_game'),
+    path('add_player_to_game', add_player_to_game, name='add_player_to_game'),
 ]
