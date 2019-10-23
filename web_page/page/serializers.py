@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
-from api.models import *
+from page.models import *
+from rest_framework.compat import MinValueValidator, MaxValueValidator
 
 
 class UserLoginSerializer(serializers.Serializer):
@@ -17,21 +18,21 @@ class StadiumSerializer(serializers.Serializer):
             MinValueValidator(0)
         ]
     )
-    picture = serializers.ImageField(required=False)
+    picture = serializers.ImageField(required=False, allow_null=True)
 
 
 class TeamSerializer(serializers.Serializer):
     name = serializers.CharField(required=True, max_length=200)
-    foundation_date = serializers.DateField(required=False)
-    logo = serializers.ImageField(required=False)
+    foundation_date = serializers.DateField(required=False, allow_null=True)
+    logo = serializers.ImageField(required=False, allow_null=True)
     stadium = serializers.CharField(required=True, max_length=200)
 
 
 class PlayerSerializer(serializers.Serializer):
     name = serializers.CharField(required=True, max_length=200)
-    birth_date = serializers.DateField(required=False)
-    photo = serializers.ImageField(required=False)
-    nick = serializers.CharField(required=False, max_length=200)
+    birth_date = serializers.DateField(required=False, allow_null=True)
+    photo = serializers.ImageField(required=False, allow_null=True)
+    nick = serializers.CharField(required=False, allow_null=True, max_length=200)
     position_name = serializers.CharField(required=True, max_length=200)
     team_name = serializers.CharField(required=True, max_length=200)
 
