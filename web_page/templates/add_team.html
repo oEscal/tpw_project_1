@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+{% block title %}Adicionar nova equipa{% endblock %}
+{% block title_on_page %}Nova Equipa{% endblock %}
+
+{% load static %}
+
+{% block content %}
+
+    <div class="site-section bg-light" data-aos="fade-up">
+        <div class="container">
+            <div class="row align-items-first">
+                <div class="col-md-12">
+                    {% if form.errors or error_messages %}
+                        <div class="alert alert-primary" role="alert">
+                            {% for e in form.non_field_errors %}
+                                {{ e }}
+                            {% endfor %}
+                            {% for e in error_messages %}
+                                {{ e }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    {% if success_messages %}
+                        <div class="alert alert-success" role="alert">
+                            {% for s in success_messages %}
+                                {{ s }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    <form method="post" class="bg-white">
+                        {% csrf_token %}
+                        <div class="p-3 p-lg-5 border">
+                            <div class="form-group row">
+                                <div class="col-md-6">
+                                    <label for="c_fname" class="text-black">{{ data.name.label_tag }} <span
+                                            class="text-danger">*</span></label>
+                                    {{ data.name }}
+
+                                    <div class="text-danger">
+                                        {% for e in data.name.errors %}
+                                            {{ e }}
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="c_fname" class="text-black">{{ data.foundation_date.label_tag }} <span
+                                            class="text-danger">*</span></label>
+                                    {{ data.foundation_date }}
+
+                                    <div class="text-danger">
+                                        {% for e in data.foundation_date.errors %}
+                                            {{ e }}
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-md-6">
+                                    <label for="c_fname" class="text-black">{{ data.logo.label_tag }} </label>
+                                    {{ data.logo }}
+
+                                    <div class="text-danger">
+                                        {% for e in data.logo.errors %}
+                                            {{ e }}
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="c_fname" class="text-black">{{ data.stadium.label_tag }}
+                                        <span
+                                                class="text-danger"></span>
+                                    </label>
+                                    {{ data.stadium }}
+
+                                    <div class="text-danger">
+                                        {% for e in data.stadium.errors %}
+                                            {{ e }}
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <div class="col-lg-12">
+                                    <input type="submit" class="btn btn-primary btn-lg btn-block"
+                                           value="Adicionar Equipa">
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}

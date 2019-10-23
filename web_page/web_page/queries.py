@@ -12,6 +12,14 @@ def next_id(model):
     return max_id + 1
 
 
+def get_all_stadium():
+    return Stadium.objects.all().order_by('name')
+
+
+def get_all_positions():
+    return Position.objects.all().order_by('id')
+
+
 def add_stadium(data):
     try:
         if Stadium.objects.filter(name=data['name']).exists():
@@ -30,6 +38,7 @@ def add_stadium(data):
 def add_team(data):
     try:
         stadium = data['stadium']
+
         if Team.objects.filter(name=data['name']).exists():
             return False, "Uma equipa com o mesmo nome já existe!"
         if Team.objects.filter(stadium__address=stadium).exists():
@@ -39,7 +48,7 @@ def add_team(data):
             name=data['name'],
             foundation_date=data['foundation_date'] if 'foundation_date' in data else None,
             logo=data['logo'] if 'logo' in data else None,
-            stadium=Stadium.objects.get(address=stadium)
+            stadium=Stadium.objects.get(name=stadium)
         )
         return True, "Equipa adicionada com sucesso"
     except Stadium.DoesNotExist:
@@ -126,7 +135,7 @@ def add_event(data):
     try:
         # verify if that player already have an event on that minute on that game
         if PlayerPlayGame.objects.filter(
-              Q(player__id=data['player']) & Q(game__id=data['game']) & Q(event__minute=data['minute'])
+                Q(player__id=data['player']) & Q(game__id=data['game']) & Q(event__minute=data['minute'])
         ).exists():
             return False, "Jogador já possui um evento nesse minuto nesse jogo!"
 

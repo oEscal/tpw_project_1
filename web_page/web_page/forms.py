@@ -1,5 +1,7 @@
 from django import forms
 
+from web_page.queries import get_all_stadium, get_all_positions
+
 
 class Stadium(forms.Form):
     name = forms.CharField(label="Nome do estádio", required=True, max_length=200,
@@ -21,5 +23,78 @@ class Stadium(forms.Form):
         # for the update form
         if stadium:
             data = stadium["data"]
+            for field_name, field in self.fields.items():
+                field.initial = data[field_name]
+
+
+class Team(forms.Form):
+    name = forms.CharField(label="Nome da equipa", help_text="Insira o nome da equipa", required=True, max_length=200)
+    foundation_date = forms.DateField(label="Data de fundação", help_text="Insira a data de fundação  da equipa",
+                                      required=False)
+    logo = forms.ImageField(label="Logótipo da equipa", help_text="Insira o logótipo da equipa ", required=False)
+
+    stadium = forms.ChoiceField(label="Estádio da equipa", help_text="Insira o nome do estádio da equipa",
+                                required=True)
+
+    def __init__(self, team=None, *args, **kwargs):
+        super(forms.Form, self).__init__(*args, **kwargs)
+
+        stadium_field = self.fields['stadium']
+
+        stadium_choices = [("-", stadium_field.help_text)]
+        all_stadiums = get_all_stadium()
+
+        for stadium in all_stadiums:
+            stadium_choices.append((stadium.name, stadium.name))
+
+        stadium_field.choices = stadium_choices
+
+        for field_name, field in self.fields.items():
+            if field_name == 'logo' or field_name == 'stadium':
+                continue
+
+            field.widget.attrs['class'] = 'form-control'
+            field.widget.attrs['placeholder'] = field.help_text
+
+        if team:
+            data = team["data"]
+            for field_name, field in self.fields.items():
+                field.initial = data[field_name]
+
+
+class Player(forms.Form):
+    name = forms.CharField(label="Nome do jogador", help_text="Insira o nome do jogador", required=True, max_length=200)
+    birth_date = forms.DateField(label="Data de nascimento do jogador",
+                                 help_text="Insira a data de nascimento do jogador", required=False)
+    photo = forms.ImageField(label="Foto do jogador", help_text="Insira a foto do jogador", required=False)
+    nick = forms.CharField(label="Alcunha do jogador", help_text="Insira a alcunha do jogador", required=False,
+                           max_length=200)
+    position_name = forms.ChoiceField(label="Posição do Jogador", help_text="Insira a posição do jogador",
+                                      required=True)
+    team_name = forms.CharField(label="Equipa do Jogador", help_text="Insira a equipa do jogador", required=True,
+                                max_length=200)
+
+    def __init__(self, player=None, *args, **kwargs):
+        super(forms.Form, self).__init__(*args, **kwargs)
+
+        position_field = self.fields['position_name']
+
+        all_positions = get_all_positions()
+        position_choices = [("-", position_field.help_text)]
+
+        for position in all_positions:
+            position_choices.append((position.name, position.name))
+
+        position_field.choices = position_choices
+
+        for field_name, field in self.fields.items():
+            if field_name == 'photo' or field_name == 'position_name':
+                continue
+
+            field.widget.attrs['class'] = 'form-control'
+            field.widget.attrs['placeholder'] = field.help_text
+
+        if player:
+            data = player["data"]
             for field_name, field in self.fields.items():
                 field.initial = data[field_name]

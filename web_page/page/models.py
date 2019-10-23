@@ -19,7 +19,7 @@ class Stadium(models.Model):
 
 
 class Team(models.Model):
-    name = models.CharField(primary_key=True, max_length=200)
+    name = models.CharField(primary_key=True, max_length=200, unique=True)
     foundation_date = models.DateField()
     logo = models.ImageField(null=True, blank=True)
     stadium = models.OneToOneField(Stadium, on_delete=models.CASCADE, unique=True)

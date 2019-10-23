@@ -12,6 +12,7 @@ django-rest-swagger = "*"
 requests = "*"
 mysqlclient = "*"
 python3-docutils = "*"
+pillow = "*"
 
 [requires]
 python_version = "3.6"
