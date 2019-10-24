@@ -69,11 +69,7 @@ class Team(forms.Form):
 class Player(forms.Form):
     name = forms.CharField(label="Nome do jogador", help_text="Insira o nome do jogador", required=True, max_length=200)
     birth_date = forms.DateField(label="Data de nascimento do jogador",
-<<<<<<< HEAD
                                  help_text="Insira a data de nascimento do jogador", required=False, widget=DateInput())
-=======
-                                 help_text="Insira a data de nascimento do jogador", widget=DateInput(), required=False)
->>>>>>> master
     photo = forms.ImageField(label="Foto do jogador", help_text="Insira a foto do jogador", required=False)
     nick = forms.CharField(label="Alcunha do jogador", help_text="Insira a alcunha do jogador", required=False,
                            max_length=200)
