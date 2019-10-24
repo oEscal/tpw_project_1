@@ -102,6 +102,7 @@ def add_team(request):
                         error_messages = ["Campos inválidos"]
                     else:
                         # encode logo
+
                         data['logo'] = image_to_base64(data['logo'])
 
                         add_status, message = queries.add_team(data=data)
@@ -161,7 +162,7 @@ def teams(request):
     error_messages = []
     data = []
 
-    if not verify_if_admin(request.user):
+    if verify_if_admin(request.user):
         error_messages = ["Login inválido!"]
     else:
         try:
