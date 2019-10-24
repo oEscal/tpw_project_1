@@ -12,6 +12,9 @@ def next_id(model):
     return max_id + 1
 
 
+######################### Add queries #########################
+
+
 def add_stadium(data):
     try:
         if Stadium.objects.filter(name=data['name']).exists():
@@ -127,7 +130,7 @@ def add_event(data):
     try:
         # verify if that player already have an event on that minute on that game
         if PlayerPlayGame.objects.filter(
-                Q(player__id=data['player']) & Q(game__id=data['game']) & Q(event__minute=data['minute'])
+              Q(player__id=data['player']) & Q(game__id=data['game']) & Q(event__minute=data['minute'])
         ).exists():
             return False, "Jogador já possui um evento nesse minuto nesse jogo!"
 
@@ -169,3 +172,24 @@ def add_player_to_game(data):
     except Exception as e:
         print(e)
         return False, "Erro na base de dados a adicionar novo jogador ao jogo"
+
+
+######################### Get queries #########################
+
+
+def get_teams():
+    result = []
+
+    try:
+        for t in Team.objects.all():
+            result.append({
+                'name': t.name,
+                'logo': t.logo,
+                'foundation_date': t.foundation_date,
+                'stadium_name': t.stadium.name
+            })
+    except Exception as e:
+        print(e)
+        return None, "Erro na base de dados a obter todas as equipas!"
+
+    return result, "Sucesso"
