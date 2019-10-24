@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+{% block title %}Adicionar novo jogador{% endblock %}
+{% block title_on_page %}Nova Jogador{% endblock %}
+
+{% load static %}
+
+{% block content %}
+
+    <div class="site-section bg-light" data-aos="fade-up">
+        <div class="container">
+            <div class="row align-items-first">
+                <div class="col-md-12">
+                    {% if form.errors or error_messages %}
+                        <div class="alert alert-primary" role="alert">
+                            {% for e in form.non_field_errors %}
+                                {{ e }}
+                            {% endfor %}
+                            {% for e in error_messages %}
+                                {{ e }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    {% if success_messages %}
+                        <div class="alert alert-success" role="alert">
+                            {% for s in success_messages %}
+                                {{ s }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    <form method="post" class="bg-white">
+                        {% csrf_token %}
+                        <div class="p-3 p-lg-5 border">
+                            <div class="form-group row">
+                                <div class="col-md-6">
+                                    <label for="c_fname" class="text-black">{{ data.name.label_tag }} <span
+                                            class="text-danger">*</span></label>
+                                    {{ data.name }}
+
+                                    <div class="text-danger">
+                                        {% for e in data.name.errors %}
+                                            {{ e }}
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="c_fname" class="text-black">{{ data.birth_date.label_tag }} <span
+                                            class="text-danger">*</span></label>
+                                    {{ data.birth_date }}
+
+                                    <div class="text-danger">
+                                        {% for e in data.birth_date.errors %}
+                                            {{ e }}
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-md-6">
+                                    <label for="c_fname" class="text-black">{{ data.photo.label_tag }} </label>
+                                    {{ data.photo }}
+
+                                    <div class="text-danger">
+                                        {% for e in data.photo.errors %}
+                                            {{ e }}
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="c_fname" class="text-black">{{ data.nick.label_tag }}
+                                        <span
+                                                class="text-danger"></span>
+                                    </label>
+                                    {{ data.nick }}
+
+                                    <div class="text-danger">
+                                        {% for e in data.nick.errors %}
+                                            {{ e }}
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <div class="col-md-6">
+                                    <label for="c_fname" class="text-black">{{ data.position_name.label_tag }} <span
+                                            class="text-danger">*</span></label>
+                                    {{ data.position_name }}
+
+                                    <div class="text-danger">
+                                        {% for e in data.position_name.errors %}
+                                            {{ e }}
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="c_fname" class="text-black">{{ data.team_name.label_tag }}
+                                        <span
+                                                class="text-danger">*</span>
+                                    </label>
+                                    {{ data.team_name }}
+
+                                    <div class="text-danger">
+                                        {% for e in data.team_name.errors %}
+                                            {{ e }}
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <div class="col-lg-12">
+                                    <input type="submit" class="btn btn-primary btn-lg btn-block"
+                                           value="Adicionar Equipa">
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}

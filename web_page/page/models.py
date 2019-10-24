@@ -15,13 +15,13 @@ class Stadium(models.Model):
             MinValueValidator(0)
         ]
     )
-    picture = models.ImageField(null=True, blank=True)
+    picture = models.TextField(null=True, blank=True)
 
 
 class Team(models.Model):
-    name = models.CharField(primary_key=True, max_length=200)
+    name = models.CharField(primary_key=True, max_length=200, unique=True)
     foundation_date = models.DateField()
-    logo = models.ImageField(null=True, blank=True)
+    logo = models.TextField(null=True, blank=True)
     stadium = models.OneToOneField(Stadium, on_delete=models.CASCADE, unique=True)
 
 
@@ -60,7 +60,7 @@ class Player(models.Model):
     id = models.IntegerField(primary_key=True)
     name = models.CharField(max_length=200)
     birth_date = models.DateField(null=True, blank=True)
-    photo = models.ImageField(null=True, blank=True)
+    photo = models.TextField(null=True, blank=True)
     nick = models.CharField(max_length=200, null=True, blank=True)
     position = models.ForeignKey(Position, on_delete=models.CASCADE)
     team = models.ForeignKey(Team, on_delete=models.CASCADE)

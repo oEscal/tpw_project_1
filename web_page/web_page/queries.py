@@ -30,16 +30,17 @@ def add_stadium(data):
 def add_team(data):
     try:
         stadium = data['stadium']
+
         if Team.objects.filter(name=data['name']).exists():
             return False, "Uma equipa com o mesmo nome já existe!"
-        if Team.objects.filter(stadium__address=stadium).exists():
+        if Team.objects.filter(stadium__name=stadium).exists():
             return False, "Este estádio já está associado a uma equipa!"
 
         Team.objects.create(
             name=data['name'],
             foundation_date=data['foundation_date'] if 'foundation_date' in data else None,
             logo=data['logo'] if 'logo' in data else None,
-            stadium=Stadium.objects.get(address=stadium)
+            stadium=Stadium.objects.get(name=stadium)
         )
         return True, "Equipa adicionada com sucesso"
     except Stadium.DoesNotExist:
@@ -126,7 +127,7 @@ def add_event(data):
     try:
         # verify if that player already have an event on that minute on that game
         if PlayerPlayGame.objects.filter(
-              Q(player__id=data['player']) & Q(game__id=data['game']) & Q(event__minute=data['minute'])
+                Q(player__id=data['player']) & Q(game__id=data['game']) & Q(event__minute=data['minute'])
         ).exists():
             return False, "Jogador já possui um evento nesse minuto nesse jogo!"
 

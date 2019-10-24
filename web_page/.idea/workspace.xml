@@ -2,7 +2,17 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="798610c9-164e-4d99-b3ba-694d033fe5e8" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/templates/add_player.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/add_team.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/web_page.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/web_page.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Pipfile" beforeDir="false" afterPath="$PROJECT_DIR$/Pipfile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/page/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/page/models.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/page/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/page/views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web_page/forms.py" beforeDir="false" afterPath="$PROJECT_DIR$/web_page/forms.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web_page/queries.py" beforeDir="false" afterPath="$PROJECT_DIR$/web_page/queries.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web_page/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/web_page/urls.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -13,6 +23,7 @@
   <component name="DjangoConsoleOptions" custom-start-script="import sys; print('Python %s on %s' % (sys.version, sys.platform))&#10;import django; print('Django %s' % django.get_version())&#10;sys.path.extend([WORKING_DIR_AND_PYTHON_PATHS])&#10;if 'setup' in dir(django): django.setup()&#10;import django_manage_shell; django_manage_shell.run(PROJECT_ROOT)">
     <option name="myCustomStartScript" value="import sys; print('Python %s on %s' % (sys.version, sys.platform))&#10;import django; print('Django %s' % django.get_version())&#10;sys.path.extend([WORKING_DIR_AND_PYTHON_PATHS])&#10;if 'setup' in dir(django): django.setup()&#10;import django_manage_shell; django_manage_shell.run(PROJECT_ROOT)" />
   </component>
+<<<<<<< HEAD
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
       <file pinned="false" current-in-tab="false">
@@ -101,6 +112,8 @@
       </file>
     </leaf>
   </component>
+=======
+>>>>>>> 4f8f19d2141272685106255a24966560357c771a
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
@@ -120,6 +133,7 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
   </component>
+<<<<<<< HEAD
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
@@ -143,61 +157,18 @@
     <option name="width" value="1926" />
     <option name="height" value="1084" />
   </component>
+=======
+  <component name="ProjectId" id="1ScYx9fA5JOCxQn3wwQCtHJq23A" />
+>>>>>>> 4f8f19d2141272685106255a24966560357c771a
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
-  <component name="ProjectView">
-    <navigator proportions="" version="1">
-      <foldersAlwaysOnTop value="true" />
-    </navigator>
-    <panes>
-      <pane id="ProjectPane">
-        <subPane>
-          <expand>
-            <path>
-              <item name="web_page" type="b2602c69:ProjectViewProjectNode" />
-              <item name="web_page" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="web_page" type="b2602c69:ProjectViewProjectNode" />
-              <item name="web_page" type="462c0819:PsiDirectoryNode" />
-              <item name="page" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="web_page" type="b2602c69:ProjectViewProjectNode" />
-              <item name="web_page" type="462c0819:PsiDirectoryNode" />
-              <item name="templates" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="web_page" type="b2602c69:ProjectViewProjectNode" />
-              <item name="web_page" type="462c0819:PsiDirectoryNode" />
-              <item name="templates" type="462c0819:PsiDirectoryNode" />
-              <item name="static" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="web_page" type="b2602c69:ProjectViewProjectNode" />
-              <item name="web_page" type="462c0819:PsiDirectoryNode" />
-              <item name="templates" type="462c0819:PsiDirectoryNode" />
-              <item name="static" type="462c0819:PsiDirectoryNode" />
-              <item name="css" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="web_page" type="b2602c69:ProjectViewProjectNode" />
-              <item name="web_page" type="462c0819:PsiDirectoryNode" />
-              <item name="web_page" type="462c0819:PsiDirectoryNode" />
-            </path>
-          </expand>
-          <select />
-        </subPane>
-      </pane>
-      <pane id="Scope" />
-    </panes>
-  </component>
   <component name="PropertiesComponent">
     <property name="DefaultHtmlFileTemplate" value="HTML File" />
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/static" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
     <property name="nodejs_npm_path_reset_for_default_project" value="true" />
+    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
@@ -226,6 +197,7 @@
       <option name="PARENT_ENVS" value="true" />
       <envs>
         <env name="PYTHONUNBUFFERED" value="1" />
+        <env name="DJANGO_SETTINGS_MODULE" value="web_page.settings" />
       </envs>
       <option name="SDK_HOME" value="" />
       <option name="WORKING_DIRECTORY" value="" />
@@ -261,6 +233,7 @@
       <workItem from="1571749864476" duration="591000" />
       <workItem from="1571763195648" duration="972000" />
       <workItem from="1571765369708" duration="1429000" />
+<<<<<<< HEAD
       <workItem from="1571833754539" duration="13378000" />
     </task>
     <servers />
@@ -404,5 +377,25 @@
         </state>
       </provider>
     </entry>
+=======
+      <workItem from="1571833754539" duration="12463000" />
+      <workItem from="1571864600937" duration="7753000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="1" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+>>>>>>> 4f8f19d2141272685106255a24966560357c771a
   </component>
 </project>
