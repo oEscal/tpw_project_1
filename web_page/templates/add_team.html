@@ -27,13 +27,13 @@
                             {% endfor %}
                         </div>
                     {% endif %}
-                    <form method="post" class="bg-white">
+                    <form method="post" class="bg-white" enctype="multipart/form-data">
                         {% csrf_token %}
                         <div class="p-3 p-lg-5 border">
                             <div class="form-group row">
                                 <div class="col-md-6">
                                     <label for="c_fname" class="text-black">{{ data.name.label_tag }} <span
-                                            class="text-danger">*</span></label>
+                                            class="text-danger">*</span></label><br>
                                     {{ data.name }}
 
                                     <div class="text-danger">
@@ -44,7 +44,7 @@
                                 </div>
                                 <div class="col-md-6">
                                     <label for="c_fname" class="text-black">{{ data.foundation_date.label_tag }} <span
-                                            class="text-danger">*</span></label>
+                                            class="text-danger">*</span></label><br>
                                     {{ data.foundation_date }}
 
                                     <div class="text-danger">
@@ -56,7 +56,8 @@
                             </div>
                             <div class="form-group row">
                                 <div class="col-md-6">
-                                    <label for="c_fname" class="text-black">{{ data.logo.label_tag }} </label>
+                                    <label for="c_fname" class="text-black">{{ data.logo.label_tag }} <span
+                                            class="text-danger">*</span></label><br>
                                     {{ data.logo }}
 
                                     <div class="text-danger">
@@ -66,10 +67,8 @@
                                     </div>
                                 </div>
                                 <div class="col-md-6">
-                                    <label for="c_fname" class="text-black">{{ data.stadium.label_tag }}
-                                        <span
-                                                class="text-danger"></span>
-                                    </label>
+                                    <label for="c_fname" class="text-black">{{ data.stadium.label_tag }} <span
+                                            class="text-danger">*</span></label><br>
                                     {{ data.stadium }}
 
                                     <div class="text-danger">

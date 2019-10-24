@@ -12,14 +12,6 @@ def next_id(model):
     return max_id + 1
 
 
-def get_all_stadium():
-    return Stadium.objects.all().order_by('name')
-
-
-def get_all_positions():
-    return Position.objects.all().order_by('id')
-
-
 def add_stadium(data):
     try:
         if Stadium.objects.filter(name=data['name']).exists():
@@ -41,7 +33,7 @@ def add_team(data):
 
         if Team.objects.filter(name=data['name']).exists():
             return False, "Uma equipa com o mesmo nome já existe!"
-        if Team.objects.filter(stadium__address=stadium).exists():
+        if Team.objects.filter(stadium__name=stadium).exists():
             return False, "Este estádio já está associado a uma equipa!"
 
         Team.objects.create(

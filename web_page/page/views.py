@@ -1,3 +1,5 @@
+import base64
+
 from django.contrib.auth.models import User
 from django.shortcuts import render
 
@@ -45,7 +47,6 @@ def add_stadium(request):
             if request.POST:
                 form = forms.Stadium(None, request.POST)
                 if form.is_valid():
-                    print(form.cleaned_data)
                     stadium_serializer = StadiumSerializer(data=form.cleaned_data)
                     if not stadium_serializer.is_valid():
                         error_messages = ["Campos inválidos inválidos!"]
@@ -72,19 +73,25 @@ def add_team(request):
     form = forms.Team()
 
     if not verify_if_admin(request.user):
-        error_messages = ["Login Invalido!"]
+        error_messages = ["Login invalido!"]
     else:
         try:
             if request.POST:
-                form = forms.Team(None, request.POST)
+                form = forms.Team(None, request.POST, request.FILES)
 
                 if form.is_valid():
-                    print(form.cleaned_data)
-                    team_serializer = TeamSerializer(data=form.cleaned_data)
+                    data = form.cleaned_data
+
+                    team_serializer = TeamSerializer(data=data)
                     if not team_serializer.is_valid():
                         error_messages = ["Campos inválidos"]
                     else:
-                        add_status, message = queries.add_team(data=team_serializer.data)
+                        # encode logo
+                        if data['logo']:
+                            photo_b64 = base64.b64encode(data["logo"].file.read())
+                            photo_b64 = photo_b64.decode()
+                            data["logo"] = photo_b64
+                        add_status, message = queries.add_team(data=data)
                         if add_status:
                             success_messages = [message]
                         else:

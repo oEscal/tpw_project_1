@@ -1,6 +1,10 @@
 from django import forms
 
-from web_page.queries import get_all_stadium, get_all_positions
+from web_page.help_queries import *
+
+
+class DateInput(forms.DateInput):
+    input_type = 'date'
 
 
 class Stadium(forms.Form):
@@ -15,6 +19,7 @@ class Stadium(forms.Form):
     def __init__(self, stadium=None, *args, **kwargs):
         super(forms.Form, self).__init__(*args, **kwargs)
 
+        # change inputs attrs
         for field_name, field in self.fields.items():
             if field_name != 'picture':
                 field.widget.attrs['class'] = 'form-control'
@@ -30,7 +35,7 @@ class Stadium(forms.Form):
 class Team(forms.Form):
     name = forms.CharField(label="Nome da equipa", help_text="Insira o nome da equipa", required=True, max_length=200)
     foundation_date = forms.DateField(label="Data de fundação", help_text="Insira a data de fundação  da equipa",
-                                      required=False)
+                                      widget=DateInput(), required=False)
     logo = forms.ImageField(label="Logótipo da equipa", help_text="Insira o logótipo da equipa ", required=False)
 
     stadium = forms.ChoiceField(label="Estádio da equipa", help_text="Insira o nome do estádio da equipa",
@@ -39,23 +44,22 @@ class Team(forms.Form):
     def __init__(self, team=None, *args, **kwargs):
         super(forms.Form, self).__init__(*args, **kwargs)
 
+        # for showing all current stadiums in the stadium input
         stadium_field = self.fields['stadium']
-
         stadium_choices = [("-", stadium_field.help_text)]
-        all_stadiums = get_all_stadium()
+        all_stadiums = get_all_stadium_for_team()
 
         for stadium in all_stadiums:
             stadium_choices.append((stadium.name, stadium.name))
-
         stadium_field.choices = stadium_choices
 
+        # change inputs attrs
         for field_name, field in self.fields.items():
-            if field_name == 'logo' or field_name == 'stadium':
-                continue
+            if field_name != 'logo':
+                field.widget.attrs['class'] = 'form-control'
+                field.widget.attrs['placeholder'] = field.help_text
 
-            field.widget.attrs['class'] = 'form-control'
-            field.widget.attrs['placeholder'] = field.help_text
-
+        # for the update form
         if team:
             data = team["data"]
             for field_name, field in self.fields.items():
