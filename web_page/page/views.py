@@ -122,7 +122,7 @@ def add_player(request):
     success_messages = []
     form = forms.Player()
 
-    if  verify_if_admin(request.user):
+    if not verify_if_admin(request.user):
         error_messages = ["Login inválido!"]
     else:
         try:
