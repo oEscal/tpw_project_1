@@ -26,6 +26,14 @@ def whoami(user):
     return user.username
 
 
+def image_to_base64(image):
+    if image:
+        photo_b64 = base64.b64encode(image.file.read())
+        photo_b64 = photo_b64.decode()
+        return photo_b64
+    return None
+
+
 def create_response(request, html_page, data=None, success_messages=None, error_messages=None):
     return render(request, html_page, {
         "data": data,
@@ -45,13 +53,17 @@ def add_stadium(request):
     else:
         try:
             if request.POST:
-                form = forms.Stadium(None, request.POST)
+                form = forms.Stadium(None, request.POST, request.FILES)
                 if form.is_valid():
-                    stadium_serializer = StadiumSerializer(data=form.cleaned_data)
+                    data = form.cleaned_data
+                    stadium_serializer = StadiumSerializer(data=data)
                     if not stadium_serializer.is_valid():
                         error_messages = ["Campos inválidos inválidos!"]
                     else:
-                        add_status, message = queries.add_stadium(stadium_serializer.data)
+                        # encode logo
+                        data['picture'] = image_to_base64(data['picture'])
+
+                        add_status, message = queries.add_stadium(data)
                         if add_status:
                             success_messages = [message]
                         else:
@@ -87,10 +99,8 @@ def add_team(request):
                         error_messages = ["Campos inválidos"]
                     else:
                         # encode logo
-                        if data['logo']:
-                            photo_b64 = base64.b64encode(data["logo"].file.read())
-                            photo_b64 = photo_b64.decode()
-                            data["logo"] = photo_b64
+                        data['logo'] = image_to_base64(data['logo'])
+
                         add_status, message = queries.add_team(data=data)
                         if add_status:
                             success_messages = [message]
