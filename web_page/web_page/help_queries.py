@@ -9,3 +9,12 @@ def get_all_stadium_for_team():
 
 def get_all_positions():
     return Position.objects.all().order_by('id')
+
+def get_all_stadium():
+    return Stadium.objects.all()
+
+def get_players_per_team(team_name):
+    return Player.objects.filter(team__name=team_name).all()
+
+def get_all_teams():
+    return Team.objects.all()

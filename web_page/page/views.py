@@ -40,7 +40,7 @@ def add_stadium(request):
     success_messages = []
     form = forms.Stadium()
 
-    if  not verify_if_admin(request.user):
+    if not verify_if_admin(request.user):
         error_messages = ["Login inválido!"]
     else:
         try:
@@ -147,7 +147,7 @@ def reformate_game_data(data):
     new_data['teams'] = [data['home_team'], data['away_team']]
     new_data['shots'] = [data['home_shots'], data['away_shots']]
     new_data['ball_possessions'] = [data['home_ball_pos'], data['away_ball_pos']]
-    new_data['corners'] = [data['home_corners'] , data['away_corners']]
+    new_data['corners'] = [data['home_corners'], data['away_corners']]
 
     return new_data
 
