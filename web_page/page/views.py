@@ -38,7 +38,7 @@ def add_stadium(request):
     success_messages = []
     form = forms.Stadium()
 
-    if not verify_if_admin(request.user):
+    if  not verify_if_admin(request.user):
         error_messages = ["Login inválido!"]
     else:
         try:
@@ -105,7 +105,7 @@ def add_player(request):
     success_messages = []
     form = forms.Player()
 
-    if  verify_if_admin(request.user):
+    if not verify_if_admin(request.user):
         error_messages = ["Login inválido!"]
     else:
         try:
@@ -130,6 +130,53 @@ def add_player(request):
         except Exception as e:
             print(e)
             error_messages = ["Erro ao adicionar nova jogador"]
+
+    return create_response(request, html_page, data=form, error_messages=error_messages,
+                           success_messages=success_messages)
+
+
+def reformate_game_data(data):
+    new_data = {'date': data['date'], 'journey': data['journey'], 'stadium': data['stadium']}
+    new_data['teams'] = [data['home_team'], data['away_team']]
+    new_data['shots'] = [data['home_shots'], data['away_shots']]
+    new_data['ball_possessions'] = [data['home_ball_pos'], data['away_ball_pos']]
+    new_data['corners'] = [data['home_corners'] , data['away_corners']]
+
+    return new_data
+
+
+def add_game(request):
+    html_page = 'add_game.html'
+    error_messages = []
+    success_messages = []
+    form = forms.Game()
+
+    if verify_if_admin(request.user):
+        error_messages = ["Login inválido!"]
+    else:
+        try:
+            if request.POST:
+                form = forms.Game(None, request.POST)
+
+                if form.is_valid():
+
+                    game_serializer = GameSerializer(data=reformate_game_data(form.cleaned_data))
+
+                    if not game_serializer.is_valid():
+                        error_messages = ["Campos inválidos!"]
+                    else:
+                        add_status, message = queries.add_game(data=game_serializer.data)
+
+                        if add_status:
+                            success_messages = [message]
+                        else:
+                            error_messages = [message]
+                else:
+                    error_messages = ["Corrija os erros abaixo referidos"]
+
+        except Exception as e:
+            print(e)
+            error_messages = ["Erro ao adicionar novo jogo"]
 
     return create_response(request, html_page, data=form, error_messages=error_messages,
                            success_messages=success_messages)

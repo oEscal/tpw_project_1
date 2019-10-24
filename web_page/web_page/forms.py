@@ -98,3 +98,50 @@ class Player(forms.Form):
             data = player["data"]
             for field_name, field in self.fields.items():
                 field.initial = data[field_name]
+
+
+class Game(forms.Form):
+
+    date = forms.DateField(label="Data do jogo", help_text="Insira a data do jogo", required=True)
+    journey = forms.IntegerField(label="Jornada do Jogo", help_text="Insira a jornada do jogo", required=True)
+    stadium = forms.ChoiceField(label="Estadio do jogo", help_text="Insira o estadio do jogo", required=True)
+
+    home_team = forms.CharField(label="Equipa local", help_text="Insira a equipa local", required=True)
+    away_team = forms.CharField(label="Equipa visitante", help_text="Insira a equipa visitante", required=True)
+
+    home_shots = forms.IntegerField(label="Remates da equipa local", help_text="Insira os remates da equipa local",
+                                    required=True)
+    away_shots = forms.IntegerField(label="Remates da equipa visitante",
+                                    help_text="Insira os remates da equipa visitanten", required=True)
+    home_ball_pos = forms.IntegerField(label="Posse de bola da equipa local",
+                                       help_text="Insira a posse de bola da equipa local", required=True)
+    away_ball_pos = forms.IntegerField(label="Posse de bola da equipa visitante",
+                                       help_text="Insira a posse de bola da equipa visitante", required=True)
+    home_corners = forms.IntegerField(label="Cantos da equipa local", help_text="Insira os cantos da equipa local",
+                                      required=True)
+    away_corners = forms.IntegerField(label="Cantos da equipa visitante",
+                                      help_text="Insira os cantos da equipa visitante", required=True)
+
+    def __init__(self, game=None, *args, **kwargs):
+        super(forms.Form, self).__init__(*args, **kwargs)
+
+        stadium_field = self.fields['stadium']
+
+        all_stadiums = get_all_stadium()
+        stadiums_choices = [("-", stadium_field.help_text)]
+        for stadium in all_stadiums:
+            stadiums_choices.append((stadium.name, stadium.name))
+
+        stadium_field.choices = stadiums_choices
+
+        for field_name, field in self.fields.items():
+            if field_name == 'stadium':
+                continue
+
+            field.widget.attrs['class'] = 'form-control'
+            field.widget.attrs['placeholder'] = field.help_text
+
+        if game:
+            data = game["data"]
+            for field_name, field in self.fields.items():
+                field.initial = data[field_name]

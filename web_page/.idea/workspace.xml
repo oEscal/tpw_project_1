@@ -2,13 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="798610c9-164e-4d99-b3ba-694d033fe5e8" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/templates/add_player.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/add_team.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/web_page.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/web_page.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/add_game.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Pipfile" beforeDir="false" afterPath="$PROJECT_DIR$/Pipfile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/page/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/page/models.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/page/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/page/views.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/web_page/forms.py" beforeDir="false" afterPath="$PROJECT_DIR$/web_page/forms.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/web_page/queries.py" beforeDir="false" afterPath="$PROJECT_DIR$/web_page/queries.py" afterDir="false" />
@@ -54,11 +49,11 @@
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
   <component name="RecentsManager">
-    <key name="MoveFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/templates" />
-    </key>
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/static" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/templates" />
     </key>
   </component>
   <component name="RunDashboard">
@@ -117,7 +112,7 @@
       <workItem from="1571763195648" duration="972000" />
       <workItem from="1571765369708" duration="1429000" />
       <workItem from="1571833754539" duration="12463000" />
-      <workItem from="1571864600937" duration="7753000" />
+      <workItem from="1571864600937" duration="11991000" />
     </task>
     <servers />
   </component>

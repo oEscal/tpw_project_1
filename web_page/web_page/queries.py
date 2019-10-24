@@ -70,7 +70,7 @@ def add_game(data):
             id=next_id(Game),
             date=data['date'],
             journey=data['journey'],
-            stadium=Stadium.objects.get(address=data['stadium']),
+            stadium=Stadium.objects.get(name=data['stadium']),
         )
 
         for i in range(len(data['teams'])):
