@@ -45,7 +45,6 @@ def add_stadium(request):
             if request.POST:
                 form = forms.Stadium(None, request.POST)
                 if form.is_valid():
-                    print(form.cleaned_data)
                     stadium_serializer = StadiumSerializer(data=form.cleaned_data)
                     if not stadium_serializer.is_valid():
                         error_messages = ["Campos inválidos inválidos!"]
