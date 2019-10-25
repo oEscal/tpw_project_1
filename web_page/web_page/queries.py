@@ -190,8 +190,6 @@ def get_teams():
             result.append({
                 'name': t.name,
                 'logo': t.logo,
-                'foundation_date': t.foundation_date,
-                'stadium_name': t.stadium.name
             })
     except Exception as e:
         print(e)
@@ -204,8 +202,9 @@ def get_team(name):
     result = {}
 
     try:
-        team = Team.objects.get(name=name)
-        result.update(TeamSerializer(team).data)
+        result.update(TeamSerializer(Team.objects.get(name=name)).data)
+
+        result['stadium'] = Stadium.objects.get(team__name=name).name
 
         result['players'] = []
         for p in Player.objects.filter(team__name=name):
