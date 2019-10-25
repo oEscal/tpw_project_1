@@ -76,6 +76,7 @@ class Event(models.Model):
     minute = models.IntegerField(validators=[
         MinValueValidator(0)
     ])
+    kind_event = models.ForeignKey(KindEvent, on_delete=models.CASCADE)
 
 
 class PlayerPlayGame(models.Model):

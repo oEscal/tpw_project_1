@@ -9,9 +9,13 @@
         <div class="container">
             <div class="row">
                 {% for d in data %}
-                    <div class="col-md-6 col-lg-4 p-lg-5" data-aos="fade" data-aos-delay="100">
-                        <div class="p-3 p-md-5 feature-block-1 mb-5 mb-lg-0 bg"
-                             style="background-image: url('data:image/png;base64,{{ d.logo }}');
+                    <div class="col-md-6 col-lg-4 p-lg-5 p-5" data-aos="fade" data-aos-delay="100">
+                        <div class="feature-block-1 mb-5 mb-lg-0 bg p-3"
+                             style="background-image: url({% if d.logo %}
+                                        'data:image/png;base64,{{ d.logo }}'
+                                     {% else %}
+                                        'https://domingoasdez.com/images/default-emblem.png'
+                                     {% endif %});
                                      background-position: center center;  background-size: contain;
                                      background-repeat: no-repeat;">
                             <div class="text">
