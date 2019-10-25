@@ -256,3 +256,20 @@ def team(request, name):
         error_messages = ["Erro ao adicionar nova jogador"]
 
     return create_response(request, html_page, data=data, error_messages=error_messages)
+
+
+
+def player(request, id):
+    html_page = 'player.html'
+    error_messages = []
+    data = []
+
+    try:
+        data, message = queries.get_player(id)
+        if not data:
+            error_messages = [message]
+    except Exception as e:
+        print(e)
+        error_messages = ["Erro ao adicionar nova jogador"]
+
+    return create_response(request, html_page, data=data, error_messages=error_messages)

@@ -33,4 +33,5 @@ urlpatterns = [
 
     path('teams/', teams, name='teams'),
     url(r'^team/(?P<name>\w+)/$', team, name='team'),
+    url(r'^player/(?P<id>\w+)/$', player, name='player'),
 ]

@@ -1,12 +1,8 @@
 from django.db import transaction
 from django.db.models import Max, Q
 
-from page.models import *
-from web_page.help_queries import get_players_per_team
-
-import base64
-
 from page.serializers import *
+from web_page.help_queries import get_players_per_team
 
 
 def next_id(model):
@@ -144,7 +140,7 @@ def add_event(data):
     try:
         # verify if that player already have an event on that minute on that game
         if PlayerPlayGame.objects.filter(
-              Q(player__id=data['player']) & Q(game__id=data['game']) & Q(event__minute=data['minute'])
+                Q(player__id=data['player']) & Q(game__id=data['game']) & Q(event__minute=data['minute'])
         ).exists():
             return False, "Jogador já possui um evento nesse minuto nesse jogo!"
 
@@ -196,7 +192,6 @@ def get_teams():
 
     try:
         for t in Team.objects.all():
-            print(t.logo)
             result.append({
                 'name': t.name,
                 'logo': t.logo,
@@ -228,5 +223,21 @@ def get_team(name):
     except Exception as e:
         print(e)
         return None, "Erro na base de dados a obter a equipa!"
+
+    return result, "Success"
+
+
+def get_player(id):
+    result = {}
+
+    try:
+        result.update(PlayerSerializer(Player.objects.get(id=id)).data)
+        result['position'] = Position.objects.get(player__id=id).name
+        result['team'] = Team.objects.get(player__id=id).name
+    except Player.DoesNotExist:
+        return None, "O jogador não existe!"
+    except Exception as e:
+        print(e)
+        return None, "Erro na base de dados a obter o jogador!"
 
     return result, "Sucesso"
