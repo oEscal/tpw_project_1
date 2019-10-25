@@ -5,6 +5,9 @@ from page.models import *
 
 import base64
 
+from page.serializers import *
+
+
 def next_id(model):
     max_id = model.objects.aggregate(Max('id'))['id__max']
     if not max_id:
@@ -190,6 +193,25 @@ def get_teams():
                 'foundation_date': t.foundation_date,
                 'stadium_name': t.stadium.name
             })
+    except Exception as e:
+        print(e)
+        return None, "Erro na base de dados a obter todas as equipas!"
+
+    return result, "Sucesso"
+
+
+def get_team(name):
+    result = {}
+
+    try:
+        team = Team.objects.get(name=name)
+        result.update(TeamSerializer(team).data)
+
+        result['players'] = []
+        for p in Player.objects.filter(team__name=name):
+            result['players'].append(PlayerMinimalSerializer(p).data)
+    except Team.DoesNotExist:
+        return None, "Equipa não existe!"
     except Exception as e:
         print(e)
         return None, "Erro na base de dados a obter todas as equipas!"

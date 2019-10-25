@@ -28,6 +28,12 @@ class TeamSerializer(serializers.Serializer):
     stadium = serializers.CharField(required=True, max_length=200)
 
 
+class PlayerMinimalSerializer(serializers.Serializer):
+    id = serializers.IntegerField(required=True)
+    name = serializers.CharField(required=True, max_length=200)
+    photo = serializers.ImageField(required=False, allow_null=True)
+
+
 class PlayerSerializer(serializers.Serializer):
     name = serializers.CharField(required=True, max_length=200)
     birth_date = serializers.DateField(required=False, allow_null=True)
