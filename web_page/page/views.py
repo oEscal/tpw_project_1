@@ -34,6 +34,9 @@ def image_to_base64(image):
     return None
 
 
+######################### Add #########################
+
+
 def create_response(request, html_page, data=None, success_messages=None, error_messages=None):
     return render(request, html_page, {
         "data": data,
@@ -99,6 +102,7 @@ def add_team(request):
                         error_messages = ["Campos inválidos"]
                     else:
                         # encode logo
+
                         data['logo'] = image_to_base64(data['logo'])
 
                         add_status, message = queries.add_team(data=data)
@@ -152,6 +156,7 @@ def add_player(request):
                            success_messages=success_messages)
 
 
+<<<<<<< HEAD
 def reformate_game_data(data):
     new_data = {'date': data['date'], 'journey': data['journey'], 'stadium': data['stadium']}
     new_data['teams'] = [data['home_team'], data['away_team']]
@@ -197,3 +202,25 @@ def add_game(request):
 
     return create_response(request, html_page, data=form, error_messages=error_messages,
                            success_messages=success_messages)
+=======
+######################### Get #########################
+def teams(request):
+    html_page = 'teams.html'
+    error_messages = []
+    data = []
+
+    if not verify_if_admin(request.user):
+        error_messages = ["Login inválido!"]
+    else:
+        try:
+            data, message = queries.get_teams()
+            if not data:
+                error_messages = [message]
+
+        except Exception as e:
+            print(e)
+            error_messages = ["Erro ao adicionar nova jogador"]
+
+    return create_response(request, html_page, data=data, error_messages=error_messages)
+
+>>>>>>> master
