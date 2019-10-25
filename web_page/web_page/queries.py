@@ -2,6 +2,7 @@ from django.db import transaction
 from django.db.models import Max, Q
 
 from page.models import *
+from web_page.help_queries import get_players_per_team
 
 import base64
 
@@ -69,7 +70,7 @@ def add_game(data):
             id=next_id(Game),
             date=data['date'],
             journey=data['journey'],
-            stadium=Stadium.objects.get(address=data['stadium']),
+            stadium=Stadium.objects.get(name=data['stadium']),
         )
 
         for i in range(len(data['teams'])):
@@ -81,6 +82,15 @@ def add_game(data):
             if Game.objects.filter(Q(journey=data['journey']) & Q(team=team_model)):
                 return False, f"A equipa {data['teams'][i]} já jogou na referida jornada!"
 
+            players_per_team = get_players_per_team(team_model.name)
+
+            if len(players_per_team) < 14:
+                return False, f"A equipa {data['teams'][i]} não tem jogadores suficientes inscritos (minimo 14) !"
+
+            goal_kepper_number = len(players_per_team.filter(position=Position.objects.get(id=1)))
+
+            if goal_kepper_number < 1:
+                return False, f"A equipa {data['teams'][i]} não tem o numero pelo menos 1 guarda-redes !"
             GameStatus.objects.create(
                 game=new_game,
                 team=team_model,
