@@ -30,6 +30,5 @@ urlpatterns = [
     path('add_player/', add_player, name='add_player'),
     path('add_game/', add_game, name='add_game'),
 
-
-    path('teams/' , teams , name = 'teams')
+    path('teams/', teams, name='teams')
 ]

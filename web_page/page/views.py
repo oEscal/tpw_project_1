@@ -224,21 +224,19 @@ def add_game(request):
 
 
 ######################### Get #########################
+
+
 def teams(request):
     html_page = 'teams.html'
     error_messages = []
     data = []
 
-    if verify_if_admin(request.user):
-        error_messages = ["Login inválido!"]
-    else:
-        try:
-            data, message = queries.get_teams()
-            if not data:
-                error_messages = [message]
-
-        except Exception as e:
-            print(e)
-            error_messages = ["Erro ao adicionar nova jogador"]
+    try:
+        data, message = queries.get_teams()
+        if not data:
+            error_messages = [message]
+    except Exception as e:
+        print(e)
+        error_messages = ["Erro ao adicionar nova jogador"]
 
     return create_response(request, html_page, data=data, error_messages=error_messages)
