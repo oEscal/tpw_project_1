@@ -1,7 +1,7 @@
 import base64
 
 from django.contrib.auth.models import User
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 
 # Create your views here.
 from page.serializers import *
@@ -159,12 +159,28 @@ def add_player(request):
                            success_messages=success_messages)
 
 
-def reformate_game_data(data):
-    new_data = {'date': data['date'], 'journey': data['journey'], 'stadium': data['stadium']}
-    new_data['teams'] = [data['home_team'], data['away_team']]
-    new_data['shots'] = [data['home_shots'], data['away_shots']]
-    new_data['ball_possessions'] = [data['home_ball_pos'], data['away_ball_pos']]
-    new_data['corners'] = [data['home_corners'], data['away_corners']]
+def reformat_game_data(data):
+    new_data = {
+        'date': data['date'],
+        'journey': data['journey'],
+        'stadium': data['stadium'],
+        'teams': [
+            data['home_team'],
+            data['away_team']
+        ],
+        'shots': [
+            data['home_shots'],
+            data['away_shots']
+        ],
+        'ball_possessions': [
+            data['home_ball_pos'],
+            data['away_ball_pos']
+        ],
+        'corners': [
+            data['home_corners'],
+            data['away_corners']
+        ]
+    }
 
     return new_data
 
@@ -175,8 +191,9 @@ def add_game(request):
     success_messages = []
     form = forms.Game()
 
-    if verify_if_admin(request.user):
+    if not verify_if_admin(request.user):
         error_messages = ["Login inválido!"]
+        return redirect('login')
     else:
         try:
             if request.POST:
@@ -184,7 +201,7 @@ def add_game(request):
 
                 if form.is_valid():
 
-                    game_serializer = GameSerializer(data=reformate_game_data(form.cleaned_data))
+                    game_serializer = GameSerializer(data=reformat_game_data(form.cleaned_data))
 
                     if not game_serializer.is_valid():
                         error_messages = ["Campos inválidos!"]

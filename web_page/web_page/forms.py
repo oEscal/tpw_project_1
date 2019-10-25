@@ -147,9 +147,6 @@ class Game(forms.Form):
         away_team_field.choices = [("-", away_team_field.help_text)] + home_team_choices[1:]
 
         for field_name, field in self.fields.items():
-            if field_name == 'stadium':
-                continue
-
             field.widget.attrs['class'] = 'form-control'
             field.widget.attrs['placeholder'] = field.help_text
 
