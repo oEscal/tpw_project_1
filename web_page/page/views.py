@@ -53,6 +53,7 @@ def add_stadium(request):
 
     if not verify_if_admin(request.user):
         error_messages = ["Login inválido!"]
+        return redirect('login')
     else:
         try:
             if request.POST:
@@ -89,6 +90,7 @@ def add_team(request):
 
     if not verify_if_admin(request.user):
         error_messages = ["Login invalido!"]
+        return redirect('login')
     else:
         try:
             if request.POST:
@@ -128,6 +130,7 @@ def add_player(request):
 
     if not verify_if_admin(request.user):
         error_messages = ["Login inválido!"]
+        return redirect('login')
     else:
         try:
             if request.POST:
