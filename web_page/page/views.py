@@ -53,6 +53,7 @@ def add_stadium(request):
 
     if not verify_if_admin(request.user):
         error_messages = ["Login inválido!"]
+        return redirect('login')
     else:
         try:
             if request.POST:
@@ -89,6 +90,7 @@ def add_team(request):
 
     if not verify_if_admin(request.user):
         error_messages = ["Login invalido!"]
+        return redirect('login')
     else:
         try:
             if request.POST:
@@ -128,6 +130,7 @@ def add_player(request):
 
     if not verify_if_admin(request.user):
         error_messages = ["Login inválido!"]
+        return redirect('login')
     else:
         try:
             if request.POST:
@@ -162,17 +165,13 @@ def teams(request):
     error_messages = []
     data = []
 
-    if not verify_if_admin(request.user):
-        error_messages = ["Login inválido!"]
-    else:
-        try:
-            data, message = queries.get_teams()
-            if not data:
-                error_messages = [message]
-
-        except Exception as e:
-            print(e)
-            error_messages = ["Erro ao adicionar nova jogador"]
+    try:
+        data, message = queries.get_teams()
+        if not data:
+            error_messages = [message]
+    except Exception as e:
+        print(e)
+        error_messages = ["Erro ao adicionar nova jogador"]
 
     return create_response(request, html_page, data=data, error_messages=error_messages)
 
