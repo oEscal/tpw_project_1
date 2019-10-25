@@ -33,8 +33,8 @@ class PlayerSerializer(serializers.Serializer):
     birth_date = serializers.DateField(required=False, allow_null=True)
     photo = serializers.ImageField(required=False, allow_null=True)
     nick = serializers.CharField(required=False, allow_null=True, max_length=200)
-    position_name = serializers.CharField(required=True, max_length=200)
-    team_name = serializers.CharField(required=True, max_length=200)
+    position = serializers.CharField(required=True, max_length=200)
+    team = serializers.CharField(required=True, max_length=200)
 
 
 class GamePlayerEventSerializer(serializers.Serializer):

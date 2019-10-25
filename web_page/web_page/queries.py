@@ -2,6 +2,7 @@ from django.db import transaction
 from django.db.models import Max, Q
 
 from page.models import *
+from page.serializers import *
 from web_page.help_queries import get_players_per_team
 
 import base64
@@ -193,7 +194,6 @@ def get_teams():
 
     try:
         for t in Team.objects.all():
-            print(t.logo)
             result.append({
                 'name': t.name,
                 'logo': t.logo,
@@ -203,5 +203,21 @@ def get_teams():
     except Exception as e:
         print(e)
         return None, "Erro na base de dados a obter todas as equipas!"
+
+    return result, "Sucesso"
+
+
+def get_player(id):
+    result = {}
+
+    try:
+        result.update(PlayerSerializer(Player.objects.get(id=id)).data)
+        result['position'] = Position.objects.get(player__id=id).name
+        result['team'] = Team.objects.get(player__id=id).name
+    except Player.DoesNotExist:
+        return None, "O jogador não existe!"
+    except Exception as e:
+        print(e)
+        return None, "Erro na base de dados a obter o jogador!"
 
     return result, "Sucesso"
