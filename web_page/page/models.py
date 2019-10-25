@@ -9,7 +9,7 @@ from web_page.settings import MAX_JOURNEY, MIN_JOURNEY
 
 class Stadium(models.Model):
     address = models.CharField(max_length=200, primary_key=True)
-    name = models.CharField(max_length=200)
+    name = models.CharField(max_length=200, unique=True)
     number_seats = models.IntegerField(
         validators=[
             MinValueValidator(0)

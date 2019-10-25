@@ -237,7 +237,7 @@ def teams(request):
             error_messages = [message]
     except Exception as e:
         print(e)
-        error_messages = ["Erro ao adicionar nova jogador"]
+        error_messages = ["Erro a obter todas as equipas!"]
 
     return create_response(request, html_page, data=data, error_messages=error_messages)
 
@@ -253,10 +253,9 @@ def team(request, name):
             error_messages = [message]
     except Exception as e:
         print(e)
-        error_messages = ["Erro ao adicionar nova jogador"]
+        error_messages = ["Erro a obter a equipa!"]
 
     return create_response(request, html_page, data=data, error_messages=error_messages)
-
 
 
 def player(request, id):
@@ -270,6 +269,23 @@ def player(request, id):
             error_messages = [message]
     except Exception as e:
         print(e)
-        error_messages = ["Erro ao adicionar nova jogador"]
+        error_messages = ["Erro a obter o jogador!"]
+
+    return create_response(request, html_page, data=data, error_messages=error_messages)
+
+
+def stadium(request, name):
+    html_page = 'stadium.html'
+    error_messages = []
+    data = []
+
+    try:
+        data, message = queries.get_stadium(name)
+        if not data:
+            error_messages = [message]
+
+    except Exception as e:
+        print(e)
+        error_messages = ["Erro a obter o estádio!"]
 
     return create_response(request, html_page, data=data, error_messages=error_messages)

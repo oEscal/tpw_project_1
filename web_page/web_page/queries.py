@@ -241,3 +241,20 @@ def get_player(id):
         return None, "Erro na base de dados a obter o jogador!"
 
     return result, "Sucesso"
+
+
+def get_stadium(name):
+    result = {}
+
+    try:
+        result.update(StadiumSerializer(Stadium.objects.get(name=name)).data)
+        result.update({
+            'team': Team.objects.get(stadium__name=name).name
+        })
+    except Stadium.DoesNotExist:
+        return None, "Não existe nenhum estádio com esse nome na base de dados!"
+    except Exception as e:
+        print(e)
+        return None, "Erro na base de dados a obter o estádio!"
+
+    return result, "Sucesso"
