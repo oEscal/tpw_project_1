@@ -227,6 +227,6 @@ def get_team(name):
         return None, "Equipa não existe!"
     except Exception as e:
         print(e)
-        return None, "Erro na base de dados a obter todas as equipas!"
+        return None, "Erro na base de dados a obter a equipa!"
 
     return result, "Sucesso"

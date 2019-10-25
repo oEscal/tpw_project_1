@@ -249,7 +249,8 @@ def team(request, name):
 
     try:
         data, message = queries.get_team(name)
-        print(data)
+        if not data:
+            error_messages = [message]
     except Exception as e:
         print(e)
         error_messages = ["Erro ao adicionar nova jogador"]
