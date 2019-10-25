@@ -160,6 +160,8 @@ def add_player(request):
 
 
 ######################### Get #########################
+
+
 def teams(request):
     html_page = 'teams.html'
     error_messages = []
