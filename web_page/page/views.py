@@ -179,9 +179,9 @@ def teams(request):
 
 
 def team(request, name):
-    html_page = 'teams.html'
+    html_page = 'team.html'
     error_messages = []
-    data = []
+    data = {}
 
     try:
         data, message = queries.get_team(name)

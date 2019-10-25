@@ -209,7 +209,11 @@ def get_team(name):
 
         result['players'] = []
         for p in Player.objects.filter(team__name=name):
-            result['players'].append(PlayerMinimalSerializer(p).data)
+            p_info = PlayerMinimalSerializer(p).data
+            p_info.update({
+                'position': p.position.name
+            })
+            result['players'].append(p_info)
     except Team.DoesNotExist:
         return None, "Equipa não existe!"
     except Exception as e:

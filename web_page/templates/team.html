@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block title %}Equipa{% endblock %}
+{% block title_on_page %}Equipa{% endblock %}
+
+{% load static %}
+
+{% block content %}
+    <div class="site-section">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12 text-center mb-5">
+                    <h2 class="text-black">{{ data.name }}</h2>
+                </div>
+            </div>
+
+            <div class="row">
+                {% for p in data.players %}
+                    <div class="mb-4 mb-lg-0 col-6 col-md-4 col-lg-2 text-center">
+                        <div class="player mb-5">
+                            <a class="team-number" href="/player/{{ p.id }}"><i class="fa fa-plus"></i></a>
+                            <img src="{% if p.photo %}
+                                    data:image/png;base64,{{ p.photo }}
+                                {% else %}
+                                    https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcSQPhx6rvxuYnvhCCg-T3VIGRY9oJT_SL248Dr3We47EjmaxF0r
+                                {% endif %}" alt="Image" class="img-fluid image rounded-circle">
+                            <h2>{{ p.name }}</h2>
+                            <span class="position">{{ p.position }}</span>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+
+        </div>
+    </div>
+{% endblock content %}
