@@ -258,7 +258,6 @@ def team(request, name):
     return create_response(request, html_page, data=data, error_messages=error_messages)
 
 
-
 def player(request, id):
     html_page = 'player.html'
     error_messages = []
@@ -271,5 +270,22 @@ def player(request, id):
     except Exception as e:
         print(e)
         error_messages = ["Erro ao adicionar nova jogador"]
+
+    return create_response(request, html_page, data=data, error_messages=error_messages)
+
+
+def games(request):
+    html_page = 'games.html'
+    error_messages = []
+    data = []
+
+    try:
+        data, message = queries.get_games()
+        if not data:
+            error_messages = [message]
+        print(data)
+    except Exception as e:
+        print(e)
+        error_messages = ["Erro a obter todos os jogos"]
 
     return create_response(request, html_page, data=data, error_messages=error_messages)

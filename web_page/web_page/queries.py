@@ -60,6 +60,7 @@ def add_game(data):
     try:
         # verify ball possession percentage
         if sum(data['ball_possessions']) != 100:
+            transaction.rollback()
             return False, "A soma das posses de bola das duas equipas deve ser igual a 100!"
 
         new_game = Game.objects.create(
@@ -73,20 +74,25 @@ def add_game(data):
             team_model = Team.objects.get(name=data['teams'][i])
 
             # verify if these teams already have had at least one game on that day
-            if Game.objects.filter(Q(date=data['date']) & Q(team=team_model)).exists():
+            if Game.objects.filter(Q(date=data['date']) & Q(gamestatus__team=team_model)).exists():
+                transaction.rollback()
                 return False, f"A equipa {data['teams'][i]} já jogou no referido dia!"
-            if Game.objects.filter(Q(journey=data['journey']) & Q(team=team_model)):
+            if Game.objects.filter(Q(journey=data['journey']) & Q(gamestatus__team=team_model)):
+                transaction.rollback()
                 return False, f"A equipa {data['teams'][i]} já jogou na referida jornada!"
 
             players_per_team = get_players_per_team(team_model.name)
 
             if len(players_per_team) < 14:
+                transaction.rollback()
                 return False, f"A equipa {data['teams'][i]} não tem jogadores suficientes inscritos (minimo 14) !"
 
-            goal_kepper_number = len(players_per_team.filter(position=Position.objects.get(id=1)))
+            goal_keeper_number = len(players_per_team.filter(position=Position.objects.get(id=1)))
 
-            if goal_kepper_number < 1:
-                return False, f"A equipa {data['teams'][i]} não tem o numero pelo menos 1 guarda-redes !"
+            if goal_keeper_number < 1:
+                transaction.rollback()
+                return False, f"A equipa {data['teams'][i]} não tem o numero pelo menos 1 guarda-redes!"
+
             GameStatus.objects.create(
                 game=new_game,
                 team=team_model,
@@ -104,8 +110,8 @@ def add_game(data):
         transaction.rollback()
         return False, "Estádio enexistente!"
     except Exception as e:
-        transaction.rollback()
         print(e)
+        transaction.rollback()
         return False, "Erro na base de dados a adicionar o novo jogo!"
 
 
@@ -224,7 +230,7 @@ def get_team(name):
         print(e)
         return None, "Erro na base de dados a obter a equipa!"
 
-    return result, "Success"
+    return result, "Sucesso"
 
 
 def get_player(id):
@@ -239,5 +245,31 @@ def get_player(id):
     except Exception as e:
         print(e)
         return None, "Erro na base de dados a obter o jogador!"
+
+    return result, "Sucesso"
+
+
+def get_games():
+    result = []
+
+    try:
+        for g in Game.objects.all():
+            current_game = GameMinimalSerializer(g).data
+            current_game['stadium'] = g.stadium.name
+            current_game['stadium_picture'] = g.stadium.picture
+
+            current_game['teams'] = []
+            for stat in GameStatus.objects.filter(game=g):
+                current_info = {
+                    'name': stat.team.name,
+                    'logo': stat.team.logo
+                }
+                current_info.update(GameStatusSerializer(stat).data)
+                current_game['teams'].append(current_info)
+
+            result.append(current_game)
+    except Exception as e:
+        print(e)
+        return None, "Erro na base de dados a obter todos os jogos!"
 
     return result, "Sucesso"
