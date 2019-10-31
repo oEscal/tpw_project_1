@@ -49,6 +49,9 @@ class GameStatus(models.Model):
     corners = models.IntegerField(validators=[
         MinValueValidator(0)
     ])
+    goals = models.IntegerField(validators=[
+        MinValueValidator(0)
+    ])
 
 
 class Position(models.Model):

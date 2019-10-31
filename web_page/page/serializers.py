@@ -60,6 +60,9 @@ class GameStatusSerializer(serializers.Serializer):
     corners = serializers.IntegerField(required=True, validators=[
         MinValueValidator(0)
     ])
+    goals = serializers.IntegerField(required=True, validators=[
+        MinValueValidator(0)
+    ])
 
 
 class GameMinimalSerializer(serializers.Serializer):

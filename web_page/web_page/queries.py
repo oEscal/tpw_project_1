@@ -255,9 +255,17 @@ def get_games():
     try:
         for g in Game.objects.all():
             current_game = GameMinimalSerializer(g).data
+            current_game['stadium'] = g.stadium.name
+            current_game['stadium_picture'] = g.stadium.picture
 
+            current_game['teams'] = []
             for stat in GameStatus.objects.filter(game=g):
-                current_game[stat.team.name] = GameStatusSerializer(stat).data
+                current_info = {
+                    'name': stat.team.name,
+                    'logo': stat.team.logo
+                }
+                current_info.update(GameStatusSerializer(stat).data)
+                current_game['teams'].append(current_info)
 
             result.append(current_game)
     except Exception as e:

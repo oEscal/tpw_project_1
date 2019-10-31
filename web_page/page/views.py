@@ -275,7 +275,7 @@ def player(request, id):
 
 
 def games(request):
-    html_page = 'player.html'
+    html_page = 'games.html'
     error_messages = []
     data = []
 
