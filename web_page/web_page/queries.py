@@ -254,29 +254,12 @@ def get_games():
 
     try:
         for g in Game.objects.all():
-            teams = g.teams.all()
-            current_game = {
-                'date': g.date,
-                'journey': g.journey,
-                'stadium': g.stadium.name,
-            }
+            current_game = GameMinimalSerializer(g).data
 
-            current_game['teams'] = []
-            current_game['shots'] = []
-            current_game['ball_possession'] = []
-            current_game['corners'] = []
+            for stat in GameStatus.objects.filter(game=g):
+                current_game[stat.team.name] = GameStatusSerializer(stat).data
 
-            print("ola")
-            print(GameStatus.objects.filter(game=g)[0])
-            print(GameStatusSerializer(GameStatus.objects.filter(game=g)[0]).data)
-            # for t in teams:
-            #    current_game['teams'].append(t.name)
-            #    current_game['shots'].append(GameStatus)
-            #    current_game['teams'].append(t.name)
-            #    current_game['teams'].append(t.name)
-        print(result)
-
-
+            result.append(current_game)
     except Exception as e:
         print(e)
         return None, "Erro na base de dados a obter todos os jogos!"

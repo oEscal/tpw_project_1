@@ -62,7 +62,17 @@ class GameStatusSerializer(serializers.Serializer):
     ])
 
 
+class GameMinimalSerializer(serializers.Serializer):
+    date = serializers.DateField(required=True)
+    journey = serializers.IntegerField(required=True, validators=[
+        MaxValueValidator(MAX_JOURNEY),
+        MinValueValidator(MIN_JOURNEY)
+    ])
+    stadium = serializers.CharField(required=True, max_length=200)
+
+
 class GameSerializer(serializers.Serializer):
+    # TODO -> EXTENDER DO GameSerializer
     date = serializers.DateField(required=True)
     journey = serializers.IntegerField(required=True, validators=[
         MaxValueValidator(MAX_JOURNEY),
