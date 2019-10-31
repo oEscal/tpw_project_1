@@ -54,62 +54,64 @@ def add_team(data):
         return False, "Erro na base de dados a adicionar a nova equipa!"
 
 
-@transaction.atomic()
 def add_game(data):
-    try:
-            # verify ball possession percentage
-            if sum(data['ball_possessions']) != 100:
-                return False, "A soma das posses de bola das duas equipas deve ser igual a 100!"
+    transaction.set_autocommit(False)
 
-            new_game = Game.objects.create(
-                id=next_id(Game),
-                date=data['date'],
-                journey=data['journey'],
-                stadium=Stadium.objects.get(name=data['stadium']),
+    try:
+        # verify ball possession percentage
+        if sum(data['ball_possessions']) != 100:
+            transaction.rollback()
+            return False, "A soma das posses de bola das duas equipas deve ser igual a 100!"
+
+        new_game = Game.objects.create(
+            id=next_id(Game),
+            date=data['date'],
+            journey=data['journey'],
+            stadium=Stadium.objects.get(name=data['stadium']),
+        )
+
+        for i in range(len(data['teams'])):
+            team_model = Team.objects.get(name=data['teams'][i])
+
+            # verify if these teams already have had at least one game on that day
+            if Game.objects.filter(Q(date=data['date']) & Q(gamestatus__team=team_model)).exists():
+                transaction.rollback()
+                return False, f"A equipa {data['teams'][i]} já jogou no referido dia!"
+            if Game.objects.filter(Q(journey=data['journey']) & Q(gamestatus__team=team_model)):
+                transaction.rollback()
+                return False, f"A equipa {data['teams'][i]} já jogou na referida jornada!"
+
+            players_per_team = get_players_per_team(team_model.name)
+
+            if len(players_per_team) < 14:
+                transaction.rollback()
+                return False, f"A equipa {data['teams'][i]} não tem jogadores suficientes inscritos (minimo 14) !"
+
+            goal_keeper_number = len(players_per_team.filter(position=Position.objects.get(id=1)))
+
+            if goal_keeper_number < 1:
+                transaction.rollback()
+                return False, f"A equipa {data['teams'][i]} não tem o numero pelo menos 1 guarda-redes!"
+
+            GameStatus.objects.create(
+                game=new_game,
+                team=team_model,
+                shots=data['shots'][i],
+                ball_possession=data['ball_possessions'][i],
+                corners=data['corners'][i]
             )
 
-            for i in range(len(data['teams'])):
-                team_model = Team.objects.get(name=data['teams'][i])
-
-                # verify if these teams already have had at least one game on that day
-                if Game.objects.filter(Q(date=data['date']) & Q(gamestatus__team=team_model)).exists():
-                    return False, f"A equipa {data['teams'][i]} já jogou no referido dia!"
-                if Game.objects.filter(Q(journey=data['journey']) & Q(gamestatus__team=team_model)):
-                    return False, f"A equipa {data['teams'][i]} já jogou na referida jornada!"
-
-                players_per_team = get_players_per_team(team_model.name)
-
-                if len(players_per_team) < 14:
-                    return False, f"A equipa {data['teams'][i]} não tem jogadores suficientes inscritos (minimo 14) !"
-
-                goal_kepper_number = len(players_per_team.filter(position=Position.objects.get(id=1)))
-
-                if goal_kepper_number < 1:
-                    return False, f"A equipa {data['teams'][i]} não tem o numero pelo menos 1 guarda-redes !"
-
-                game_status = GameStatus()
-                game_status.game = new_game
-                game_status.team = team_model
-                game_status.shots = data['shots'][i]
-                game_status.ball_possession = data['ball_possessions'][i]
-                game_status.corners = data['corners'][i]
-                game_status.save()
-
-                # GameStatus.objects.create(
-                #     game=new_game,
-                #     team=team_model,
-                #     shots=data['shots'][i],
-                #     ball_possession=data['ball_possessions'][i],
-                #     corners=data['corners'][i]
-                # )
-
-            return True, "Jogo adicionado com sucesso"
+        transaction.set_autocommit(True)
+        return True, "Jogo adicionado com sucesso"
     except Team.DoesNotExist:
+        transaction.rollback()
         return False, "Pelo menos uma das equipas não existe!"
     except Stadium.DoesNotExist:
+        transaction.rollback()
         return False, "Estádio enexistente!"
     except Exception as e:
         print(e)
+        transaction.rollback()
         return False, "Erro na base de dados a adicionar o novo jogo!"
 
 
@@ -267,7 +269,7 @@ def get_games():
             print("ola")
             print(GameStatus.objects.filter(game=g)[0])
             print(GameStatusSerializer(GameStatus.objects.filter(game=g)[0]).data)
-            #for t in teams:
+            # for t in teams:
             #    current_game['teams'].append(t.name)
             #    current_game['shots'].append(GameStatus)
             #    current_game['teams'].append(t.name)
