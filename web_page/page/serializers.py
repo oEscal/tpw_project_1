@@ -49,6 +49,19 @@ class GamePlayerEventSerializer(serializers.Serializer):
     minute = serializers.IntegerField(required=True, validators=[MinValueValidator(0)])
 
 
+class GameStatusSerializer(serializers.Serializer):
+    shots = serializers.IntegerField(required=True, validators=[
+        MinValueValidator(0)
+    ])
+    ball_possession = serializers.IntegerField(required=True, validators=[
+        MaxValueValidator(100),
+        MinValueValidator(0)
+    ])
+    corners = serializers.IntegerField(required=True, validators=[
+        MinValueValidator(0)
+    ])
+
+
 class GameSerializer(serializers.Serializer):
     date = serializers.DateField(required=True)
     journey = serializers.IntegerField(required=True, validators=[

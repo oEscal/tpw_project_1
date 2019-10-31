@@ -33,7 +33,7 @@ class Game(models.Model):
         MinValueValidator(MIN_JOURNEY)
     ])
     stadium = models.ForeignKey(Stadium, on_delete=models.CASCADE)
-    team = models.ManyToManyField(Team, through='GameStatus')
+    teams = models.ManyToManyField(Team, through='GameStatus')
 
 
 class GameStatus(models.Model):
