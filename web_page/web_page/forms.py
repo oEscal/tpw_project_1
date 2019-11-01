@@ -154,3 +154,20 @@ class Game(forms.Form):
             data = game["data"]
             for field_name, field in self.fields.items():
                 field.initial = data[field_name]
+
+
+class Event(forms.Form):
+    teams = forms.ChoiceField(label="Equipa", help_text="Escolha a equipa", required=True)
+    players = forms.ChoiceField(label="Jogador", help_text="Escolha o jogador", required=True)
+    kind_event = forms.ChoiceField(label="Tipo de evento", help_text="Escolha o tipo de evento", required=True)
+    minute = forms.IntegerField(label="Minuto do evento", help_text="Escolha o minuto do evento",
+                                min_value=0, required=True)
+
+    def __init__(self, event=None, game_id=None, *args, **kwargs):
+        super(forms.Form, self).__init__(*args, **kwargs)
+
+        get_info_for_add_event(game_id)
+
+        for field_name, field in self.fields.items():
+            field.widget.attrs['class'] = 'form-control'
+            field.widget.attrs['placeholder'] = field.help_text

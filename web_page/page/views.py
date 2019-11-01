@@ -223,6 +223,44 @@ def add_game(request):
                            success_messages=success_messages)
 
 
+def add_event(request, id):
+    html_page = 'add_event.html'
+    error_messages = []
+    success_messages = []
+    form = forms.Event(None, id)
+
+    if not verify_if_admin(request.user):
+        error_messages = ["Login inválido!"]
+        return redirect('login')
+    else:
+        try:
+            if request.POST:
+                form = forms.Event(None, id, request.POST)
+
+                if form.is_valid():
+
+                    game_serializer = Event(data=reformat_game_data(form.cleaned_data))
+
+                    if not game_serializer.is_valid():
+                        error_messages = ["Campos inválidos!"]
+                    else:
+                        add_status, message = queries.add_game(data=game_serializer.data)
+
+                        if add_status:
+                            success_messages = [message]
+                        else:
+                            error_messages = [message]
+                else:
+                    error_messages = ["Corrija os erros abaixo referidos!"]
+
+        except Exception as e:
+            print(e)
+            error_messages = ["Erro ao adicionar novo evento!"]
+
+    return create_response(request, html_page, data=form, error_messages=error_messages,
+                           success_messages=success_messages)
+
+
 ######################### Get #########################
 
 
