@@ -126,25 +126,31 @@ class PlayersToGame(forms.Form):
 
 
 class Game(forms.Form):
-    date = forms.DateField(label="Data do jogo", help_text="Insira a data do jogo", required=True, widget=DateInput())
-    journey = forms.IntegerField(label="Jornada do Jogo", help_text="Insira a jornada do jogo", required=True)
+    date = forms.DateField(label="Data do jogo", help_text="Insira a data do jogo",
+                           required=True, widget=DateInput())
+    journey = forms.IntegerField(label="Jornada do Jogo", help_text="Insira a jornada do jogo",
+                                 min_value=0, required=True)
     stadium = forms.ChoiceField(label="Estádio do jogo", help_text="Insira o estádio do jogo", required=True)
 
     home_team = forms.ChoiceField(label="Equipa local", help_text="Insira a equipa local", required=True)
     away_team = forms.ChoiceField(label="Equipa visitante", help_text="Insira a equipa visitante", required=True)
 
+    home_goals = forms.IntegerField(label="Golos da equipa local", help_text="Insira os golos da equipa local",
+                                    min_value=0, required=True)
+    away_goals = forms.IntegerField(label="Golos da equipa visitante", help_text="Insira os golos da equipa visitante",
+                                    min_value=0, required=True)
     home_shots = forms.IntegerField(label="Remates da equipa local", help_text="Insira os remates da equipa local",
-                                    required=True)
+                                    min_value=0, required=True)
     away_shots = forms.IntegerField(label="Remates da equipa visitante",
-                                    help_text="Insira os remates da equipa visitanten", required=True)
+                                    help_text="Insira os remates da equipa visitante", min_value=0, required=True)
     home_ball_pos = forms.IntegerField(label="Posse de bola da equipa local",
-                                       help_text="Insira a posse de bola da equipa local", required=True)
+                                       help_text="Insira a posse de bola da equipa local", min_value=0, required=True)
     away_ball_pos = forms.IntegerField(label="Posse de bola da equipa visitante",
-                                       help_text="Insira a posse de bola da equipa visitante", required=True)
+                                       help_text="Insira a posse de bola da equipa visitante", min_value=0, required=True)
     home_corners = forms.IntegerField(label="Cantos da equipa local", help_text="Insira os cantos da equipa local",
-                                      required=True)
+                                      min_value=0, required=True)
     away_corners = forms.IntegerField(label="Cantos da equipa visitante",
-                                      help_text="Insira os cantos da equipa visitante", required=True)
+                                      help_text="Insira os cantos da equipa visitante", min_value=0, required=True)
 
     def __init__(self, game=None, *args, **kwargs):
         super(forms.Form, self).__init__(*args, **kwargs)

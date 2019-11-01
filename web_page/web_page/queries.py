@@ -99,6 +99,7 @@ def add_game(data):
             GameStatus.objects.create(
                 game=new_game,
                 team=team_model,
+                goals=data['goals'][i],
                 shots=data['shots'][i],
                 ball_possession=data['ball_possessions'][i],
                 corners=data['corners'][i]

@@ -170,6 +170,7 @@ def add_players_game(request, id):
 
     if not verify_if_admin(request.user):
         error_messages = ["Login inválido!"]
+        return redirect('login')
     else:
         try:
             if request.POST:
@@ -236,6 +237,10 @@ def reformat_game_data(data):
         'teams': [
             data['home_team'],
             data['away_team']
+        ],
+        'goals': [
+            data['home_goals'],
+            data['away_goals']
         ],
         'shots': [
             data['home_shots'],

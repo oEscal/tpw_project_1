@@ -83,6 +83,8 @@ class GameSerializer(serializers.Serializer):
     ])
     stadium = serializers.CharField(required=True, max_length=200)
     teams = serializers.ListField(required=True, min_length=2, max_length=2, child=serializers.CharField(max_length=200))
+    goals = serializers.ListField(required=True, min_length=2, max_length=2,
+                                  child=serializers.IntegerField(validators=[MinValueValidator(0)]))
     shots = serializers.ListField(required=True, min_length=2, max_length=2,
                                   child=serializers.IntegerField(validators=[MinValueValidator(0)]))
     ball_possessions = serializers.ListField(required=True, min_length=2, max_length=2,
