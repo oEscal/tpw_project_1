@@ -296,7 +296,6 @@ def team(request, name):
     return create_response(request, html_page, data=data, error_messages=error_messages)
 
 
-
 def player(request, id):
     html_page = 'player.html'
     error_messages = []

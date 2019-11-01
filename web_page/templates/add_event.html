@@ -43,15 +43,19 @@
                                     </div>
                                 </div>
                                 <div class="col-md-6 ">
-                                    <label for="c_fname" class="text-black">{{ data.players.label_tag }}
+                                    <label for="c_fname" class="text-black">{{ data.players1.label_tag }}
                                         <span
                                                 class="text-danger">*</span>
                                     </label>
                                     <div class="input-sm">
-                                        {{ data.players }}
+                                        {{ data.players1 }}
+                                        {{ data.players2 }}
                                     </div>
                                     <div class="text-danger">
-                                        {% for e in data.players.errors %}
+                                        {% for e in data.players1.errors %}
+                                            {{ e }}
+                                        {% endfor %}
+                                        {% for e in data.players2.errors %}
                                             {{ e }}
                                         {% endfor %}
                                     </div>
@@ -96,3 +100,19 @@
         </div>
     </div>
 {% endblock content %}
+
+{% block script %}
+    <script>
+        $(document).ready(function() {
+            $("." + $("#id_teams option:selected").text()).show(1000);
+
+            $("#id_teams").change(function() {
+                $("#id_teams option").each(function() {
+                    $("." + $(this).text()).hide(1000);
+                });
+
+                $("." + $("#id_teams option:selected").text()).show(1000);
+            });
+        });
+    </script>
+{% endblock script %}
