@@ -1,0 +1,194 @@
+{% extends 'base.html' %}
+{% block title %}Jogos{% endblock %}
+{% block title_on_page %}Jogos{% endblock %}
+
+{% load static %}
+
+{% block content %}
+    <div class="site-section site-blocks-vs">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    {{ data }}
+
+                    <!-- More Info -->
+                    {% for g in data %}
+                        <div class="bg-image overlay-success rounded mb-5"
+                             style="background-image: url({% static 'images/hero_bg_1.jpg' %});"
+                             data-stellar-background-ratio="0.5">
+
+                            <div class="row align-items-center">
+
+                                <!-- Teams and result -->
+                                <div class="col-md-12 col-lg-4 mb-4 mb-lg-0">
+                                    <div class="text-center text-lg-left">
+                                        <div class="d-block d-lg-flex align-items-center">
+                                            <div class="image mx-auto mb-3 mb-lg-0 mr-lg-3">
+                                                <img src="{% if data.teams.0.logo %}
+                                                        data:image/png;base64,{{ data.teams.0.logo }}
+                                                        {% else %}
+                                                        https://domingoasdez.com/images/default-emblem.png
+                                                        {% endif %}" alt="Image" class="img-fluid">
+                                            </div>
+                                            <div class="text">
+                                                <h3 class="h5 mb-0 text-black">{{ g.teams.0.name }}</h3>
+                                                <span class="text-uppercase small country text-black">Casa</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <div class="col-md-12 col-lg-4 text-center mb-4 mb-lg-0">
+                                    <div class="d-inline-block">
+                                        <h4 class="mb-2"><small class="text-uppercase text-black font-weight-bold">Primeira
+                                            Liga
+                                            &mdash; {{ g.journey }}ª jornada</small></h4>
+                                        <div class="bg-black py-2 px-4 mb-2 text-white d-inline-block rounded"><span
+                                                class="h3">{{ g.teams.0.goals }}:{{ g.teams.1.goals }}</span>
+                                        </div>
+                                        <p class="mb-0"><small class="text-uppercase text-black font-weight-bold">10
+                                            {{ g.date }}</small></p>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-12 col-lg-4 text-center text-lg-right">
+                                    <div class="">
+                                        <div class="d-block d-lg-flex align-items-center">
+                                            <div class="image mx-auto ml-lg-3 mb-3 mb-lg-0 order-2">
+                                                <img src="{% if data.teams.1.logo %}
+                                                        data:image/png;base64,{{ data.teams.1.logo }}
+                                                        {% else %}
+                                                        https://domingoasdez.com/images/default-emblem.png
+                                                        {% endif %}" alt="Image" class="img-fluid">
+                                            </div>
+                                            <div class="text order-1">
+                                                <h3 class="h5 mb-0 text-black">{{ g.teams.1.name }}</h3>
+                                                <span class="text-uppercase small country text-black">Fora</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Stadium -->
+                                <div class="offset-lg-4 col-md-12 col-lg-4 text-center mb-4 mb-lg-0">
+                                    <br>
+                                    <div class="d-inline-block">
+                                        <h4 class="mb-2"><small class="text-uppercase text-black font-weight-bold">
+                                            {{ g.stadium }}</small></h4>
+                                        <div class="mx-auto col-4">
+                                            <img src="{% if data.stadium_picture %}
+                                                        data:image/png;base64,{{ data.stadium_picture }}
+                                                        {% endif %}" alt="" class="img-fluid">
+                                        </div>
+                                    </div>
+                                    <br>
+                                    <br>
+                                    <br>
+                                    <br>
+                                    <br>
+                                </div>
+                                <div class="col-md-12 col-lg-4 mb-4 mb-lg-0">
+                                </div>
+
+                                <!-- Game Status -->
+                                <div class="offset-lg-4 col-md-12 col-lg-4 text-center mb-4 mb-lg-0">
+                                    <div class="d-inline-block">
+                                        <h2 class="mb-2"><small class="text-uppercase text-black font-weight-bold">
+                                            Estatisticas do jogo</small></h2>
+                                    </div>
+                                </div>
+                                <div class="col-md-12 col-lg-4 mb-4 mb-lg-0">
+                                </div>
+
+                                <div class="col-md-12 col-lg-4 mb-4 mb-lg-0">
+                                    <div class="text-center text-lg-left">
+                                        <div class="text order-1 pull-right">
+                                            <h2 class="h2 mb-0 text-black">{{ g.teams.0.shots }}</h2>
+                                            <h2 class="h2 mb-0 text-black">{{ g.teams.0.ball_possession }} %</h2>
+                                            <h2 class="h2 mb-0 text-black">{{ g.teams.0.corners }}</h2>
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <div class="col-md-12 col-lg-4 text-center mb-4 mb-lg-0">
+                                    <div class="d-inline-block">
+                                        <h4 class="mb-2"><small class="text-uppercase text-black font-weight-bold">
+                                            Remates</small></h4>
+                                        <h4 class="mb-2"><small class="text-uppercase text-black font-weight-bold">
+                                            Posse de bola</small></h4>
+                                        <h4 class="mb-2"><small class="text-uppercase text-black font-weight-bold">
+                                            Cantos</small></h4>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-12 col-lg-4 text-center text-lg-right">
+                                    <div class="text-center text-lg-right">
+                                        <div class="text order-1 pull-left">
+                                            <h2 class="h2 mb-0 text-black">{{ g.teams.1.shots }}</h2>
+                                            <h2 class="h2 mb-0 text-black">{{ g.teams.1.ball_possession }} %</h2>
+                                            <h2 class="h2 mb-0 text-black">{{ g.teams.1.corners }}</h2>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+
+            <div class="row align-items-center mb-5">
+                <div class="col-md-12">
+                    {% for g in data %}
+                        <div class="row bg-white align-items-center ml-0 mr-0 py-4 match-entry">
+                            <div class="col-md-4 col-lg-4 mb-4 mb-lg-0">
+
+                                <div class="text-center text-lg-left">
+                                    <div class="d-block d-lg-flex align-items-center">
+                                        <div class="image image-small text-center mb-3 mb-lg-0 mr-lg-3">
+                                            <img src="{% if data.teams.0.logo %}
+                                                        data:image/png;base64,{{ data.teams.0.logo }}
+                                                        {% else %}
+                                                        https://domingoasdez.com/images/default-emblem.png
+                                                        {% endif %}" alt="Image" class="img-fluid">
+                                        </div>
+                                        <div class="text">
+                                            <h3 class="h5 mb-0 text-black">{{ g.teams.0.name }}</h3>
+                                            <span class="text-uppercase small country">Casa</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div class="col-md-4 col-lg-4 text-center mb-4 mb-lg-0">
+                                <div class="d-inline-block">
+                                    <div class="bg-black py-2 px-4 mb-2 text-white d-inline-block rounded"><span
+                                            class="h5">{{ g.teams.0.goals }}:{{ g.teams.1.goals }}</span></div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-4 col-lg-4 text-center text-lg-right">
+                                <div class="">
+                                    <div class="d-block d-lg-flex align-items-center">
+                                        <div class="image image-small ml-lg-3 mb-3 mb-lg-0 order-2">
+                                            <img src="{% if data.teams.1.logo %}
+                                                        data:image/png;base64,{{ data.teams.1.logo }}
+                                                        {% else %}
+                                                        https://domingoasdez.com/images/default-emblem.png
+                                                        {% endif %}" alt="Image" class="img-fluid">
+                                        </div>
+                                        <div class="text order-1 w-100">
+                                            <h3 class="h5 mb-0 text-black">{{ g.teams.1.name }}</h3>
+                                            <span class="text-uppercase small country">Fora</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}

@@ -33,7 +33,7 @@ class Game(models.Model):
         MinValueValidator(MIN_JOURNEY)
     ])
     stadium = models.ForeignKey(Stadium, on_delete=models.CASCADE)
-    team = models.ManyToManyField(Team, through='GameStatus')
+    teams = models.ManyToManyField(Team, through='GameStatus')
 
 
 class GameStatus(models.Model):
@@ -47,6 +47,9 @@ class GameStatus(models.Model):
         MinValueValidator(0)
     ])
     corners = models.IntegerField(validators=[
+        MinValueValidator(0)
+    ])
+    goals = models.IntegerField(validators=[
         MinValueValidator(0)
     ])
 
@@ -76,6 +79,7 @@ class Event(models.Model):
     minute = models.IntegerField(validators=[
         MinValueValidator(0)
     ])
+    kind_event = models.ForeignKey(KindEvent, on_delete=models.CASCADE)
 
 
 class PlayerPlayGame(models.Model):

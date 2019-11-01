@@ -28,13 +28,19 @@ class TeamSerializer(serializers.Serializer):
     stadium = serializers.CharField(required=True, max_length=200)
 
 
+class PlayerMinimalSerializer(serializers.Serializer):
+    id = serializers.IntegerField(required=True)
+    name = serializers.CharField(required=True, max_length=200)
+    photo = serializers.ImageField(required=False, allow_null=True)
+
+
 class PlayerSerializer(serializers.Serializer):
     name = serializers.CharField(required=True, max_length=200)
     birth_date = serializers.DateField(required=False, allow_null=True)
     photo = serializers.ImageField(required=False, allow_null=True)
     nick = serializers.CharField(required=False, allow_null=True, max_length=200)
-    position_name = serializers.CharField(required=True, max_length=200)
-    team_name = serializers.CharField(required=True, max_length=200)
+    position = serializers.CharField(required=True, max_length=200)
+    team = serializers.CharField(required=True, max_length=200)
 
 
 class GamePlayerEventSerializer(serializers.Serializer):
@@ -43,7 +49,33 @@ class GamePlayerEventSerializer(serializers.Serializer):
     minute = serializers.IntegerField(required=True, validators=[MinValueValidator(0)])
 
 
+class GameStatusSerializer(serializers.Serializer):
+    shots = serializers.IntegerField(required=True, validators=[
+        MinValueValidator(0)
+    ])
+    ball_possession = serializers.IntegerField(required=True, validators=[
+        MaxValueValidator(100),
+        MinValueValidator(0)
+    ])
+    corners = serializers.IntegerField(required=True, validators=[
+        MinValueValidator(0)
+    ])
+    goals = serializers.IntegerField(required=True, validators=[
+        MinValueValidator(0)
+    ])
+
+
+class GameMinimalSerializer(serializers.Serializer):
+    date = serializers.DateField(required=True)
+    journey = serializers.IntegerField(required=True, validators=[
+        MaxValueValidator(MAX_JOURNEY),
+        MinValueValidator(MIN_JOURNEY)
+    ])
+    stadium = serializers.CharField(required=True, max_length=200)
+
+
 class GameSerializer(serializers.Serializer):
+    # TODO -> EXTENDER DO GameSerializer
     date = serializers.DateField(required=True)
     journey = serializers.IntegerField(required=True, validators=[
         MaxValueValidator(MAX_JOURNEY),

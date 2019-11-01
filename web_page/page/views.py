@@ -1,7 +1,7 @@
 import base64
 
 from django.contrib.auth.models import User
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 
 # Create your views here.
 from page.serializers import *
@@ -54,6 +54,7 @@ def add_stadium(request):
 
     if not verify_if_admin(request.user):
         error_messages = ["Login inválido!"]
+        return redirect('login')
     else:
         try:
             if request.POST:
@@ -90,6 +91,7 @@ def add_team(request):
 
     if not verify_if_admin(request.user):
         error_messages = ["Login invalido!"]
+        return redirect('login')
     else:
         try:
             if request.POST:
@@ -129,6 +131,7 @@ def add_player(request):
 
     if not verify_if_admin(request.user):
         error_messages = ["Login inválido!"]
+        return redirect('login')
     else:
         try:
             if request.POST:
@@ -225,23 +228,133 @@ def add_players_game(request, id):
                            success_messages=success_messages)
 
 
+def reformat_game_data(data):
+    new_data = {
+        'date': data['date'],
+        'journey': data['journey'],
+        'stadium': data['stadium'],
+        'teams': [
+            data['home_team'],
+            data['away_team']
+        ],
+        'shots': [
+            data['home_shots'],
+            data['away_shots']
+        ],
+        'ball_possessions': [
+            data['home_ball_pos'],
+            data['away_ball_pos']
+        ],
+        'corners': [
+            data['home_corners'],
+            data['away_corners']
+        ]
+    }
+
+    return new_data
+
+
+def add_game(request):
+    html_page = 'add_game.html'
+    error_messages = []
+    success_messages = []
+    form = forms.Game()
+
+    if not verify_if_admin(request.user):
+        error_messages = ["Login inválido!"]
+        return redirect('login')
+    else:
+        try:
+            if request.POST:
+                form = forms.Game(None, request.POST)
+
+                if form.is_valid():
+
+                    game_serializer = GameSerializer(data=reformat_game_data(form.cleaned_data))
+
+                    if not game_serializer.is_valid():
+                        error_messages = ["Campos inválidos!"]
+                    else:
+                        add_status, message = queries.add_game(data=game_serializer.data)
+
+                        if add_status:
+                            success_messages = [message]
+                        else:
+                            error_messages = [message]
+                else:
+                    error_messages = ["Corrija os erros abaixo referidos"]
+
+        except Exception as e:
+            print(e)
+            error_messages = ["Erro ao adicionar novo jogo"]
+
+    return create_response(request, html_page, data=form, error_messages=error_messages,
+                           success_messages=success_messages)
+
+
 ######################### Get #########################
+
+
 def teams(request):
     html_page = 'teams.html'
     error_messages = []
     data = []
 
-    if not verify_if_admin(request.user):
-        error_messages = ["Login inválido!"]
-    else:
-        try:
-            data, message = queries.get_teams()
-            if not data:
-                error_messages = [message]
-
-        except Exception as e:
-            print(e)
-            error_messages = ["Erro ao adicionar nova jogador"]
+    try:
+        data, message = queries.get_teams()
+        if not data:
+            error_messages = [message]
+    except Exception as e:
+        print(e)
+        error_messages = ["Erro ao adicionar nova jogador"]
 
     return create_response(request, html_page, data=data, error_messages=error_messages)
 
+
+def team(request, name):
+    html_page = 'team.html'
+    error_messages = []
+    data = {}
+
+    try:
+        data, message = queries.get_team(name)
+        if not data:
+            error_messages = [message]
+    except Exception as e:
+        print(e)
+        error_messages = ["Erro ao adicionar nova jogador"]
+
+    return create_response(request, html_page, data=data, error_messages=error_messages)
+
+
+def player(request, id):
+    html_page = 'player.html'
+    error_messages = []
+    data = []
+
+    try:
+        data, message = queries.get_player(id)
+        if not data:
+            error_messages = [message]
+    except Exception as e:
+        print(e)
+        error_messages = ["Erro ao adicionar nova jogador"]
+
+    return create_response(request, html_page, data=data, error_messages=error_messages)
+
+
+def games(request):
+    html_page = 'games.html'
+    error_messages = []
+    data = []
+
+    try:
+        data, message = queries.get_games()
+        if not data:
+            error_messages = [message]
+        print(data)
+    except Exception as e:
+        print(e)
+        error_messages = ["Erro a obter todos os jogos"]
+
+    return create_response(request, html_page, data=data, error_messages=error_messages)
