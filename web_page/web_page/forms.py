@@ -166,7 +166,24 @@ class Event(forms.Form):
     def __init__(self, event=None, game_id=None, *args, **kwargs):
         super(forms.Form, self).__init__(*args, **kwargs)
 
-        get_info_for_add_event(game_id)
+        # fill form
+        fill_form = get_info_for_add_event(game_id)
+
+        teams_field = self.fields['teams']
+        players_field = self.fields['players']
+        events_field = self.fields['kind_event']
+
+        teams_field.choices = [("-", teams_field.help_text)]
+        players_field.choices = [("-", players_field.help_text)]
+        events_field.choices = [("-", events_field.help_text)]
+
+        for team in fill_form['teams']:
+            teams_field.choices.append((team, team))
+            for player in fill_form['teams'][team]:
+                players_field.choices.append((player['id'], player['name']))
+
+        for event in fill_form['events']:
+            events_field.choices.append((event, event))
 
         for field_name, field in self.fields.items():
             field.widget.attrs['class'] = 'form-control'
