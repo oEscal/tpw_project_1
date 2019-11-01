@@ -24,4 +24,18 @@ def get_all_teams():
 
 
 def get_info_for_add_event(game_id):
-    print(PlayerPlayGame.objects.filter(game_id=game_id))
+    result = {}
+
+    for p in PlayerPlayGame.objects.filter(game_id=game_id):
+        player = p.player
+        team = player.team.name
+        if team not in result:
+            result[team] = []
+        result[team].append({
+            'id': player.id,
+            'name': player.name
+        })
+
+    result['events'] = [k.name for k in KindEvent.objects.all()]
+
+    return result
