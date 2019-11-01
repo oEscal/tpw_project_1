@@ -158,6 +158,8 @@ def add_player(request):
 
 
 def add_players_game(request, id):
+    # TODO -> se houver tempo, adicionar a verificação de se a equipa tem pelo menos 14 jogadores
+
     html_page = 'players_to_game.html'
     error_messages = []
     success_messages = []
@@ -198,7 +200,10 @@ def add_players_game(request, id):
                             make_query = False
 
                     if make_query:
-                        add_status, message = queries.add_player_to_game(data)
+                        add_status, message = queries.add_player_to_game({
+                            'id': id,
+                            'teams': data
+                        })
                         if add_status:
                             success_messages = [message]
                         else:

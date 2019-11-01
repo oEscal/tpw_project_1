@@ -5,7 +5,7 @@ from page.models import *
 
 import base64
 
-from web_page.settings import MAX_PLAYERS_MATCH
+from web_page.settings import MAX_PLAYERS_MATCH, MIN_PLAYERS_MATCH
 
 
 def next_id(model):
@@ -158,28 +158,40 @@ def add_event(data):
 
 
 def add_player_to_game(data):
+    transaction.set_autocommit(False)
+
     try:
-        # verify max number of players on that team on that game
-        number_players = len(PlayerPlayGame.objects.filter(player__team=Player.objects.get(id=data['player'])))
-        if number_players >= MAX_PLAYERS_MATCH:
-            return False, f"Não podem jogar mais que {MAX_PLAYERS_MATCH} da mesma equipa num determinado jogo!"
+        game_id = data['id']
+        teams = data['teams']
 
-        # verify if player is already on that game
-        if PlayerPlayGame.objects.filter(Q(game__id=data['game']) & Q(player__id=data['player'])).exists():
-            return False, "Jogador já adicionado a este jogo!"
+        # verify max and min number of players on that team on that game
+        for t in teams:
+            if len(set(teams[t])) > MAX_PLAYERS_MATCH or len(set(teams[t])) < MIN_PLAYERS_MATCH:
+                return False, f"O número de jogadores por equipa deve estar compreendido " \
+                              f"entre {MIN_PLAYERS_MATCH} e {MAX_PLAYERS_MATCH}!"
 
-        PlayerPlayGame.objects.create(
-            game=Game.objects.get(id=data['game']),
-            player=Player.objects.get(id=data['player'])
-        )
+        # verify if already there are players on that game
+        if PlayerPlayGame.objects.filter(game_id=game_id).exists():
+            return False, "Já foram definidos os jogadores que jogam nesse jogo!"
 
+        for t in teams:
+            for p in teams[t]:
+                PlayerPlayGame.objects.create(
+                    game=Game.objects.get(id=game_id),
+                    player=Player.objects.get(id=p)
+                )
+
+        transaction.set_autocommit(True)
         return True, "Jogador adicionado com sucesso ao jogo"
     except Game.DoesNotExist:
+        transaction.rollback()
         return False, "Jogo não existente!"
     except Player.DoesNotExist:
+        transaction.rollback()
         return False, "Jogador não existente!"
     except Exception as e:
         print(e)
+        transaction.rollback()
         return False, "Erro na base de dados a adicionar novo jogador ao jogo"
 
 
