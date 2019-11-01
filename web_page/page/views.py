@@ -161,23 +161,44 @@ def add_players_game(request, id):
     html_page = 'players_to_game.html'
     error_messages = []
     success_messages = []
-    form = forms.PlayersToGame(game_id=id)
+    form = forms.PlayersToGame(None, id)
 
     if not verify_if_admin(request.user):
         error_messages = ["Login inválido!"]
     else:
         try:
             if request.POST:
-                form = forms.PlayersToGame(None, request.POST, game_id=id)
+                form = forms.PlayersToGame(None, id, request.POST)
 
                 if form.is_valid():
-                    player_serializer = PlayerSerializer(data=form.cleaned_data)
+                    form_data = form.cleaned_data
+                    data = {}
+                    make_query = True
 
-                    if not player_serializer.is_valid():
-                        error_messages = ["Campos inválidos"]
+                    for p in form_data:
+                        data_split = p.split('-')
+                        team = data_split[0]
+                        order = int(data_split[1])
 
-                    else:
-                        add_status, message = queries.add_player(data=player_serializer.data)
+                        if team not in data:
+                            data[team] = []
+                        if form_data[p].isdigit():
+                            if form_data[p] in data[team]:
+                                error_messages.append(f"Jogador {order + 1} da equipa {team} já foi escolhido!")
+                                make_query = False
+                            data[team].append(form_data[p])
+
+                    # verify if number of players is greater or smaller than the constraints
+                    for t in data:
+                        if len(set(data[t])) > MAX_PLAYERS_MATCH or len(set(data[t])) < MIN_PLAYERS_MATCH:
+                            error_messages.append(
+                                f"Tem de escolher entre {MIN_PLAYERS_MATCH} e {MAX_PLAYERS_MATCH} "
+                                f"jogadores na equipa {t}!"
+                            )
+                            make_query = False
+
+                    if make_query:
+                        add_status, message = queries.add_player_to_game(data)
                         if add_status:
                             success_messages = [message]
                         else:

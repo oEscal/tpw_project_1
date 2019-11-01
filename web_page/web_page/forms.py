@@ -104,14 +104,15 @@ class Player(forms.Form):
 
 
 class PlayersToGame(forms.Form):
-    def __init__(self, game_id=None, *args, **kwargs):
+    def __init__(self, players=None, game_id=None, *args, **kwargs):
         players = get_game_team_players(game_id)
         self.teams = []
 
         super(PlayersToGame, self).__init__(*args, **kwargs)
-        for t in players:
-            self.teams.append(t)
-            for n in range(MAX_PLAYERS_MATCH):
+        for n in range(MAX_PLAYERS_MATCH):
+            for t in players:
+                if t not in self.teams:
+                    self.teams.append(t)
                 self.fields[f"{t}-{n}"] = \
                     forms.ChoiceField(label=f"Jogador {n + 1}", help_text="Escolha um jogador", required=True)
 

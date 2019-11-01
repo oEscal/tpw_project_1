@@ -13,17 +13,17 @@
                     {% if form.errors or error_messages %}
                         <div class="alert alert-primary" role="alert">
                             {% for e in form.non_field_errors %}
-                                {{ e }}
+                                <p>{{ e }}</p>
                             {% endfor %}
                             {% for e in error_messages %}
-                                {{ e }}
+                                <p>{{ e }}</p>
                             {% endfor %}
                         </div>
                     {% endif %}
                     {% if success_messages %}
                         <div class="alert alert-success" role="alert">
                             {% for s in success_messages %}
-                                {{ s }}
+                                <p>{{ s }}</p>
                             {% endfor %}
                         </div>
                     {% endif %}
@@ -34,7 +34,14 @@
                                 <div class="col-12">
                                     <p>Tem de escolher entre {{ data.min }} e {{ data.max }} jogadores em cada equipa</p>
                                 </div>
-                                {{ data.teams }}
+                                {% for t in data.teams %}
+                                    <div class="col-md-6 p-3">
+                                    <h1>
+                                        {{ t }}
+                                    </h1>
+                                    </div>
+                                {% endfor %}
+
                                 {% for p in data.form %}
                                     <div class="col-md-6 p-3">
                                         <label for="c_fname" class="text-black">{{ p.label_tag }}</label><br>
