@@ -255,6 +255,7 @@ def get_games():
     try:
         for g in Game.objects.all():
             current_game = GameMinimalSerializer(g).data
+            current_game['id'] = g.id
             current_game['stadium'] = g.stadium.name
             current_game['stadium_picture'] = g.stadium.picture
 

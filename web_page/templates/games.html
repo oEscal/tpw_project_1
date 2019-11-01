@@ -13,8 +13,8 @@
 
                     <!-- More Info -->
                     {% for g in data %}
-                        <div class="bg-image overlay-success rounded mb-5"
-                             style="background-image: url({% static 'images/hero_bg_1.jpg' %});"
+                        <div class="bg-image overlay-success rounded mb-5 more_info" id="more_info_{{ g.id }}"
+                             style="background-image: url({% static 'images/hero_bg_1.jpg' %}); display: none;"
                              data-stellar-background-ratio="0.5">
 
                             <div class="row align-items-center">
@@ -132,12 +132,19 @@
                                 </div>
 
                             </div>
+
+                        <div class="col-12">
+                            <br>
+                            <br>
+                            <button class="btn btn-dark pull-right less_info_btn" id="{{ g.id }}">Menos info</button>
+                        </div>
+
                         </div>
                     {% endfor %}
                 </div>
             </div>
 
-
+            <!-- All games -->
             <div class="row align-items-center mb-5">
                 <div class="col-md-12">
                     {% for g in data %}
@@ -166,6 +173,8 @@
                                     <div class="bg-black py-2 px-4 mb-2 text-white d-inline-block rounded"><span
                                             class="h5">{{ g.teams.0.goals }}:{{ g.teams.1.goals }}</span></div>
                                 </div>
+                                <br>
+                                <button class="btn btn-dark more_info_btn" id="{{ g.id }}">Mais info</button>
                             </div>
 
                             <div class="col-md-4 col-lg-4 text-center text-lg-right">
@@ -192,3 +201,17 @@
         </div>
     </div>
 {% endblock content %}
+
+{% block script %}
+    <script>
+    $(".more_info_btn").click(function() {
+        $(".more_info").hide(1000);
+        $("#more_info_" + this.id).show(1000);
+    });
+
+    $(".less_info_btn").click(function() {
+        $("#more_info_" + this.id).hide(1000);
+    });
+    </script>
+
+{% endblock script %}
