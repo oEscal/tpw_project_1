@@ -6,6 +6,7 @@ from django.shortcuts import render
 # Create your views here.
 from page.serializers import *
 from web_page import queries, forms
+from web_page.settings import MIN_PLAYERS_MATCH, MAX_PLAYERS_MATCH
 
 
 def verify_if_admin(user):
@@ -152,6 +153,48 @@ def add_player(request):
             print(e)
             error_messages = ["Erro ao adicionar nova jogador"]
 
+    return create_response(request, html_page, data=form, error_messages=error_messages,
+                           success_messages=success_messages)
+
+
+def add_players_game(request, id):
+    html_page = 'players_to_game.html'
+    error_messages = []
+    success_messages = []
+    form = forms.PlayersToGame(game_id=id)
+
+    if not verify_if_admin(request.user):
+        error_messages = ["Login inválido!"]
+    else:
+        try:
+            if request.POST:
+                form = forms.PlayersToGame(None, request.POST, game_id=id)
+
+                if form.is_valid():
+                    player_serializer = PlayerSerializer(data=form.cleaned_data)
+
+                    if not player_serializer.is_valid():
+                        error_messages = ["Campos inválidos"]
+
+                    else:
+                        add_status, message = queries.add_player(data=player_serializer.data)
+                        if add_status:
+                            success_messages = [message]
+                        else:
+                            error_messages = [message]
+                else:
+                    error_messages = ["Corrija os erros abaixo referidos"]
+
+        except Exception as e:
+            print(e)
+            error_messages = ["Erro ao adicionar nova jogador"]
+
+    form = {
+        'form': form,
+        'max_players': MAX_PLAYERS_MATCH,
+        'min_players': MIN_PLAYERS_MATCH,
+        'teams': form.teams
+    }
     return create_response(request, html_page, data=form, error_messages=error_messages,
                            success_messages=success_messages)
 

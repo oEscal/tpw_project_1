@@ -1,6 +1,7 @@
 from django import forms
 
 from web_page.help_queries import *
+from web_page.settings import MIN_PLAYERS_MATCH, MAX_PLAYERS_MATCH
 
 
 class DateInput(forms.DateInput):
@@ -100,3 +101,24 @@ class Player(forms.Form):
             data = player["data"]
             for field_name, field in self.fields.items():
                 field.initial = data[field_name]
+
+
+class PlayersToGame(forms.Form):
+    def __init__(self, game_id=None, *args, **kwargs):
+        players = get_game_team_players(game_id)
+        self.teams = []
+
+        super(PlayersToGame, self).__init__(*args, **kwargs)
+        for t in players:
+            self.teams.append(t)
+            for n in range(MAX_PLAYERS_MATCH):
+                self.fields[f"{t}-{n}"] = \
+                    forms.ChoiceField(label=f"Jogador {n + 1}", help_text="Escolha um jogador", required=True)
+
+                player_field = self.fields[f"{t}-{n}"]
+                player_field.widget.attrs['class'] = 'form-control'
+
+                choices = [("-", player_field.help_text)]
+                for player in players[t]:
+                    choices.append((player['id'], player['name']))
+                player_field.choices = choices
