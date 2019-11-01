@@ -238,14 +238,13 @@ def add_event(request, id):
                 form = forms.Event(None, id, request.POST)
 
                 if form.is_valid():
-
-                    game_serializer = Event(data=reformat_game_data(form.cleaned_data))
-
-                    if not game_serializer.is_valid():
-                        error_messages = ["Campos inválidos!"]
+                    data = form.cleaned_data
+                    if not data['players1'].isdigit() and not data['players2'].isdigit() or data['teams'] == '-':
+                        error_messages = ["Tem de adicionar um jogador!"]
                     else:
-                        add_status, message = queries.add_game(data=game_serializer.data)
-
+                        data['game'] = id
+                        data['player'] = data['players1'] if data['players1'].isdigit() else data['players2']
+                        add_status, message = queries.add_event(data=data)
                         if add_status:
                             success_messages = [message]
                         else:
