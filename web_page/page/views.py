@@ -223,6 +223,43 @@ def add_game(request):
                            success_messages=success_messages)
 
 
+def add_event(request, id):
+    html_page = 'add_event.html'
+    error_messages = []
+    success_messages = []
+    form = forms.Event(None, id)
+
+    if not verify_if_admin(request.user):
+        error_messages = ["Login inválido!"]
+        return redirect('login')
+    else:
+        try:
+            if request.POST:
+                form = forms.Event(None, id, request.POST)
+
+                if form.is_valid():
+                    data = form.cleaned_data
+                    if not data['players1'].isdigit() and not data['players2'].isdigit() or data['teams'] == '-':
+                        error_messages = ["Tem de adicionar um jogador!"]
+                    else:
+                        data['game'] = id
+                        data['player'] = data['players1'] if data['players1'].isdigit() else data['players2']
+                        add_status, message = queries.add_event(data=data)
+                        if add_status:
+                            success_messages = [message]
+                        else:
+                            error_messages = [message]
+                else:
+                    error_messages = ["Corrija os erros abaixo referidos!"]
+
+        except Exception as e:
+            print(e)
+            error_messages = ["Erro ao adicionar novo evento!"]
+
+    return create_response(request, html_page, data=form, error_messages=error_messages,
+                           success_messages=success_messages)
+
+
 ######################### Get #########################
 
 
