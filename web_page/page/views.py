@@ -304,6 +304,7 @@ def add_game(request):
 
 def add_event(request, id):
     html_page = 'add_event.html'
+    page_name = "Adicionar evento"
     error_messages = []
     success_messages = []
     form = forms.Event(None, id)
@@ -318,11 +319,11 @@ def add_event(request, id):
 
                 if form.is_valid():
                     data = form.cleaned_data
-                    if not data['players1'].isdigit() and not data['players2'].isdigit() or data['teams'] == '-':
+                    if not data['player1'].isdigit() and not data['player2'].isdigit() or data['team'] == '-':
                         error_messages = ["Tem de adicionar um jogador!"]
                     else:
                         data['game'] = id
-                        data['player'] = data['players1'] if data['players1'].isdigit() else data['players2']
+                        data['player'] = data['player1'] if data['player1'].isdigit() else data['player2']
                         add_status, message = queries.add_event(data=data)
                         if add_status:
                             success_messages = [message]
@@ -335,8 +336,8 @@ def add_event(request, id):
             print(e)
             error_messages = ["Erro ao adicionar novo evento!"]
 
-    return create_response(request, html_page, data=form, error_messages=error_messages,
-                           success_messages=success_messages)
+    return create_response(request, html_page, data=form, page_name=page_name,
+                           error_messages=error_messages, success_messages=success_messages)
 
 
 ######################### Get #########################
@@ -498,9 +499,7 @@ def update_player(request, id):
                         data = form.cleaned_data
 
                         player_serializer = PlayerSerializer(data=data)
-                        print(data)
                         if not player_serializer.is_valid():
-                            print(player_serializer.errors)
                             error_messages = ["Campos inválidos!"]
                         else:
                             # encode logo
@@ -508,6 +507,49 @@ def update_player(request, id):
                             data['id'] = id
 
                             add_status, message = queries.update_player(data)
+                            if add_status:
+                                success_messages = [message]
+                            else:
+                                error_messages = [message]
+                    else:
+                        error_messages = ["Corrija os erros abaixo referidos!"]
+            except Exception as e:
+                print(e)
+                error_messages = ["Erro ao editar jogador!"]
+
+    return create_response(request, html_page, data=form, page_name=page_name,
+                           error_messages=error_messages, success_messages=success_messages)
+
+
+def update_event(request, id):
+    html_page = "add_event.html"
+    page_name = "Editar jogador"
+    error_messages = []
+    success_messages = []
+    form = forms.Event()
+
+    if not verify_if_admin(request.user):
+        error_messages = ["Login invalido!"]
+        return redirect('login')
+    else:
+        event_info, message = queries.get_minimal_event(id)
+
+        if not event_info:
+            error_messages = [message]
+        else:
+            form = forms.Event(event=event_info)
+            try:
+                if request.POST:
+                    form = forms.Event(event_info, request.POST, request.FILES)
+
+                    if form.is_valid():
+                        data = form.cleaned_data
+                        if not data['player1'].isdigit() and not data['player2'].isdigit() or data['team'] == '-':
+                            error_messages = ["Tem de adicionar um jogador!"]
+                        else:
+                            data['game'] = id
+                            data['player'] = data['player1'] if data['player1'].isdigit() else data['player2']
+                            add_status, message = queries.add_event(data=data)
                             if add_status:
                                 success_messages = [message]
                             else:

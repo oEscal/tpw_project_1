@@ -351,6 +351,23 @@ def get_games():
     return result, "Sucesso"
 
 
+def get_minimal_event(id):
+    try:
+        pg = PlayerPlayGame.objects.get(event__id=id)
+        event = Event.objects.get(id=id)
+        result = {
+            'id': id,
+            'team': pg.player.team.name,
+            'player': pg.player.id,
+            'kind_event': event.kind_event.name,
+            'minute': event.minute
+        }
+        return result, "Sucesso"
+    except Exception as e:
+        print(e)
+        return None, "Erro na base de dados a obter o evento!"
+
+
 ######################### Update #########################
 
 

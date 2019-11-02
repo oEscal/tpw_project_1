@@ -41,4 +41,5 @@ urlpatterns = [
 
     url(r'^update_team/(?P<name>[\w\s]+)/$', update_team, name='update_team'),
     url(r'^update_player/(?P<id>[\w\s]+)/$', update_player, name='update_player'),
+    url(r'^update_event/(?P<id>[\w\s]+)/$', update_event, name='update_event'),
 ]
