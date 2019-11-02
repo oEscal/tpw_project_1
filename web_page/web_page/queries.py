@@ -357,11 +357,11 @@ def update_team(data):
         if not team.exists():
             return False, "Equipa a editar não existe na base de dados!"
 
-        if data['foundation_date']:
+        if data['foundation_date'] is not None:
             team.update(foundation_date=data['foundation_date'])
-        if data['logo']:
+        if data['logo'] is not None:
             team.update(logo=data['logo'])
-        if data['stadium']:
+        if data['stadium'] is not None:
             team.update(stadium=Stadium.objects.get(name=data['stadium']))
 
         transaction.set_autocommit(True)
@@ -372,3 +372,37 @@ def update_team(data):
         print(e)
         transaction.rollback()
         return False, "Erro na base de dados a editar as informações da equipa!"
+
+
+def update_player(data):
+    transaction.set_autocommit(False)
+
+    try:
+        player = Player.objects.filter(id=data['id'])
+
+        if not player.exists():
+            return False, "Jogador a editar não existe na base de dados!"
+
+        if data['name'] is not None:
+            player.update(name=data['name'])
+        if data['photo'] is not None:
+            player.update(photo=data['photo'])
+        if data['position'] is not None:
+            player.update(position=Position.objects.get(name=data['position']))
+        if data['birth_date'] is not None:
+            player.update(birth_date=data['birth_date'])
+        if data['nick'] is not None:
+            player.update(nick=data['nick'])
+        if data['team'] is not None:
+            player.update(team=Team.objects.get(name=data['team']))
+
+        transaction.set_autocommit(True)
+        return True, "Jogador editada com sucesso"
+    except Team.DoesNotExist:
+        return False, "Equipa inexistente!"
+    except Position.DoesNotExist:
+        return False, "Posição inexistente!"
+    except Exception as e:
+        print(e)
+        transaction.rollback()
+        return False, "Erro na base de dados a editar as informações do jogador!"

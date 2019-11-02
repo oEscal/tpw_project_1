@@ -105,9 +105,8 @@ class Player(forms.Form):
                 field.widget.attrs['placeholder'] = field.help_text
 
         if player:
-            data = player["data"]
             for field_name, field in self.fields.items():
-                field.initial = data[field_name]
+                field.initial = player[field_name]
 
 
 class PlayersToGame(forms.Form):

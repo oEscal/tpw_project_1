@@ -474,37 +474,40 @@ def update_team(request, name):
 
 
 def update_player(request, id):
-    html_page = "add_team.html"
-    page_name = "Editar equipa"
+    html_page = "add_player.html"
+    page_name = "Editar jogador"
     error_messages = []
     success_messages = []
-    form = forms.Team()
+    form = forms.Player()
 
     if not verify_if_admin(request.user):
         error_messages = ["Login invalido!"]
         return redirect('login')
     else:
-        team_info, message = queries.get_minimal_team(name)
+        player_info, message = queries.get_player(id)
 
-        if not team_info:
+        if not player_info:
             error_messages = [message]
         else:
-            form = forms.Team(team=team_info)
+            form = forms.Player(player=player_info)
             try:
                 if request.POST:
-                    form = forms.Team(team_info, request.POST, request.FILES)
+                    form = forms.Player(player_info, request.POST, request.FILES)
 
                     if form.is_valid():
                         data = form.cleaned_data
 
-                        team_serializer = TeamSerializer(data=data)
-                        if not team_serializer.is_valid():
+                        player_serializer = PlayerSerializer(data=data)
+                        print(data)
+                        if not player_serializer.is_valid():
+                            print(player_serializer.errors)
                             error_messages = ["Campos inválidos!"]
                         else:
                             # encode logo
-                            data['logo'] = image_to_base64(data['logo'])
+                            data['photo'] = image_to_base64(data['photo'])
+                            data['id'] = id
 
-                            add_status, message = queries.update_team(data)
+                            add_status, message = queries.update_player(data)
                             if add_status:
                                 success_messages = [message]
                             else:
@@ -513,7 +516,7 @@ def update_player(request, id):
                         error_messages = ["Corrija os erros abaixo referidos!"]
             except Exception as e:
                 print(e)
-                error_messages = ["Erro ao editar equipa!"]
+                error_messages = ["Erro ao editar jogador!"]
 
     return create_response(request, html_page, data=form, page_name=page_name,
                            error_messages=error_messages, success_messages=success_messages)
