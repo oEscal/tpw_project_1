@@ -268,6 +268,18 @@ def get_games():
                 current_info.update(GameStatusSerializer(stat).data)
                 current_game['teams'].append(current_info)
 
+            current_game['events'] = []
+            for pg in PlayerPlayGame.objects.filter(game__id=g.id):
+                print(pg.event)
+                #for event in pg.event:
+                #    current_game['events'].append({
+                #        'kind_event': event.kind_event,
+                #        'minute': event.minute,
+                #        'player': pg.player.name,
+                #        'photo': pg.player.photo,
+                #        'team': pg.player.team.name
+                #    })
+
             result.append(current_game)
     except Exception as e:
         print(e)
