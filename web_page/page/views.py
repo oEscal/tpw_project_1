@@ -417,3 +417,47 @@ def games(request):
         error_messages = ["Erro a obter todos os jogos"]
 
     return create_response(request, html_page, data=data, error_messages=error_messages)
+
+
+##Update---------------
+
+def update_stadium(request, name):
+    html_page = "add_stadium.html"
+    error_messages = []
+    success_messages = []
+    form = forms.Stadium()
+
+    if not verify_if_admin(request.user):
+        error_messages = ["Login inválido!"]
+        return redirect('login')
+    else:
+        try:
+            data, message = queries.get_stadium(name)
+            if not data:
+                error_messages = [message]
+            else:
+                form = forms.Stadium(data)
+                if request.POST:
+                    form = forms.Stadium(data, request.POST, request.FILES)
+                    if form.is_valid():
+                        data = form.cleaned_data
+                        stadium_serializer = StadiumSerializer(data=data)
+                        if not stadium_serializer.is_valid():
+                            error_messages = ["Campos inválidos!"]
+                        else:
+                            # encode logo
+                            data['picture'] = image_to_base64(data['picture'])
+
+                            add_status, message = queries.update_stadium(data)
+                            if add_status:
+                                success_messages = [message]
+                            else:
+                                error_messages = [message]
+                    else:
+                        error_messages = ["Corrija os erros abaixo referidos!"]
+        except Exception as e:
+            print(e)
+            error_messages = ["Erro a adicionar novo estádio!"]
+
+    return create_response(request, html_page, data=form, error_messages=error_messages,
+                           success_messages=success_messages)

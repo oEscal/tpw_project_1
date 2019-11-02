@@ -28,9 +28,9 @@ class Stadium(forms.Form):
 
         # for the update form
         if stadium:
-            data = stadium["data"]
             for field_name, field in self.fields.items():
-                field.initial = data[field_name]
+                field.initial = stadium[field_name]
+
 
 
 class Team(forms.Form):

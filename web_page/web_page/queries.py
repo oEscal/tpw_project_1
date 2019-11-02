@@ -3,8 +3,6 @@ from django.db.models import Max, Q
 
 from page.serializers import *
 from web_page.help_queries import get_players_per_team
-
-
 from web_page.settings import MAX_PLAYERS_MATCH, MIN_PLAYERS_MATCH
 
 
@@ -288,6 +286,8 @@ def get_stadium(name):
         print(e)
         return None, "Erro na base de dados a obter o estádio!"
 
+    return result, "Sucesso"
+
 
 def get_games():
     result = []
@@ -327,3 +327,41 @@ def get_games():
         return None, "Erro na base de dados a obter todos os jogos!"
 
     return result, "Sucesso"
+
+
+def update_stadium(data):
+    transaction.set_autocommit(False)
+
+    try:
+
+        stadium = Stadium.objects.filter(name=data['name'])
+
+        if not stadium.exists():
+            return False, "Estadio a editar nao existe"
+
+        if data['address']:
+            if data['address'] != stadium[0].address:
+                return False, "Nao pode mudar o endereço do estadio"
+
+
+
+        if data['name']:
+            stadium.update(name=data['name'])
+
+        if data['number_seats']:
+            stadium.update(number_seats=data['number_seats'])
+
+        if data['picture']:
+            stadium.update(picture=data['picture'])
+
+        transaction.set_autocommit(True)
+        return True, "Estadio editado com sucesso"
+
+    except Stadium.DoesNotExist:
+        transaction.rollback()
+        return False, "Estadio nao existe"
+
+    except Exception as e:
+        print(e)
+        transaction.rollback()
+        return False, "Erro na base de dados a atualizar estádio!"
