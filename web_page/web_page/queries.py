@@ -3,8 +3,6 @@ from django.db.models import Max, Q
 
 from page.serializers import *
 from web_page.help_queries import get_players_per_team
-
-
 from web_page.settings import MAX_PLAYERS_MATCH, MIN_PLAYERS_MATCH
 
 
@@ -303,6 +301,8 @@ def get_stadium(name):
     except Exception as e:
         print(e)
         return None, "Erro na base de dados a obter o estádio!"
+
+    return result, "Sucesso"
 
 
 def get_games():
