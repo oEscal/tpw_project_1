@@ -75,23 +75,29 @@ class Player(forms.Form):
     photo = forms.ImageField(label="Foto do jogador", help_text="Insira a foto do jogador", required=False)
     nick = forms.CharField(label="Alcunha do jogador", help_text="Insira a alcunha do jogador", required=False,
                            max_length=200)
-    position_name = forms.ChoiceField(label="Posição do Jogador", help_text="Insira a posição do jogador",
-                                      required=True)
-    team_name = forms.CharField(label="Equipa do Jogador", help_text="Insira a equipa do jogador", required=True,
-                                max_length=200)
+    position = forms.ChoiceField(label="Posição do Jogador", help_text="Insira a posição do jogador",
+                                 required=True)
+    team = forms.ChoiceField(label="Equipa do Jogador", help_text="Insira a equipa do jogador", required=True)
 
     def __init__(self, player=None, *args, **kwargs):
         super(forms.Form, self).__init__(*args, **kwargs)
 
-        position_field = self.fields['position_name']
+        position_field = self.fields['position']
+        team_field = self.fields['team']
 
         all_positions = get_all_positions()
+        all_teams = get_all_teams()
         position_choices = [("-", position_field.help_text)]
+        team_choices = [("-", team_field.help_text)]
 
         for position in all_positions:
             position_choices.append((position.name, position.name))
 
+        for team in all_teams:
+            team_choices.append((team.name, team.name))
+
         position_field.choices = position_choices
+        team_field.choices = team_choices
 
         for field_name, field in self.fields.items():
             if field_name != 'photo':

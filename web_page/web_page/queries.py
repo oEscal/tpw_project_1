@@ -119,7 +119,7 @@ def add_game(data):
 
 def add_player(data):
     # verify is player already is on that team
-    if Player.objects.filter(team__name=data['team_name'], name=data['name']):
+    if Player.objects.filter(team__name=data['team'], name=data['name']):
         return False, "Ja existe um jogador com este nome na equipa!"
 
     try:
@@ -129,8 +129,8 @@ def add_player(data):
             birth_date=data['birth_date'] if 'birth_date' in data else None,
             photo=data['photo'] if 'photo' in data else None,
             nick=data['nick'] if 'nick' in data else None,
-            position=Position.objects.get(name=data['position_name']),
-            team=Team.objects.get(name=data['team_name'])
+            position=Position.objects.get(name=data['position']),
+            team=Team.objects.get(name=data['team'])
         )
         return True, "Jogador adicionado com sucesso"
     except Position.DoesNotExist:
