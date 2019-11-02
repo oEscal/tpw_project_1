@@ -38,11 +38,12 @@ def image_to_base64(image):
 ######################### Add #########################
 
 
-def create_response(request, html_page, data=None, success_messages=None, error_messages=None):
+def create_response(request, html_page, data=None, page_name=None, success_messages=None, error_messages=None):
     return render(request, html_page, {
         "data": data,
         "success_messages": success_messages,
         "error_messages": error_messages,
+        "page_name": page_name
     })
 
 
@@ -85,6 +86,7 @@ def add_stadium(request):
 
 def add_team(request):
     html_page = "add_team.html"
+    page_name = "Nova equipa"
     error_messages = []
     success_messages = []
     form = forms.Team()
@@ -119,8 +121,8 @@ def add_team(request):
             print(e)
             error_messages = ["Erro ao adicionar nova equipa"]
 
-    return create_response(request, html_page, data=form, error_messages=error_messages,
-                           success_messages=success_messages)
+    return create_response(request, html_page, data=form, page_name=page_name,
+                           error_messages=error_messages, success_messages=success_messages)
 
 
 def add_player(request):
@@ -417,3 +419,52 @@ def games(request):
         error_messages = ["Erro a obter todos os jogos"]
 
     return create_response(request, html_page, data=data, error_messages=error_messages)
+
+
+######################### Update #########################
+
+
+def update_team(request, name):
+    html_page = "add_team.html"
+    page_name = "Editar equipa"
+    error_messages = []
+    success_messages = []
+    form = forms.Team()
+
+    if not verify_if_admin(request.user):
+        error_messages = ["Login invalido!"]
+        return redirect('login')
+    else:
+        team_info, message = queries.get_minimal_team(name)
+
+        if not team_info:
+            error_messages = [message]
+        else:
+            form = forms.Team(team=team_info)
+            try:
+                if request.POST:
+                    form = forms.Team(team_info, request.POST, request.FILES)
+
+                    if form.is_valid():
+                        data = form.cleaned_data
+
+                        team_serializer = TeamSerializer(data=data)
+                        if not team_serializer.is_valid():
+                            error_messages = ["Campos inválidos!"]
+                        else:
+                            # encode logo
+                            data['logo'] = image_to_base64(data['logo'])
+
+                            add_status, message = queries.update_team(data)
+                            if add_status:
+                                success_messages = [message]
+                            else:
+                                error_messages = [message]
+                    else:
+                        error_messages = ["Corrija os erros abaixo referidos!"]
+            except Exception as e:
+                print(e)
+                error_messages = ["Erro ao editar equipa!"]
+
+    return create_response(request, html_page, data=form, page_name=page_name,
+                           error_messages=error_messages, success_messages=success_messages)
