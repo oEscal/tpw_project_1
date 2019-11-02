@@ -1,7 +1,7 @@
 from django import forms
 
 from web_page.help_queries import *
-from web_page.settings import MIN_PLAYERS_MATCH, MAX_PLAYERS_MATCH
+from web_page.settings import MAX_PLAYERS_MATCH
 
 
 class DateInput(forms.DateInput):
@@ -30,7 +30,6 @@ class Stadium(forms.Form):
         if stadium:
             for field_name, field in self.fields.items():
                 field.initial = stadium[field_name]
-
 
 
 class Team(forms.Form):
@@ -105,7 +104,8 @@ class Player(forms.Form):
 
 
 class PlayersToGame(forms.Form):
-    def __init__(self, players=None, game_id=None, *args, **kwargs):
+    def __init__(self, players=None, game_id=None, players_update=None, *args, **kwargs):
+
         players = get_game_team_players(game_id)
         self.teams = []
 
@@ -124,6 +124,15 @@ class PlayersToGame(forms.Form):
                 for player in players[t]:
                     choices.append((player['id'], player['name']))
                 player_field.choices = choices
+
+        if players_update:
+
+            for field_name, field in self.fields.items():
+
+                team_name = field_name.split('-')[0]
+                if len(players_update[team_name]) > 0:
+                    field.initial = players_update[team_name][0].name
+                    players_update[team_name].remove(players_update[team_name][0])
 
 
 class Game(forms.Form):
@@ -147,7 +156,8 @@ class Game(forms.Form):
     home_ball_pos = forms.IntegerField(label="Posse de bola da equipa local",
                                        help_text="Insira a posse de bola da equipa local", min_value=0, required=True)
     away_ball_pos = forms.IntegerField(label="Posse de bola da equipa visitante",
-                                       help_text="Insira a posse de bola da equipa visitante", min_value=0, required=True)
+                                       help_text="Insira a posse de bola da equipa visitante", min_value=0,
+                                       required=True)
     home_corners = forms.IntegerField(label="Cantos da equipa local", help_text="Insira os cantos da equipa local",
                                       min_value=0, required=True)
     away_corners = forms.IntegerField(label="Cantos da equipa visitante",

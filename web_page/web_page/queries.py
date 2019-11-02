@@ -345,9 +345,30 @@ def get_games():
     return result, "Sucesso"
 
 
+def get_players_per_game(game_id):
+    result = {}
+
+    try:
+        teams = Game.objects.get(id=game_id).teams.all()
+
+        all_players = [p.player for p in PlayerPlayGame.objects.filter(Q(game=game_id))]
+
+        home_players = list(filter(lambda p: p.team == teams[0], all_players))
+        away_players = list(filter(lambda p: p.team == teams[1], all_players))
+
+        result[teams[0].name] = home_players
+        result[teams[1].name] = away_players
+
+    except Game.DoesNotExist:
+        return None, "Jogo inexistente!"
+    except Exception as e:
+        print(e)
+        return None, "Erro na base de dados a obter os jogadores por jogo!"
+
+    return result, "Sucesso!"
+
+
 ######################### Update #########################
-
-
 def update_team(data):
     transaction.set_autocommit(False)
 
