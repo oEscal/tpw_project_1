@@ -1,5 +1,4 @@
-from django.db.models import Q
-from page.models import *
+from web_page.queries import *
 
 
 def get_all_stadium_for_team(except_stadium):
@@ -40,19 +39,9 @@ def get_all_teams():
 
 
 def get_info_for_add_event(game_id):
-    result = {}
-
-    result['teams'] = {}
-    for p in PlayerPlayGame.objects.filter(game_id=game_id):
-        player = p.player
-        team = player.team.name
-        if team not in result['teams']:
-            result['teams'][team] = []
-        result['teams'][team].append({
-            'id': player.id,
-            'name': player.name
-        })
-
-    result['events'] = [k.name for k in KindEvent.objects.all()]
+    result = {
+        'teams': get_players_per_game(game_id)[0],
+        'events': [k.name for k in KindEvent.objects.all()]
+    }
 
     return result

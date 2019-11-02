@@ -487,7 +487,7 @@ def update_player_game(request, id):
             if not players:
                 error_messages = [message]
             else:
-                form = forms.PlayersToGame(None, id, players)
+                form = forms.PlayersToGame(players, id)
                 # request.POST:
                 # form = forms.PlayersToGame(None, id,players, request.POST)
                 # if form.is_valid():

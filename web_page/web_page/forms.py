@@ -104,35 +104,31 @@ class Player(forms.Form):
 
 
 class PlayersToGame(forms.Form):
-    def __init__(self, players=None, game_id=None, players_update=None, *args, **kwargs):
-
-        players = get_game_team_players(game_id)
-        self.teams = []
-
+    def __init__(self, players=None, game_id=None, *args, **kwargs):
         super(PlayersToGame, self).__init__(*args, **kwargs)
+
+        current_players = get_game_team_players(game_id)
+        self.teams = []
+        print(players)
         for n in range(MAX_PLAYERS_MATCH):
-            for t in players:
-                if t not in self.teams:
-                    self.teams.append(t)
-                self.fields[f"{t}-{n}"] = \
+            for team in current_players:
+                if team not in self.teams:
+                    self.teams.append(team)
+                self.fields[f"{team}-{n}"] = \
                     forms.ChoiceField(label=f"Jogador {n + 1}", help_text="Escolha um jogador", required=True)
 
-                player_field = self.fields[f"{t}-{n}"]
+                player_field = self.fields[f"{team}-{n}"]
                 player_field.widget.attrs['class'] = 'form-control'
 
                 choices = [("-", player_field.help_text)]
-                for player in players[t]:
+                for player in current_players[team]:
                     choices.append((player['id'], player['name']))
                 player_field.choices = choices
 
-        if players_update:
-
-            for field_name, field in self.fields.items():
-
-                team_name = field_name.split('-')[0]
-                if len(players_update[team_name]) > 0:
-                    field.initial = players_update[team_name][0].name
-                    players_update[team_name].remove(players_update[team_name][0])
+                if players:
+                    if len(players[team]) > 0:
+                        player_field.initial = players[team][0]['id']
+                        players[team].remove(players[team][0])
 
 
 class Game(forms.Form):
