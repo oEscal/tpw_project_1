@@ -232,13 +232,31 @@ def get_teams():
     return result, "Sucesso"
 
 
-def get_team(name):
+def get_minimal_team(name):
     result = {}
 
     try:
         result.update(TeamSerializer(Team.objects.get(name=name)).data)
 
         result['stadium'] = Stadium.objects.get(team__name=name).name
+    except Team.DoesNotExist:
+        return None, "Equipa não existe!"
+    except Exception as e:
+        print(e)
+        return None, "Erro na base de dados a obter a equipa!"
+
+    return result, "Sucesso"
+
+
+def get_team(name):
+    result = {}
+
+    try:
+        data, message = get_minimal_team(name)
+        if data:
+            result.update(data)
+        else:
+            return data, message
 
         result['players'] = []
         for p in Player.objects.filter(team__name=name):
@@ -247,11 +265,9 @@ def get_team(name):
                 'position': p.position.name
             })
             result['players'].append(p_info)
-    except Team.DoesNotExist:
-        return None, "Equipa não existe!"
     except Exception as e:
         print(e)
-        return None, "Erro na base de dados a obter a equipa!"
+        return None, "Erro na base de dados a obter os jogadores da equipa!"
 
     return result, "Sucesso"
 
@@ -329,39 +345,30 @@ def get_games():
     return result, "Sucesso"
 
 
-def update_stadium(data):
+######################### Update #########################
+
+
+def update_team(data):
     transaction.set_autocommit(False)
 
     try:
+        team = Team.objects.filter(name=data['name'])
 
-        stadium = Stadium.objects.filter(name=data['name'])
+        if not team.exists():
+            return False, "Equipa a editar não existe na base de dados!"
 
-        if not stadium.exists():
-            return False, "Estadio a editar nao existe"
-
-        if data['address']:
-            if data['address'] != stadium[0].address:
-                return False, "Nao pode mudar o endereço do estadio"
-
-
-
-        if data['name']:
-            stadium.update(name=data['name'])
-
-        if data['number_seats']:
-            stadium.update(number_seats=data['number_seats'])
-
-        if data['picture']:
-            stadium.update(picture=data['picture'])
+        if data['foundation_date']:
+            team.update(foundation_date=data['foundation_date'])
+        if data['logo']:
+            team.update(logo=data['logo'])
+        if data['stadium']:
+            team.update(stadium=Stadium.objects.get(name=data['stadium']))
 
         transaction.set_autocommit(True)
-        return True, "Estadio editado com sucesso"
-
+        return True, "Equipa editada com sucesso"
     except Stadium.DoesNotExist:
-        transaction.rollback()
-        return False, "Estadio nao existe"
-
+        return False, "Estádio inexistente!"
     except Exception as e:
         print(e)
         transaction.rollback()
-        return False, "Erro na base de dados a atualizar estádio!"
+        return False, "Erro na base de dados a editar as informações da equipa!"

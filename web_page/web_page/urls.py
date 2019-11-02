@@ -39,6 +39,5 @@ urlpatterns = [
     url(r'^stadium/(?P<name>[\w\s]+)/$', stadium, name='stadium'),
     path('games/', games, name='games'),
 
-    url(r'^update_stadium/(?P<name>[\w\s]+)/$', update_stadium, name='update_stadium'),
-
+    url(r'^update_team/(?P<name>[\w\s]+)/$', update_team, name='update_team'),
 ]
