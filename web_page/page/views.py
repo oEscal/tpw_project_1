@@ -540,7 +540,7 @@ def update_event(request, id):
             form = forms.Event(event=event_info)
             try:
                 if request.POST:
-                    form = forms.Event(event_info, request.POST, request.FILES)
+                    form = forms.Event(event_info, None, request.POST, request.FILES)
 
                     if form.is_valid():
                         data = form.cleaned_data
@@ -549,7 +549,9 @@ def update_event(request, id):
                         else:
                             data['game'] = id
                             data['player'] = data['player1'] if data['player1'].isdigit() else data['player2']
-                            add_status, message = queries.add_event(data=data)
+                            data['id'] = id
+
+                            add_status, message = queries.update_event(data=data)
                             if add_status:
                                 success_messages = [message]
                             else:
@@ -558,7 +560,7 @@ def update_event(request, id):
                         error_messages = ["Corrija os erros abaixo referidos!"]
             except Exception as e:
                 print(e)
-                error_messages = ["Erro ao editar jogador!"]
+                error_messages = ["Erro ao editar evento!"]
 
     return create_response(request, html_page, data=form, page_name=page_name,
                            error_messages=error_messages, success_messages=success_messages)

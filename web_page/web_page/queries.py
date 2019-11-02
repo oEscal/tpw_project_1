@@ -363,6 +363,10 @@ def get_minimal_event(id):
             'minute': event.minute
         }
         return result, "Sucesso"
+    except PlayerPlayGame.DoesNotExist:
+        return None, "Não existe nenhum jogador atribuido a esse evento!"
+    except Event.DoesNotExist:
+        return None, "Esse evento não existe!"
     except Exception as e:
         print(e)
         return None, "Erro na base de dados a obter o evento!"
@@ -425,6 +429,43 @@ def update_player(data):
         return False, "Equipa inexistente!"
     except Position.DoesNotExist:
         return False, "Posição inexistente!"
+    except Exception as e:
+        print(e)
+        transaction.rollback()
+        return False, "Erro na base de dados a editar as informações do jogador!"
+
+
+def update_event(data):
+    transaction.set_autocommit(False)
+
+    try:
+        event = Event.objects.filter(id=data['id'])
+        player_game = PlayerPlayGame.objects.filter(event__id=data['id'])
+
+        if not event.exists():
+            return False, "Evento a editar não existe na base de dados!"
+
+        if not player_game.exists():
+            return False, "Não existe nenhum jogador atribuido ao evento a editar!"
+
+        if data['minute'] is not None:
+            event.update(minute=data['minute'])
+        if data['kind_event'] is not None:
+            event.update(kind_event=KindEvent.objects.get(name=data['kind_event']))
+        if data['player'] is not None:
+            PlayerPlayGame.objects.filter(event__id=data['id']).delete()
+            PlayerPlayGame.objects.get(player__id=data['player']).event.add(Event.objects.get(id=data['id']))
+
+        transaction.set_autocommit(True)
+        return True, "Jogador editada com sucesso"
+    except Event.DoesNotExist:
+        return False, "Evento a editar não existe na base de dados!"
+    except PlayerPlayGame.DoesNotExist:
+        return False, "Jogador selecionado não jogou no referido jogo!"
+    except Game.DoesNotExist:
+        return False, "Jogo inexistente!"
+    except Player.DoesNotExist:
+        return False, "Jogador inexistente!"
     except Exception as e:
         print(e)
         transaction.rollback()
