@@ -56,3 +56,10 @@ def get_info_for_add_event(game_id):
     result['events'] = [k.name for k in KindEvent.objects.all()]
 
     return result
+
+def get_info_game(id):
+    resutl = {}
+
+    
+
+    return resutl
