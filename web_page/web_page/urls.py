@@ -30,6 +30,7 @@ urlpatterns = [
     path('add_team/', add_team, name='add_team'),
     path('add_player/', add_player, name='add_player'),
     path('add_game/', add_game, name='add_game'),
+    url(r'^add_event/(?P<id>\w+)/$', add_event, name='add_event'),
 
     path('teams/', teams, name='teams'),
     url(r'^team/(?P<name>\w+)/$', team, name='team'),

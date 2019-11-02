@@ -154,3 +154,51 @@ class Game(forms.Form):
             data = game["data"]
             for field_name, field in self.fields.items():
                 field.initial = data[field_name]
+
+
+class Event(forms.Form):
+    teams = forms.ChoiceField(label="Equipa", help_text="Escolha a equipa", required=True)
+    players1 = forms.ChoiceField(label="Jogador", help_text="Escolha o jogador", required=True)
+    players2 = forms.ChoiceField(label="Jogador", help_text="Escolha o jogador", required=True)
+    kind_event = forms.ChoiceField(label="Tipo de evento", help_text="Escolha o tipo de evento", required=True)
+    minute = forms.IntegerField(label="Minuto do evento", help_text="Escolha o minuto do evento",
+                                min_value=0, required=True)
+
+    def __init__(self, event=None, game_id=None, *args, **kwargs):
+        super(forms.Form, self).__init__(*args, **kwargs)
+
+        # fill form
+        fill_form = get_info_for_add_event(game_id)
+
+        teams_field = self.fields['teams']
+        players1_field = self.fields['players1']
+        players2_field = self.fields['players2']
+        events_field = self.fields['kind_event']
+
+        teams_field.choices = [("-", teams_field.help_text)]
+        players1_field.choices = [("-", players1_field.help_text)]
+        players2_field.choices = [("-", players2_field.help_text)]
+        events_field.choices = [("-", events_field.help_text)]
+
+        count = 0
+        for team in fill_form['teams']:
+            teams_field.choices.append((team, team))
+            for player in fill_form['teams'][team]:
+                if count == 0:
+                    players1_field.widget.attrs['class'] = f"form-control {team}"
+                    players1_field.choices.append((player['id'], player['name']))
+                else:
+                    players2_field.widget.attrs['class'] = f"form-control {team}"
+                    players2_field.choices.append((player['id'], player['name']))
+            count += 1
+        players1_field.widget.attrs['style'] = f"display: none;"
+        players2_field.widget.attrs['style'] = f"display: none;"
+
+        for event in fill_form['events']:
+            events_field.choices.append((event, event))
+
+        for field_name, field in self.fields.items():
+            if field_name != 'players1' and field_name != 'players2':
+                field.widget.attrs['class'] = 'form-control'
+
+            field.widget.attrs['placeholder'] = field.help_text
