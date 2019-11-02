@@ -1,4 +1,5 @@
 from django.db.models import Q
+
 from page.models import *
 
 
@@ -57,9 +58,5 @@ def get_info_for_add_event(game_id):
 
     return result
 
-def get_info_game(id):
-    resutl = {}
 
-    
 
-    return resutl

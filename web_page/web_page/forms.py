@@ -181,9 +181,8 @@ class Game(forms.Form):
             field.widget.attrs['placeholder'] = field.help_text
 
         if game:
-            data = game["data"]
             for field_name, field in self.fields.items():
-                field.initial = data[field_name]
+                field.initial = game[field_name]
 
 
 class Event(forms.Form):

@@ -470,38 +470,37 @@ def update_team(request, name):
                            error_messages=error_messages, success_messages=success_messages)
 
 
-def update_game(request,id):
+def update_game(request, id):
     html_page = "add_game.html"
     page_name = "Editar jogo"
     error_messages = []
     success_messages = []
-    form = forms.Team()
+    form = forms.Game()
 
     if not verify_if_admin(request.user):
         error_messages = ["Login invalido!"]
         return redirect('login')
     else:
-        #team_info, message = queries.get_minimal_team(name)
+        game_info, message = queries.get_info_game(id)
 
-        if not team_info:
+        if not game_info:
             error_messages = [message]
         else:
-            form = forms.Team(team=team_info)
+            form = forms.Game(game_info)
             try:
                 if request.POST:
-                    form = forms.Team(team_info, request.POST, request.FILES)
+                    form = forms.Game(game_info, request.POST, request.FILES)
 
                     if form.is_valid():
                         data = form.cleaned_data
+                        data['id'] = id
+                        serializer_data = reformat_game_data(data)
 
-                        team_serializer = TeamSerializer(data=data)
-                        if not team_serializer.is_valid():
+                        game_serializer = GameSerializer(data=serializer_data)
+                        if not game_serializer.is_valid():
                             error_messages = ["Campos inválidos!"]
                         else:
-                            # encode logo
-                            data['logo'] = image_to_base64(data['logo'])
-
-                            add_status, message = queries.update_team(data)
+                            add_status, message = queries.update_game(data)
                             if add_status:
                                 success_messages = [message]
                             else:
@@ -514,4 +513,3 @@ def update_game(request,id):
 
     return create_response(request, html_page, data=form, page_name=page_name,
                            error_messages=error_messages, success_messages=success_messages)
-
