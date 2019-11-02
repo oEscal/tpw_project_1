@@ -349,4 +349,26 @@ def get_games():
 
 
 def update_team(data):
-    pass
+    transaction.set_autocommit(False)
+
+    try:
+        team = Team.objects.filter(name=data['name'])
+
+        if not team.exists():
+            return False, "Equipa a editar não existe na base de dados!"
+
+        if data['foundation_date']:
+            team.update(foundation_date=data['foundation_date'])
+        if data['logo']:
+            team.update(logo=data['logo'])
+        if data['stadium']:
+            team.update(stadium=Stadium.objects.get(name=data['stadium']))
+
+        transaction.set_autocommit(True)
+        return True, "Equipa editada com sucesso"
+    except Stadium.DoesNotExist:
+        return False, "Estádio inexistente!"
+    except Exception as e:
+        print(e)
+        transaction.rollback()
+        return False, "Erro na base de dados a editar as informações da equipa!"

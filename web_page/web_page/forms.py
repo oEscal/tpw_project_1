@@ -62,6 +62,8 @@ class Team(forms.Form):
 
         # for the update form
         if team:
+            self.fields['name'].widget.attrs['readonly'] = "readonly"
+            self.fields['name'].required = False
             for field_name, field in self.fields.items():
                 field.initial = team[field_name]
 

@@ -450,13 +450,12 @@ def update_team(request, name):
 
                         team_serializer = TeamSerializer(data=data)
                         if not team_serializer.is_valid():
-                            error_messages = ["Campos inválidos"]
+                            error_messages = ["Campos inválidos!"]
                         else:
                             # encode logo
-
                             data['logo'] = image_to_base64(data['logo'])
 
-                            add_status, message = queries.add_team(data=data)
+                            add_status, message = queries.update_team(data)
                             if add_status:
                                 success_messages = [message]
                             else:
@@ -465,7 +464,7 @@ def update_team(request, name):
                         error_messages = ["Corrija os erros abaixo referidos!"]
             except Exception as e:
                 print(e)
-                error_messages = ["Erro ao adicionar nova equipa"]
+                error_messages = ["Erro ao editar equipa!"]
 
     return create_response(request, html_page, data=form, page_name=page_name,
                            error_messages=error_messages, success_messages=success_messages)
