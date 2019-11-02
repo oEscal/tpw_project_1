@@ -477,7 +477,7 @@ def update_stadium(request, name):
     error_messages = []
     success_messages = []
     form = forms.Stadium()
-
+    new_name = None
     if not verify_if_admin(request.user):
         error_messages = ["Login invalido!"]
         return redirect('login')
@@ -502,9 +502,12 @@ def update_stadium(request, name):
                             # encode logo
                             data['picture'] = image_to_base64(data['picture'])
 
+                            data['current_name'] = stadium_info['name']
+
                             add_status, message = queries.update_stadium(data)
                             if add_status:
                                 success_messages = [message]
+                                new_name = data['name']
                             else:
                                 error_messages = [message]
                     else:
@@ -513,5 +516,8 @@ def update_stadium(request, name):
                 print(e)
                 error_messages = ["Erro ao editar estadio!"]
 
-    return create_response(request, html_page, data=form, page_name=page_name,
-                           error_messages=error_messages, success_messages=success_messages)
+    if new_name is not None:
+        return redirect(f'/update_stadium/{new_name}')
+    else:
+        return create_response(request, html_page, data=form, page_name=page_name,
+                               error_messages=error_messages, success_messages=success_messages)

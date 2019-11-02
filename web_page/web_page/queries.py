@@ -378,7 +378,7 @@ def update_stadium(data):
     transaction.set_autocommit(False)
 
     try:
-        stadium = Stadium.objects.filter(name=data['name'])
+        stadium = Stadium.objects.filter(name=data['current_name'])
 
         if not stadium.exists():
             return False, "Estadio a editar mao existe na base de dados"
