@@ -156,7 +156,8 @@ def add_event(data):
 
         new_event = Event.objects.create(
             id=next_id(Event),
-            minute=data['minute']
+            minute=data['minute'],
+            kind_event=KindEvent.objects.get(name=data['kind_event'])
         )
 
         player_play_game = PlayerPlayGame.objects.get(Q(player__id=data['player']) & Q(game__id=data['game']))
@@ -164,6 +165,9 @@ def add_event(data):
 
         transaction.set_autocommit(True)
         return True, "Evento adicionado com sucesso"
+    except KindEvent.DoesNotExist:
+        transaction.rollback()
+        return False, "Esse evento não existe!"
     except PlayerPlayGame.DoesNotExist:
         transaction.rollback()
         return False, "Este jogador não está adicionado a este jogo!"
