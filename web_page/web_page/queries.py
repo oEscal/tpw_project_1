@@ -5,6 +5,9 @@ from page.serializers import *
 from web_page.help_queries import get_players_per_team
 
 
+from web_page.settings import MAX_PLAYERS_MATCH, MIN_PLAYERS_MATCH
+
+
 def next_id(model):
     max_id = model.objects.aggregate(Max('id'))['id__max']
     if not max_id:
@@ -96,6 +99,7 @@ def add_game(data):
             GameStatus.objects.create(
                 game=new_game,
                 team=team_model,
+                goals=data['goals'][i],
                 shots=data['shots'][i],
                 ball_possession=data['ball_possessions'][i],
                 corners=data['corners'][i]
@@ -174,23 +178,40 @@ def add_event(data):
 
 
 def add_player_to_game(data):
+    transaction.set_autocommit(False)
+
     try:
-        # verify if player is already on that game
-        if PlayerPlayGame.objects.filter(Q(game__id=data['game']) & Q(player__id=data['player'])).exists():
-            return False, "Jogador já adicionado a este jogo!"
+        game_id = data['id']
+        teams = data['teams']
 
-        PlayerPlayGame.objects.create(
-            game=Game.objects.get(id=data['game']),
-            player=Player.objects.get(id=data['player'])
-        )
+        # verify max and min number of players on that team on that game
+        for t in teams:
+            if len(set(teams[t])) > MAX_PLAYERS_MATCH or len(set(teams[t])) < MIN_PLAYERS_MATCH:
+                return False, f"O número de jogadores por equipa deve estar compreendido " \
+                              f"entre {MIN_PLAYERS_MATCH} e {MAX_PLAYERS_MATCH}!"
 
+        # verify if already there are players on that game
+        if PlayerPlayGame.objects.filter(game_id=game_id).exists():
+            return False, "Já foram definidos os jogadores que jogam nesse jogo!"
+
+        for t in teams:
+            for p in teams[t]:
+                PlayerPlayGame.objects.create(
+                    game=Game.objects.get(id=game_id),
+                    player=Player.objects.get(id=p)
+                )
+
+        transaction.set_autocommit(True)
         return True, "Jogador adicionado com sucesso ao jogo"
     except Game.DoesNotExist:
+        transaction.rollback()
         return False, "Jogo não existente!"
     except Player.DoesNotExist:
+        transaction.rollback()
         return False, "Jogador não existente!"
     except Exception as e:
         print(e)
+        transaction.rollback()
         return False, "Erro na base de dados a adicionar novo jogador ao jogo"
 
 
