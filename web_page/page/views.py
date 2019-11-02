@@ -49,6 +49,7 @@ def create_response(request, html_page, data=None, page_name=None, success_messa
 
 def add_stadium(request):
     html_page = "add_stadium.html"
+    page_name = "Novo Estadio"
     error_messages = []
     success_messages = []
     form = forms.Stadium()
@@ -80,7 +81,7 @@ def add_stadium(request):
             print(e)
             error_messages = ["Erro a adicionar novo estádio!"]
 
-    return create_response(request, html_page, data=form, error_messages=error_messages,
+    return create_response(request, html_page, data=form, page_name=page_name, error_messages=error_messages,
                            success_messages=success_messages)
 
 
@@ -465,6 +466,52 @@ def update_team(request, name):
             except Exception as e:
                 print(e)
                 error_messages = ["Erro ao editar equipa!"]
+
+    return create_response(request, html_page, data=form, page_name=page_name,
+                           error_messages=error_messages, success_messages=success_messages)
+
+
+def update_stadium(request, name):
+    html_page = "add_stadium.html"
+    page_name = "Editar estadio"
+    error_messages = []
+    success_messages = []
+    form = forms.Stadium()
+
+    if not verify_if_admin(request.user):
+        error_messages = ["Login invalido!"]
+        return redirect('login')
+    else:
+        stadium_info, message = queries.get_stadium(name)
+
+        if not stadium_info:
+            error_messages = [message]
+        else:
+            form = forms.Stadium(stadium_info)
+            try:
+                if request.POST:
+                    form = forms.Stadium(stadium_info, request.POST, request.FILES)
+
+                    if form.is_valid():
+                        data = form.cleaned_data
+
+                        stadium_serializer = StadiumSerializer(data=data)
+                        if not stadium_serializer.is_valid():
+                            error_messages = ["Campos inválidos!"]
+                        else:
+                            # encode logo
+                            data['picture'] = image_to_base64(data['picture'])
+
+                            add_status, message = queries.update_stadium(data)
+                            if add_status:
+                                success_messages = [message]
+                            else:
+                                error_messages = [message]
+                    else:
+                        error_messages = ["Corrija os erros abaixo referidos!"]
+            except Exception as e:
+                print(e)
+                error_messages = ["Erro ao editar estadio!"]
 
     return create_response(request, html_page, data=form, page_name=page_name,
                            error_messages=error_messages, success_messages=success_messages)

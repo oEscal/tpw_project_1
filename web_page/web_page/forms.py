@@ -1,7 +1,7 @@
 from django import forms
 
 from web_page.help_queries import *
-from web_page.settings import MIN_PLAYERS_MATCH, MAX_PLAYERS_MATCH
+from web_page.settings import MAX_PLAYERS_MATCH
 
 
 class DateInput(forms.DateInput):
@@ -28,9 +28,10 @@ class Stadium(forms.Form):
 
         # for the update form
         if stadium:
+            self.fields['address'].widget.attrs['readonly'] = "readonly"
+            self.fields['address'].required = False
             for field_name, field in self.fields.items():
                 field.initial = stadium[field_name]
-
 
 
 class Team(forms.Form):
@@ -147,7 +148,8 @@ class Game(forms.Form):
     home_ball_pos = forms.IntegerField(label="Posse de bola da equipa local",
                                        help_text="Insira a posse de bola da equipa local", min_value=0, required=True)
     away_ball_pos = forms.IntegerField(label="Posse de bola da equipa visitante",
-                                       help_text="Insira a posse de bola da equipa visitante", min_value=0, required=True)
+                                       help_text="Insira a posse de bola da equipa visitante", min_value=0,
+                                       required=True)
     home_corners = forms.IntegerField(label="Cantos da equipa local", help_text="Insira os cantos da equipa local",
                                       min_value=0, required=True)
     away_corners = forms.IntegerField(label="Cantos da equipa visitante",

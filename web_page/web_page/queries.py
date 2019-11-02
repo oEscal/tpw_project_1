@@ -372,3 +372,27 @@ def update_team(data):
         print(e)
         transaction.rollback()
         return False, "Erro na base de dados a editar as informações da equipa!"
+
+
+def update_stadium(data):
+    transaction.set_autocommit(False)
+
+    try:
+        stadium = Stadium.objects.filter(name=data['name'])
+
+        if not stadium.exists():
+            return False, "Estadio a editar mao existe na base de dados"
+
+        if data['name']:
+            stadium.update(name=data['name'])
+        if data['number_seats']:
+            stadium.update(number_seats=data['number_seats'])
+        if data['picture']:
+            stadium.update(picture=data['picture'])
+
+        transaction.set_autocommit(True)
+        return True, "Estadio editado com sucesso"
+    except Exception as e:
+        print(e)
+        transaction.rollback()
+        return False, "Errno na base de dados a editar as informações do estadio!"

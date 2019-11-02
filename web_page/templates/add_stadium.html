@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
-{% block title %}Adicionar novo estádio{% endblock %}
-{% block title_on_page %}Novo estádio{% endblock %}
+{% block title %}{{ page_name }}{% endblock %}
+{% block title_on_page %}{{ page_name }}{% endblock %}
 
 {% load static %}
 
@@ -81,7 +81,7 @@
                             <div class="form-group row">
                                 <div class="col-lg-12">
                                     <input type="submit" class="btn btn-primary btn-lg btn-block"
-                                           value="Adicionar estádio">
+                                           value="{{ page_name }}">
                                 </div>
                             </div>
                         </div>
