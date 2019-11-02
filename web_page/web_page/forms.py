@@ -48,7 +48,7 @@ class Team(forms.Form):
         # for showing all current stadiums in the stadium input
         stadium_field = self.fields['stadium']
         stadium_choices = [("-", stadium_field.help_text)]
-        all_stadiums = get_all_stadium_for_team()
+        all_stadiums = get_all_stadium_for_team(team['stadium'] if team else None)
 
         for stadium in all_stadiums:
             stadium_choices.append((stadium.name, stadium.name))
@@ -62,9 +62,8 @@ class Team(forms.Form):
 
         # for the update form
         if team:
-            data = team["data"]
             for field_name, field in self.fields.items():
-                field.initial = data[field_name]
+                field.initial = team[field_name]
 
 
 class Player(forms.Form):

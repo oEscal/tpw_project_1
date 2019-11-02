@@ -234,13 +234,31 @@ def get_teams():
     return result, "Sucesso"
 
 
-def get_team(name):
+def get_minimal_team(name):
     result = {}
 
     try:
         result.update(TeamSerializer(Team.objects.get(name=name)).data)
 
         result['stadium'] = Stadium.objects.get(team__name=name).name
+    except Team.DoesNotExist:
+        return None, "Equipa não existe!"
+    except Exception as e:
+        print(e)
+        return None, "Erro na base de dados a obter a equipa!"
+
+    return result, "Sucesso"
+
+
+def get_team(name):
+    result = {}
+
+    try:
+        data, message = get_minimal_team(name)
+        if data:
+            result.update(data)
+        else:
+            return data, message
 
         result['players'] = []
         for p in Player.objects.filter(team__name=name):
@@ -249,11 +267,9 @@ def get_team(name):
                 'position': p.position.name
             })
             result['players'].append(p_info)
-    except Team.DoesNotExist:
-        return None, "Equipa não existe!"
     except Exception as e:
         print(e)
-        return None, "Erro na base de dados a obter a equipa!"
+        return None, "Erro na base de dados a obter os jogadores da equipa!"
 
     return result, "Sucesso"
 
@@ -327,3 +343,10 @@ def get_games():
         return None, "Erro na base de dados a obter todos os jogos!"
 
     return result, "Sucesso"
+
+
+######################### Update #########################
+
+
+def update_team(data):
+    pass
