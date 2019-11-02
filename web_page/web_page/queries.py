@@ -276,7 +276,10 @@ def get_player(id):
     result = {}
 
     try:
-        result.update(PlayerSerializer(Player.objects.get(id=id)).data)
+        player = Player.objects.get(id=id)
+        result.update(PlayerSerializer(player).data)
+
+        result['photo'] = player.photo
         result['position'] = Position.objects.get(player__id=id).name
         result['team'] = Team.objects.get(player__id=id).name
     except Player.DoesNotExist:
