@@ -100,9 +100,7 @@
         }
 
         #timeline .timeline-movement .timeline-item .timeline-panel {
-            border: 1px solid #d4d4d4;
-            border-radius: 3px;
-            background-color: #FFFFFF;
+            background-color: rgba(255, 255, 255, 0.5);
             color: #666;
             padding: 10px;
             position: relative;
@@ -284,107 +282,122 @@
                                 </div>
                                 <div class="collapse" id="collapseExample">
                                     <div class="container">
+                                        <br>
+                                        <h4 style="color: #4997cd">Minuto</h4>
                                         <div id="timeline">
+                                            {% for e in g.events %}
+                                                <div class="row timeline-movement">
+                                                    <div class="timeline-badge">
+                                                        <span class="timeline-balloon-date-day">{{ e.minute }}</span>
+                                                    </div>
 
-                                            <div class="row timeline-movement">
+                                                    {% if e.team == g.teams.1.name %}
+                                                        <div class="col-sm-6">
+                                                        </div>
+                                                    {% endif %}
 
-                                                <div class="timeline-badge">
-                                                    <span class="timeline-balloon-date-day">18</span>
-                                                </div>
+                                                    <div class="col-sm-6  timeline-item p-1">
+                                                        <div class="row">
+                                                            <div class="col-sm-offset-1 col-sm-11">
+                                                                <div class="timeline-panel credits">
+                                                                    <ul class="timeline-panel-ul">
+                                                                        <li>
+                                                                            <span class="importo">
+                                                                                {{ e.player }}
+                                                                            </span>
+                                                                        </li>
+                                                                        <li>
+                                                                            <p>
+                                                                                <small class="text-muted">
+                                                                                    {{ e.kind_event }}
+                                                                                </small>
+                                                                            </p>
+                                                                        </li>
+                                                                    </ul>
+                                                                </div>
 
-                                                <div class="col-sm-6  timeline-item">
-                                                    <div class="row">
-                                                        <div class="col-sm-offset-1 col-sm-11">
-                                                            <div class="timeline-panel debits">
-                                                                <ul class="timeline-panel-ul">
-                                                                    <li><span
-                                                                            class="importo">Mussum ipsum cacilds</span>
-                                                                    </li>
-                                                                    <li><span class="causale">Lorem ipsum dolor sit amet, consectetur adipiscing elit. </span>
-                                                                    </li>
-                                                                    <li><p><small class="text-muted"><i
-                                                                            class="glyphicon glyphicon-time"></i>
-                                                                        11/09/2014</small></p></li>
-                                                                </ul>
                                                             </div>
-
                                                         </div>
                                                     </div>
-                                                </div>
-                                            </div>
 
+                                                    {% if e.team == g.teams.0.name %}
+                                                        <div class="col-sm-6">
+                                                        </div>
+                                                    {% endif %}
+                                                </div>
+                                            {% endfor %}
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
-                        <div class="col-12">
-                            <br>
-                            <br>
-                            <button class="btn btn-dark pull-right less_info_btn" id="{{ g.id }}">Menos info
-                            </button>
-                        </div>
+                            <div class="col-12">
+                                <br>
+                                <br>
+                                <button class="btn btn-dark pull-right less_info_btn" id="{{ g.id }}">Menos info
+                                </button>
+                            </div>
 
                         </div>
                     {% endfor %}
+                </div>
             </div>
-        </div>
 
-        <!-- All games -->
-        <div class="row align-items-center mb-5">
-            <div class="col-md-12">
-                {% for g in data %}
-                    <div class="row bg-white align-items-center ml-0 mr-0 py-4 match-entry">
-                        <div class="col-md-4 col-lg-4 mb-4 mb-lg-0">
+            <!-- All games -->
+            <div class="row align-items-center mb-5">
+                <div class="col-md-12">
+                    {% for g in data %}
+                        <div class="row bg-white align-items-center ml-0 mr-0 py-4 match-entry">
+                            <div class="col-md-4 col-lg-4 mb-4 mb-lg-0">
 
-                            <div class="text-center text-lg-left">
-                                <div class="d-block d-lg-flex align-items-center">
-                                    <div class="image image-small text-center mb-3 mb-lg-0 mr-lg-3">
-                                        <img src="{% if data.teams.0.logo %}
+                                <div class="text-center text-lg-left">
+                                    <div class="d-block d-lg-flex align-items-center">
+                                        <div class="image image-small text-center mb-3 mb-lg-0 mr-lg-3">
+                                            <img src="{% if data.teams.0.logo %}
                                                         data:image/png;base64,{{ data.teams.0.logo }}
                                                         {% else %}
                                                         https://domingoasdez.com/images/default-emblem.png
                                                         {% endif %}" alt="Image" class="img-fluid">
-                                    </div>
-                                    <div class="text">
-                                        <h3 class="h5 mb-0 text-black">{{ g.teams.0.name }}</h3>
-                                        <span class="text-uppercase small country">Casa</span>
+                                        </div>
+                                        <div class="text">
+                                            <h3 class="h5 mb-0 text-black">{{ g.teams.0.name }}</h3>
+                                            <span class="text-uppercase small country">Casa</span>
+                                        </div>
                                     </div>
                                 </div>
+
+                            </div>
+                            <div class="col-md-4 col-lg-4 text-center mb-4 mb-lg-0">
+                                <div class="d-inline-block">
+                                    <div class="bg-black py-2 px-4 mb-2 text-white d-inline-block rounded"><span
+                                            class="h5">{{ g.teams.0.goals }}:{{ g.teams.1.goals }}</span></div>
+                                </div>
+                                <br>
+                                <button class="btn btn-dark more_info_btn" id="{{ g.id }}">Mais info</button>
                             </div>
 
-                        </div>
-                        <div class="col-md-4 col-lg-4 text-center mb-4 mb-lg-0">
-                            <div class="d-inline-block">
-                                <div class="bg-black py-2 px-4 mb-2 text-white d-inline-block rounded"><span
-                                        class="h5">{{ g.teams.0.goals }}:{{ g.teams.1.goals }}</span></div>
-                            </div>
-                            <br>
-                            <button class="btn btn-dark more_info_btn" id="{{ g.id }}">Mais info</button>
-                        </div>
-
-                        <div class="col-md-4 col-lg-4 text-center text-lg-right">
-                            <div class="">
-                                <div class="d-block d-lg-flex align-items-center">
-                                    <div class="image image-small ml-lg-3 mb-3 mb-lg-0 order-2">
-                                        <img src="{% if data.teams.1.logo %}
+                            <div class="col-md-4 col-lg-4 text-center text-lg-right">
+                                <div class="">
+                                    <div class="d-block d-lg-flex align-items-center">
+                                        <div class="image image-small ml-lg-3 mb-3 mb-lg-0 order-2">
+                                            <img src="{% if data.teams.1.logo %}
                                                         data:image/png;base64,{{ data.teams.1.logo }}
                                                         {% else %}
                                                         https://domingoasdez.com/images/default-emblem.png
                                                         {% endif %}" alt="Image" class="img-fluid">
-                                    </div>
-                                    <div class="text order-1 w-100">
-                                        <h3 class="h5 mb-0 text-black">{{ g.teams.1.name }}</h3>
-                                        <span class="text-uppercase small country">Fora</span>
+                                        </div>
+                                        <div class="text order-1 w-100">
+                                            <h3 class="h5 mb-0 text-black">{{ g.teams.1.name }}</h3>
+                                            <span class="text-uppercase small country">Fora</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                {% endfor %}
+                    {% endfor %}
+                </div>
             </div>
         </div>
-    </div>
     </div>
 {% endblock content %}
 
