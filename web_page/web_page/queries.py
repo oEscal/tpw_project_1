@@ -236,7 +236,9 @@ def get_minimal_team(name):
     result = {}
 
     try:
-        result.update(TeamSerializer(Team.objects.get(name=name)).data)
+        team = Team.objects.get(name=name)
+        result.update(TeamSerializer(team).data)
+        result['logo'] = team.logo
 
         result['stadium'] = Stadium.objects.get(team__name=name).name
     except Team.DoesNotExist:
