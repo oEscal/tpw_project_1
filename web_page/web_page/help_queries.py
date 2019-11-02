@@ -11,6 +11,20 @@ def get_all_positions():
     return Position.objects.all().order_by('id')
 
 
+def get_game_team_players(game_id):
+    result = {}
+
+    for t in [s.team for s in GameStatus.objects.filter(game_id=game_id)]:
+        result[t.name] = []
+        for p in Player.objects.filter(team=t):
+            result[t.name].append({
+                'name': p.name,
+                'id': p.id
+            })
+
+    return result
+
+
 def get_all_stadium():
     return Stadium.objects.all()
 

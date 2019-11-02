@@ -19,6 +19,8 @@
     <link rel="stylesheet" href="{% static "css/aos.css" %}">
     <link rel="stylesheet" href="{% static "css/style.css" %}">
 
+    {% block style %}{% endblock style %}
+
 </head>
 
   <body>
@@ -249,7 +251,6 @@
     <script src="{% static "js/jquery.magnific-popup.min.js" %}"></script>
     <script src="{% static "js/aos.js" %}"></script>
     <script src="{% static "js/main.js" %}"></script>
-    {% block style %}{% endblock style %}
 {% block script %}{% endblock %}
   </body>
 </html>

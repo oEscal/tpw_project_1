@@ -5,6 +5,9 @@ from page.serializers import *
 from web_page.help_queries import get_players_per_team
 
 
+from web_page.settings import MAX_PLAYERS_MATCH, MIN_PLAYERS_MATCH
+
+
 def next_id(model):
     max_id = model.objects.aggregate(Max('id'))['id__max']
     if not max_id:
@@ -60,6 +63,7 @@ def add_game(data):
     try:
         # verify ball possession percentage
         if sum(data['ball_possessions']) != 100:
+            transaction.rollback()
             return False, "A soma das posses de bola das duas equipas deve ser igual a 100!"
 
         new_game = Game.objects.create(
@@ -73,23 +77,29 @@ def add_game(data):
             team_model = Team.objects.get(name=data['teams'][i])
 
             # verify if these teams already have had at least one game on that day
-            if Game.objects.filter(Q(date=data['date']) & Q(team=team_model)).exists():
+            if Game.objects.filter(Q(date=data['date']) & Q(gamestatus__team=team_model)).exists():
+                transaction.rollback()
                 return False, f"A equipa {data['teams'][i]} já jogou no referido dia!"
-            if Game.objects.filter(Q(journey=data['journey']) & Q(team=team_model)):
+            if Game.objects.filter(Q(journey=data['journey']) & Q(gamestatus__team=team_model)):
+                transaction.rollback()
                 return False, f"A equipa {data['teams'][i]} já jogou na referida jornada!"
 
             players_per_team = get_players_per_team(team_model.name)
 
             if len(players_per_team) < 14:
+                transaction.rollback()
                 return False, f"A equipa {data['teams'][i]} não tem jogadores suficientes inscritos (minimo 14) !"
 
-            goal_kepper_number = len(players_per_team.filter(position=Position.objects.get(id=1)))
+            goal_keeper_number = len(players_per_team.filter(position=Position.objects.get(id=1)))
 
-            if goal_kepper_number < 1:
-                return False, f"A equipa {data['teams'][i]} não tem o numero pelo menos 1 guarda-redes !"
+            if goal_keeper_number < 1:
+                transaction.rollback()
+                return False, f"A equipa {data['teams'][i]} não tem o numero pelo menos 1 guarda-redes!"
+
             GameStatus.objects.create(
                 game=new_game,
                 team=team_model,
+                goals=data['goals'][i],
                 shots=data['shots'][i],
                 ball_possession=data['ball_possessions'][i],
                 corners=data['corners'][i]
@@ -104,8 +114,8 @@ def add_game(data):
         transaction.rollback()
         return False, "Estádio enexistente!"
     except Exception as e:
-        transaction.rollback()
         print(e)
+        transaction.rollback()
         return False, "Erro na base de dados a adicionar o novo jogo!"
 
 
@@ -168,23 +178,40 @@ def add_event(data):
 
 
 def add_player_to_game(data):
+    transaction.set_autocommit(False)
+
     try:
-        # verify if player is already on that game
-        if PlayerPlayGame.objects.filter(Q(game__id=data['game']) & Q(player__id=data['player'])).exists():
-            return False, "Jogador já adicionado a este jogo!"
+        game_id = data['id']
+        teams = data['teams']
 
-        PlayerPlayGame.objects.create(
-            game=Game.objects.get(id=data['game']),
-            player=Player.objects.get(id=data['player'])
-        )
+        # verify max and min number of players on that team on that game
+        for t in teams:
+            if len(set(teams[t])) > MAX_PLAYERS_MATCH or len(set(teams[t])) < MIN_PLAYERS_MATCH:
+                return False, f"O número de jogadores por equipa deve estar compreendido " \
+                              f"entre {MIN_PLAYERS_MATCH} e {MAX_PLAYERS_MATCH}!"
 
+        # verify if already there are players on that game
+        if PlayerPlayGame.objects.filter(game_id=game_id).exists():
+            return False, "Já foram definidos os jogadores que jogam nesse jogo!"
+
+        for t in teams:
+            for p in teams[t]:
+                PlayerPlayGame.objects.create(
+                    game=Game.objects.get(id=game_id),
+                    player=Player.objects.get(id=p)
+                )
+
+        transaction.set_autocommit(True)
         return True, "Jogador adicionado com sucesso ao jogo"
     except Game.DoesNotExist:
+        transaction.rollback()
         return False, "Jogo não existente!"
     except Player.DoesNotExist:
+        transaction.rollback()
         return False, "Jogador não existente!"
     except Exception as e:
         print(e)
+        transaction.rollback()
         return False, "Erro na base de dados a adicionar novo jogador ao jogo"
 
 
@@ -228,7 +255,7 @@ def get_team(name):
         print(e)
         return None, "Erro na base de dados a obter a equipa!"
 
-    return result, "Success"
+    return result, "Sucesso"
 
 
 def get_player(id):
@@ -260,5 +287,43 @@ def get_stadium(name):
     except Exception as e:
         print(e)
         return None, "Erro na base de dados a obter o estádio!"
+
+
+def get_games():
+    result = []
+
+    try:
+        for g in Game.objects.all():
+            current_game = GameMinimalSerializer(g).data
+            current_game['id'] = g.id
+            current_game['stadium'] = g.stadium.name
+            current_game['stadium_picture'] = g.stadium.picture
+
+            current_game['teams'] = []
+            for stat in GameStatus.objects.filter(game=g):
+                current_info = {
+                    'name': stat.team.name,
+                    'logo': stat.team.logo
+                }
+                current_info.update(GameStatusSerializer(stat).data)
+                current_game['teams'].append(current_info)
+
+            current_game['events'] = []
+            for pg in PlayerPlayGame.objects.filter(game__id=g.id):
+                for event in pg.event.all():
+                    current_game['events'].append({
+                        'kind_event': event.kind_event.name,
+                        'minute': event.minute,
+                        'player': pg.player.name,
+                        'photo': pg.player.photo,
+                        'team': pg.player.team.name
+                    })
+            # sort events by minute
+            current_game['events'] = sorted(current_game['events'], key=lambda x: x['minute'])
+
+            result.append(current_game)
+    except Exception as e:
+        print(e)
+        return None, "Erro na base de dados a obter todos os jogos!"
 
     return result, "Sucesso"

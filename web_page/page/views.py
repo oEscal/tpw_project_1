@@ -6,6 +6,7 @@ from django.shortcuts import render, redirect
 # Create your views here.
 from page.serializers import *
 from web_page import queries, forms
+from web_page.settings import MIN_PLAYERS_MATCH, MAX_PLAYERS_MATCH
 
 
 def verify_if_admin(user):
@@ -159,6 +160,75 @@ def add_player(request):
                            success_messages=success_messages)
 
 
+def add_players_game(request, id):
+    # TODO -> se houver tempo, adicionar a verificação de se a equipa tem pelo menos 14 jogadores
+
+    html_page = 'players_to_game.html'
+    error_messages = []
+    success_messages = []
+    form = forms.PlayersToGame(None, id)
+
+    if not verify_if_admin(request.user):
+        error_messages = ["Login inválido!"]
+        return redirect('login')
+    else:
+        try:
+            if request.POST:
+                form = forms.PlayersToGame(None, id, request.POST)
+
+                if form.is_valid():
+                    form_data = form.cleaned_data
+                    data = {}
+                    make_query = True
+
+                    for p in form_data:
+                        data_split = p.split('-')
+                        team = data_split[0]
+                        order = int(data_split[1])
+
+                        if team not in data:
+                            data[team] = []
+                        if form_data[p].isdigit():
+                            if form_data[p] in data[team]:
+                                error_messages.append(f"Jogador {order + 1} da equipa {team} já foi escolhido!")
+                                make_query = False
+                            data[team].append(form_data[p])
+
+                    # verify if number of players is greater or smaller than the constraints
+                    for t in data:
+                        if len(set(data[t])) > MAX_PLAYERS_MATCH or len(set(data[t])) < MIN_PLAYERS_MATCH:
+                            error_messages.append(
+                                f"Tem de escolher entre {MIN_PLAYERS_MATCH} e {MAX_PLAYERS_MATCH} "
+                                f"jogadores na equipa {t}!"
+                            )
+                            make_query = False
+
+                    if make_query:
+                        add_status, message = queries.add_player_to_game({
+                            'id': id,
+                            'teams': data
+                        })
+                        if add_status:
+                            success_messages = [message]
+                        else:
+                            error_messages = [message]
+                else:
+                    error_messages = ["Corrija os erros abaixo referidos"]
+
+        except Exception as e:
+            print(e)
+            error_messages = ["Erro ao adicionar nova jogador"]
+
+    form = {
+        'form': form,
+        'max_players': MAX_PLAYERS_MATCH,
+        'min_players': MIN_PLAYERS_MATCH,
+        'teams': form.teams
+    }
+    return create_response(request, html_page, data=form, error_messages=error_messages,
+                           success_messages=success_messages)
+
+
 def reformat_game_data(data):
     new_data = {
         'date': data['date'],
@@ -167,6 +237,10 @@ def reformat_game_data(data):
         'teams': [
             data['home_team'],
             data['away_team']
+        ],
+        'goals': [
+            data['home_goals'],
+            data['away_goals']
         ],
         'shots': [
             data['home_shots'],
@@ -324,5 +398,22 @@ def stadium(request, name):
     except Exception as e:
         print(e)
         error_messages = ["Erro a obter o estádio!"]
+
+    return create_response(request, html_page, data=data, error_messages=error_messages)
+
+
+def games(request):
+    html_page = 'games.html'
+    error_messages = []
+    data = []
+
+    try:
+        data, message = queries.get_games()
+        if not data:
+            error_messages = [message]
+        print(data)
+    except Exception as e:
+        print(e)
+        error_messages = ["Erro a obter todos os jogos"]
 
     return create_response(request, html_page, data=data, error_messages=error_messages)

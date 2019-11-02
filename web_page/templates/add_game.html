@@ -47,7 +47,7 @@
                                 <div class="col-md-6 ">
                                     <label for="c_fname" class="text-black">{{ data.stadium.label_tag }}
                                         <span
-                                            class="text-danger">*</span>
+                                                class="text-danger">*</span>
                                     </label>
                                     <div class="input-sm">
                                         {{ data.stadium }}
@@ -94,6 +94,32 @@
 
                                     <div class="text-danger">
                                         {% for e in data.away_team.errors %}
+                                            {{ e }}
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-md-6">
+                                    <label for="c_fname" class="text-black">{{ data.home_goals.label_tag }} <span
+                                            class="text-danger">*</span></label>
+                                    {{ data.home_goals }}
+
+                                    <div class="text-danger">
+                                        {% for e in data.home_goals.errors %}
+                                            {{ e }}
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="c_fname" class="text-black">{{ data.away_goals.label_tag }}
+                                        <span
+                                                class="text-danger">*</span>
+                                    </label>
+                                    {{ data.away_goals }}
+
+                                    <div class="text-danger">
+                                        {% for e in data.away_goals.errors %}
                                             {{ e }}
                                         {% endfor %}
                                     </div>
