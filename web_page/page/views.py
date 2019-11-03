@@ -600,25 +600,26 @@ def update_stadium(request, name):
                             return redirect('/')
                         else:
                             error_messages = [message]
-                            if form.is_valid():
-                                data = form.cleaned_data
-                                stadium_serializer = StadiumSerializer(data=data)
-                                if not stadium_serializer.is_valid():
-                                    error_messages = ["Campos inválidos!"]
-                                else:
-                                    # encode logo
-                                    data['picture'] = image_to_base64(data['picture'])
-
-                                    data['current_name'] = stadium_info['name']
-
-                                    add_status, message = queries.update_stadium(data)
-                                    if add_status:
-                                        success_messages = [message]
-                                        new_name = data['name']
-                                    else:
-                                        error_messages = [message]
+                    else:
+                        if form.is_valid():
+                            data = form.cleaned_data
+                            stadium_serializer = StadiumSerializer(data=data)
+                            if not stadium_serializer.is_valid():
+                                error_messages = ["Campos inválidos!"]
                             else:
-                                error_messages = ["Corrija os erros abaixo referidos!"]
+                                # encode logo
+                                data['picture'] = image_to_base64(data['picture'])
+
+                                data['current_name'] = stadium_info['name']
+
+                                add_status, message = queries.update_stadium(data)
+                                if add_status:
+                                    success_messages = [message]
+                                    new_name = data['name']
+                                else:
+                                    error_messages = [message]
+                        else:
+                            error_messages = ["Corrija os erros abaixo referidos!"]
             except Exception as e:
                 print(e)
                 error_messages = ["Erro ao editar estadio!"]
