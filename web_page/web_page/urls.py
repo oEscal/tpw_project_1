@@ -40,5 +40,6 @@ urlpatterns = [
     path('games/', games, name='games'),
 
     url(r'^update_team/(?P<name>[\w\s]+)/$', update_team, name='update_team'),
-    url(r'^update_players_game/(?P<id>\w+)/$', update_player_game, name='update_team')
+    url(r'^update_players_game/(?P<id>\w+)/$', update_player_game, name='update_team'),
+    url(r'^update_player/(?P<id>[\w\s]+)/$', update_player, name='update_player'),
 ]
