@@ -34,6 +34,15 @@ def image_to_base64(image):
     return None
 
 
+######################### Index #########################
+
+
+def index(request):
+    return render(request, 'index.html', {
+        'just_menu': True
+    })
+
+
 ######################### Add #########################
 
 
