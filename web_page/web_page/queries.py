@@ -354,6 +354,27 @@ def get_games():
     return result, "Sucesso"
 
 
+def get_players_per_game(game_id):
+    result = {}
+
+    try:
+        for p in PlayerPlayGame.objects.filter(game_id=game_id):
+            player = p.player
+            team = player.team.name
+            if team not in result:
+                result[team] = []
+            result[team].append({
+                'id': player.id,
+                'name': player.name
+            })
+        return result, "Sucesso!"
+    except Game.DoesNotExist:
+        return None, "Jogo inexistente!"
+    except Exception as e:
+        print(e)
+        return None, "Erro na base de dados a obter os jogadores por jogo!"
+
+
 ######################### Update #########################
 
 
@@ -383,6 +404,56 @@ def update_team(data):
         return False, "Erro na base de dados a editar as informações da equipa!"
 
 
+def update_stadium(data):
+    transaction.set_autocommit(False)
+
+    try:
+        stadium = Stadium.objects.filter(name=data['current_name'])
+
+        if not stadium.exists():
+            return False, "Estadio a editar mao existe na base de dados"
+
+        if data['name'] is not None:
+            stadium.update(name=data['name'])
+            stadium = Stadium.objects.filter(name=data['name'])
+        if data['number_seats'] is not None:
+            stadium.update(number_seats=data['number_seats'])
+        if data['picture'] is not None:
+            stadium.update(picture=data['picture'])
+
+        transaction.set_autocommit(True)
+        return True, "Estadio editado com sucesso"
+    except Exception as e:
+        print(e)
+        transaction.rollback()
+        return False, "Errno na base de dados a editar as informações do estadio!"
+def update_player_to_game(data):
+    transaction.set_autocommit(False)
+
+    try:
+        for team in data['teams']:
+            players_game = PlayerPlayGame.objects.filter(Q(game__id=data['id']) & Q(player__team__name=team))
+
+            players_game.delete()
+
+        add_status, message = add_player_to_game(data)
+
+        if not add_status:
+            transaction.rollback()
+            return False, message
+
+        transaction.set_autocommit(True)
+        return True, "Jogadores que jogam nesse jogo editados com sucesso"
+    except Game.DoesNotExist:
+        transaction.rollback()
+        return False, "Jogo não existente!"
+    except Player.DoesNotExist:
+        transaction.rollback()
+        return False, "Jogador não existente!"
+    except Exception as e:
+        print(e)
+        transaction.rollback()
+        return False, "Erro na base de dados a editar jogadores que jogam nesse jogo!"
 def update_player(data):
     transaction.set_autocommit(False)
 

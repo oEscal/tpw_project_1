@@ -51,6 +51,7 @@ def create_response(request, html_page, data=None, page_name=None, success_messa
 
 def add_stadium(request):
     html_page = "add_stadium.html"
+    page_name = "Novo Estadio"
     error_messages = []
     success_messages = []
     form = forms.Stadium()
@@ -174,6 +175,7 @@ def add_players_game(request, id):
     # TODO -> se houver tempo, adicionar a verificação de se a equipa tem pelo menos 14 jogadores
 
     html_page = 'players_to_game.html'
+    page_name = 'Adicionar jogador a um jogo'
     error_messages = []
     success_messages = []
     form = forms.PlayersToGame(None, id)
@@ -553,4 +555,134 @@ def update_player(request, id):
                 error_messages = ["Erro ao editar jogador!"]
 
     return create_response(request, html_page, data=form, page_name=page_name,
-                           error_messages=error_messages, success_messages=success_messages, is_admin=is_admin)
+                           error_messages=error_messages, success_messages=success_messages)
+
+
+def update_stadium(request, name):
+    html_page = "add_stadium.html"
+    page_name = "Editar estadio"
+    error_messages = []
+    success_messages = []
+    form = forms.Stadium()
+    new_name = None
+
+    if not verify_if_admin(request.user):
+        error_messages = ["Login invalido!"]
+        return redirect('login')
+    else:
+        stadium_info, message = queries.get_stadium(name)
+
+        status_param = request.GET.get('status', '')
+        if status_param:
+            success_messages = [status_param]
+
+        if not stadium_info:
+            error_messages = [message]
+        else:
+
+            form = forms.Stadium(stadium_info)
+            try:
+                if request.POST:
+                    form = forms.Stadium(stadium_info, request.POST, request.FILES)
+
+                    if form.is_valid():
+                        data = form.cleaned_data
+                        stadium_serializer = StadiumSerializer(data=data)
+                        if not stadium_serializer.is_valid():
+                            error_messages = ["Campos inválidos!"]
+                        else:
+                            # encode logo
+                            data['picture'] = image_to_base64(data['picture'])
+
+                            data['current_name'] = stadium_info['name']
+
+                            add_status, message = queries.update_stadium(data)
+                            if add_status:
+                                success_messages = [message]
+                                new_name = data['name']
+                            else:
+                                error_messages = [message]
+                    else:
+                        error_messages = ["Corrija os erros abaixo referidos!"]
+            except Exception as e:
+                print(e)
+                error_messages = ["Erro ao editar jogador!"]
+
+    if new_name is not None:
+        return redirect(f'/update_stadium/{new_name}?status=Sucesso')
+    else:
+        return create_response(request, html_page, data=form, page_name=page_name,
+                               error_messages=error_messages, success_messages=success_messages)
+
+
+def update_player_game(request, id):
+    html_page = 'players_to_game.html'
+    page_name = 'Editar jogadores num jogo'
+    error_messages = []
+    success_messages = []
+    form = forms.PlayersToGame(None, id)
+
+    if not verify_if_admin(request.user):
+        error_messages = ["Login inválido!"]
+        return redirect('login')
+    else:
+        try:
+            players, message = queries.get_players_per_game(id)
+
+            if not players:
+                error_messages = [message]
+            else:
+
+                form = forms.PlayersToGame(players, id)
+                if request.POST:
+                    form = forms.PlayersToGame(players, id, request.POST)
+                    if form.is_valid():
+                        form_data = form.cleaned_data
+
+                        data = {}
+                        make_query = True
+                        for p in form_data:
+                            data_split = p.split('-')
+                            team = data_split[0]
+                            order = int(data_split[1])
+                            if team not in data:
+                                data[team] = []
+                            if form_data[p].isdigit():
+                                if form_data[p] in data[team]:
+                                    error_messages.append(f"Jogador {order + 1} da equipa {team} já foi escolhido!")
+                                    make_query = False
+                                data[team].append(form_data[p])
+
+                        # verify if number of players is greater or smaller than the constraints
+                        for t in data:
+                            if len(set(data[t])) > MAX_PLAYERS_MATCH or len(set(data[t])) < MIN_PLAYERS_MATCH:
+                                error_messages.append(
+                                    f"Tem de escolher entre {MIN_PLAYERS_MATCH} e {MAX_PLAYERS_MATCH} "
+                                    f"jogadores na equipa {t}!"
+                                )
+                                make_query = False
+                        if make_query:
+                            players, message = queries.get_players_per_game(id)
+                            add_status, message = queries.update_player_to_game({
+                                'id': id,
+                                'teams': data
+                            })
+                            if add_status:
+                                success_messages = [message]
+                            else:
+                                error_messages = [message]
+                    else:
+                        error_messages = ["Corrija os erros abaixo referidos"]
+
+        except Exception as e:
+            print(e)
+            error_messages = ["Erro ao adicionar nova jogador"]
+
+    form = {
+        'form': form,
+        'max_players': MAX_PLAYERS_MATCH,
+        'min_players': MIN_PLAYERS_MATCH,
+        'teams': form.teams
+    }
+    return create_response(request, html_page, data=form, page_name=page_name, error_messages=error_messages,
+                           success_messages=success_messages)
