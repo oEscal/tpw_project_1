@@ -367,6 +367,8 @@ def get_players_per_game(game_id):
 
 
 ######################### Update #########################
+
+
 def update_team(data):
     transaction.set_autocommit(False)
 
@@ -393,32 +395,23 @@ def update_team(data):
         return False, "Erro na base de dados a editar as informações da equipa!"
 
 
-'''def add_player_to_game(data):
+def update_player_to_game(data):
     transaction.set_autocommit(False)
 
     try:
-        game_id = data['id']
-        teams = data['teams']
+        for team in data['teams']:
+            players_game = PlayerPlayGame.objects.filter(Q(game__id=data['id']) & Q(player__team__name=team))
 
-        # verify max and min number of players on that team on that game
-        for t in teams:
-            if len(set(teams[t])) > MAX_PLAYERS_MATCH or len(set(teams[t])) < MIN_PLAYERS_MATCH:
-                return False, f"O número de jogadores por equipa deve estar compreendido " \
-                              f"entre {MIN_PLAYERS_MATCH} e {MAX_PLAYERS_MATCH}!"
+            players_game.delete()
 
-        # verify if already there are players on that game
-        if PlayerPlayGame.objects.filter(game_id=game_id).exists():
-            return False, "Já foram definidos os jogadores que jogam nesse jogo!"
+        add_status, message = add_player_to_game(data)
 
-        for t in teams:
-            for p in teams[t]:
-                PlayerPlayGame.objects.create(
-                    game=Game.objects.get(id=game_id),
-                    player=Player.objects.get(id=p)
-                )
+        if not add_status:
+            transaction.rollback()
+            return False, message
 
         transaction.set_autocommit(True)
-        return True, "Jogador adicionado com sucesso ao jogo"
+        return True, "Jogadores que jogam nesse jogo editados com sucesso"
     except Game.DoesNotExist:
         transaction.rollback()
         return False, "Jogo não existente!"
@@ -428,43 +421,4 @@ def update_team(data):
     except Exception as e:
         print(e)
         transaction.rollback()
-        return False, "Erro na base de dados a adicionar novo jogador ao jogo"'''
-
-
-def update_player_to_game(data, players):
-    transaction.set_autocommit(False)
-    try:
-        game_id = data['id']
-        teams = data['teams']
-        print("data ", data)
-        print("players ", players)
-        if teams:
-            # verify max and min number of players on that team on that game
-            for t in teams:
-                if len(set(teams[t])) > MAX_PLAYERS_MATCH or len(set(teams[t])) < MIN_PLAYERS_MATCH:
-                    return False, f"O número de jogadores por equipa deve estar compreendido " \
-                                  f"entre {MIN_PLAYERS_MATCH} e {MAX_PLAYERS_MATCH}!"
-
-            #for t in teams:
-            #    for p in range(len(players[t])):
-            #        id = players[t][p]['id']
-            #        player_game = PlayerPlayGame.objects.filter(Q(game=game_id) & Q(player=id))
-            #        print(player_game)
-            #        events = player_game[0].event.all()
-            #        player_game.delete()
-            #
-#
-            #        teams[t].remove(teams[t][p])
-
-        transaction.set_autocommit(True)
-        return True, "Jogador adicionado com sucesso ao jogo"
-    except Game.DoesNotExist:
-        transaction.rollback()
-        return False, "Jogo não existente!"
-    except Player.DoesNotExist:
-        transaction.rollback()
-        return False, "Jogador não existente!"
-    except Exception as e:
-        print(e)
-        transaction.rollback()
-        return False, "Erro na base de dados a adicionar novo jogador ao jogo"
+        return False, "Erro na base de dados a editar jogadores que jogam nesse jogo!"

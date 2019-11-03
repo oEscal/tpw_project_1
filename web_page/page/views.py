@@ -494,6 +494,7 @@ def update_player_game(request, id):
                     form = forms.PlayersToGame(players, id, request.POST)
                     if form.is_valid():
                         form_data = form.cleaned_data
+
                         data = {}
                         make_query = True
                         for p in form_data:
@@ -507,6 +508,7 @@ def update_player_game(request, id):
                                     error_messages.append(f"Jogador {order + 1} da equipa {team} já foi escolhido!")
                                     make_query = False
                                 data[team].append(form_data[p])
+
                         # verify if number of players is greater or smaller than the constraints
                         for t in data:
                             if len(set(data[t])) > MAX_PLAYERS_MATCH or len(set(data[t])) < MIN_PLAYERS_MATCH:
@@ -520,7 +522,7 @@ def update_player_game(request, id):
                             add_status, message = queries.update_player_to_game({
                                 'id': id,
                                 'teams': data
-                            }, players)
+                            })
                             if add_status:
                                 success_messages = [message]
                             else:
