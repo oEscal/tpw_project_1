@@ -303,25 +303,52 @@
                                                                                             debits
                                                                                             {% endif %}">
                                                                     <ul class="timeline-panel-ul">
-                                                                        <div class="image image-small text-center mb-3 mb-lg-0 mr-lg-3">
-                                                                            <img src="{% if e.photo %}
+                                                                        <div class="text-center col-12 row">
+                                                                            <div class="col-12">
+                                                                                <li class="{% if e.team == g.teams.1.name %}
+                                                                                            pull-right
+                                                                                            {% else %}
+                                                                                            pull-left
+                                                                                            {% endif %}">
+                                                                                    <span class="importo h4">
+                                                                                        {{ e.player }}
+                                                                                    </span>
+                                                                                </li>
+                                                                            </div>
+                                                                            {% if e.team == g.teams.1.name %}
+                                                                                <div class="col-9">
+                                                                                    <p class="pull-left">
+                                                                                        <small class="text-muted h5">
+                                                                                            {{ e.kind_event }}
+                                                                                        </small>
+                                                                                    </p>
+                                                                                </div>
+                                                                                <div class="col-3">
+                                                                                    <img src="{% if e.photo %}
                                                                                 data:image/png;base64,{{ e.photo }}
                                                                                 {% else %}
-                                                                                https://domingoasdez.com/images/default-emblem.png
-                                                                                {% endif %}" alt="Image" class="img-fluid">
+                                                                                https://www.library.caltech.edu/sites/default/files/styles/headshot/public/default_images/user.png?itok=1HlTtL2d
+                                                                                {% endif %}" alt="Image"
+                                                                                         class="img-fluid pull-right">
+                                                                                </div>
+                                                                            {% else %}
+                                                                                <div class="col-3">
+                                                                                    <img src="{% if e.photo %}
+                                                                                data:image/png;base64,{{ e.photo }}
+                                                                                {% else %}
+                                                                                https://www.library.caltech.edu/sites/default/files/styles/headshot/public/default_images/user.png?itok=1HlTtL2d
+                                                                                {% endif %}" alt="Image"
+                                                                                         class="img-fluid pull-left">
+                                                                                </div>
+                                                                                <div class="col-9">
+                                                                                    <p class="pull-right">
+                                                                                        <small class="text-muted h5">
+                                                                                            {{ e.kind_event }}
+                                                                                        </small>
+                                                                                    </p>
+                                                                                </div>
+                                                                            {% endif %}
                                                                         </div>
-                                                                        <li>
-                                                                            <span class="importo">
-                                                                                {{ e.player }}
-                                                                            </span>
-                                                                        </li>
-                                                                        <li>
-                                                                            <p>
-                                                                                <small class="text-muted">
-                                                                                    {{ e.kind_event }}
-                                                                                </small>
-                                                                            </p>
-                                                                        </li>
                                                                     </ul>
                                                                 </div>
 

@@ -498,9 +498,7 @@ def update_player(request, id):
                         data = form.cleaned_data
 
                         player_serializer = PlayerSerializer(data=data)
-                        print(data)
                         if not player_serializer.is_valid():
-                            print(player_serializer.errors)
                             error_messages = ["Campos inválidos!"]
                         else:
                             # encode logo
