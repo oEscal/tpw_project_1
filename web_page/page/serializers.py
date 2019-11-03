@@ -18,27 +18,27 @@ class StadiumSerializer(serializers.Serializer):
             MinValueValidator(0)
         ]
     )
-    picture = serializers.ImageField(required=False, allow_null=True)
+    picture = serializers.ImageField(required=False, allow_empty_file=True, allow_null=True)
 
 
 class TeamSerializer(serializers.Serializer):
     name = serializers.CharField(required=True, max_length=200)
     foundation_date = serializers.DateField(required=False, allow_null=True)
-    logo = serializers.ImageField(required=False, allow_null=True)
+    logo = serializers.ImageField(required=False, allow_empty_file=True, allow_null=True)
     stadium = serializers.CharField(required=True, max_length=200)
 
 
 class PlayerMinimalSerializer(serializers.Serializer):
     id = serializers.IntegerField(required=True)
     name = serializers.CharField(required=True, max_length=200)
-    photo = serializers.ImageField(required=False, allow_null=True)
+    photo = serializers.ImageField(required=False, allow_empty_file=True, allow_null=True)
 
 
 class PlayerSerializer(serializers.Serializer):
     name = serializers.CharField(required=True, max_length=200)
-    birth_date = serializers.DateField(required=False, allow_null=True)
-    photo = serializers.ImageField(required=False, allow_null=True)
-    nick = serializers.CharField(required=False, allow_null=True, max_length=200)
+    birth_date = serializers.DateField(required=True)
+    photo = serializers.ImageField(required=False, allow_null=True, allow_empty_file=True)
+    nick = serializers.CharField(required=False, allow_null=True, allow_blank=True, max_length=200)
     position = serializers.CharField(required=True, max_length=200)
     team = serializers.CharField(required=True, max_length=200)
 

@@ -119,7 +119,7 @@ def add_game(data):
 
 def add_player(data):
     # verify is player already is on that team
-    if Player.objects.filter(team__name=data['team_name'], name=data['name']):
+    if Player.objects.filter(team__name=data['team'], name=data['name']):
         return False, "Ja existe um jogador com este nome na equipa!"
 
     try:
@@ -129,8 +129,8 @@ def add_player(data):
             birth_date=data['birth_date'] if 'birth_date' in data else None,
             photo=data['photo'] if 'photo' in data else None,
             nick=data['nick'] if 'nick' in data else None,
-            position=Position.objects.get(name=data['position_name']),
-            team=Team.objects.get(name=data['team_name'])
+            position=Position.objects.get(name=data['position']),
+            team=Team.objects.get(name=data['team'])
         )
         return True, "Jogador adicionado com sucesso"
     except Position.DoesNotExist:
@@ -236,7 +236,9 @@ def get_minimal_team(name):
     result = {}
 
     try:
-        result.update(TeamSerializer(Team.objects.get(name=name)).data)
+        team = Team.objects.get(name=name)
+        result.update(TeamSerializer(team).data)
+        result['logo'] = team.logo
 
         result['stadium'] = Stadium.objects.get(team__name=name).name
     except Team.DoesNotExist:
@@ -261,6 +263,7 @@ def get_team(name):
         result['players'] = []
         for p in Player.objects.filter(team__name=name):
             p_info = PlayerMinimalSerializer(p).data
+            p_info['photo'] = p.photo
             p_info.update({
                 'position': p.position.name
             })
@@ -276,7 +279,10 @@ def get_player(id):
     result = {}
 
     try:
-        result.update(PlayerSerializer(Player.objects.get(id=id)).data)
+        player = Player.objects.get(id=id)
+        result.update(PlayerSerializer(player).data)
+
+        result['photo'] = player.photo
         result['position'] = Position.objects.get(player__id=id).name
         result['team'] = Team.objects.get(player__id=id).name
     except Player.DoesNotExist:
@@ -357,11 +363,11 @@ def update_team(data):
         if not team.exists():
             return False, "Equipa a editar não existe na base de dados!"
 
-        if data['foundation_date']:
+        if data['foundation_date'] is not None:
             team.update(foundation_date=data['foundation_date'])
-        if data['logo']:
+        if data['logo'] is not None:
             team.update(logo=data['logo'])
-        if data['stadium']:
+        if data['stadium'] is not None:
             team.update(stadium=Stadium.objects.get(name=data['stadium']))
 
         transaction.set_autocommit(True)
@@ -397,3 +403,35 @@ def update_stadium(data):
         print(e)
         transaction.rollback()
         return False, "Errno na base de dados a editar as informações do estadio!"
+def update_player(data):
+    transaction.set_autocommit(False)
+
+    try:
+        player = Player.objects.filter(id=data['id'])
+
+        if not player.exists():
+            return False, "Jogador a editar não existe na base de dados!"
+
+        if data['name'] is not None:
+            player.update(name=data['name'])
+        if data['photo'] is not None:
+            player.update(photo=data['photo'])
+        if data['position'] is not None:
+            player.update(position=Position.objects.get(name=data['position']))
+        if data['birth_date'] is not None:
+            player.update(birth_date=data['birth_date'])
+        if data['nick'] is not None:
+            player.update(nick=data['nick'])
+        if data['team'] is not None:
+            player.update(team=Team.objects.get(name=data['team']))
+
+        transaction.set_autocommit(True)
+        return True, "Jogador editada com sucesso"
+    except Team.DoesNotExist:
+        return False, "Equipa inexistente!"
+    except Position.DoesNotExist:
+        return False, "Posição inexistente!"
+    except Exception as e:
+        print(e)
+        transaction.rollback()
+        return False, "Erro na base de dados a editar as informações do jogador!"

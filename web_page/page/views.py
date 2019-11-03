@@ -108,7 +108,6 @@ def add_team(request):
                         error_messages = ["Campos inválidos"]
                     else:
                         # encode logo
-
                         data['logo'] = image_to_base64(data['logo'])
 
                         add_status, message = queries.add_team(data=data)
@@ -128,6 +127,7 @@ def add_team(request):
 
 def add_player(request):
     html_page = 'add_player.html'
+    page_name = "Novo jogador"
     error_messages = []
     success_messages = []
     form = forms.Player()
@@ -138,16 +138,19 @@ def add_player(request):
     else:
         try:
             if request.POST:
-                form = forms.Player(None, request.POST)
+                form = forms.Player(None, request.POST, request.FILES)
 
                 if form.is_valid():
-                    player_serializer = PlayerSerializer(data=form.cleaned_data)
+                    data = form.cleaned_data
 
+                    player_serializer = PlayerSerializer(data=data)
                     if not player_serializer.is_valid():
                         error_messages = ["Campos inválidos"]
-
                     else:
-                        add_status, message = queries.add_player(data=player_serializer.data)
+                        # encode photo
+                        data['photo'] = image_to_base64(data['photo'])
+
+                        add_status, message = queries.add_player(data=data)
                         if add_status:
                             success_messages = [message]
                         else:
@@ -159,8 +162,8 @@ def add_player(request):
             print(e)
             error_messages = ["Erro ao adicionar nova jogador"]
 
-    return create_response(request, html_page, data=form, error_messages=error_messages,
-                           success_messages=success_messages)
+    return create_response(request, html_page, data=form, page_name=page_name,
+                           error_messages=error_messages, success_messages=success_messages)
 
 
 def add_players_game(request, id):
@@ -471,6 +474,55 @@ def update_team(request, name):
                            error_messages=error_messages, success_messages=success_messages)
 
 
+def update_player(request, id):
+    html_page = "add_player.html"
+    page_name = "Editar jogador"
+    error_messages = []
+    success_messages = []
+    form = forms.Player()
+
+    if not verify_if_admin(request.user):
+        error_messages = ["Login invalido!"]
+        return redirect('login')
+    else:
+        player_info, message = queries.get_player(id)
+
+        if not player_info:
+            error_messages = [message]
+        else:
+            form = forms.Player(player=player_info)
+            try:
+                if request.POST:
+                    form = forms.Player(player_info, request.POST, request.FILES)
+
+                    if form.is_valid():
+                        data = form.cleaned_data
+
+                        player_serializer = PlayerSerializer(data=data)
+                        print(data)
+                        if not player_serializer.is_valid():
+                            print(player_serializer.errors)
+                            error_messages = ["Campos inválidos!"]
+                        else:
+                            # encode logo
+                            data['photo'] = image_to_base64(data['photo'])
+                            data['id'] = id
+
+                            add_status, message = queries.update_player(data)
+                            if add_status:
+                                success_messages = [message]
+                            else:
+                                error_messages = [message]
+                    else:
+                        error_messages = ["Corrija os erros abaixo referidos!"]
+            except Exception as e:
+                print(e)
+                error_messages = ["Erro ao editar jogador!"]
+
+    return create_response(request, html_page, data=form, page_name=page_name,
+                           error_messages=error_messages, success_messages=success_messages)
+
+
 def update_stadium(request, name):
     html_page = "add_stadium.html"
     page_name = "Editar estadio"
@@ -495,7 +547,6 @@ def update_stadium(request, name):
 
                     if form.is_valid():
                         data = form.cleaned_data
-
                         stadium_serializer = StadiumSerializer(data=data)
                         if not stadium_serializer.is_valid():
                             error_messages = ["Campos inválidos!"]
@@ -515,10 +566,7 @@ def update_stadium(request, name):
                         error_messages = ["Corrija os erros abaixo referidos!"]
             except Exception as e:
                 print(e)
-                error_messages = ["Erro ao editar estadio!"]
+                error_messages = ["Erro ao editar jogador!"]
 
-    if new_name is not None:
-        return redirect(f'/update_stadium/{new_name}')
-    else:
-        return create_response(request, html_page, data=form, page_name=page_name,
-                               error_messages=error_messages, success_messages=success_messages)
+    return create_response(request, html_page, data=form, page_name=page_name,
+                           error_messages=error_messages, success_messages=success_messages)
