@@ -109,7 +109,7 @@ class PlayersToGame(forms.Form):
 
         current_players = get_game_team_players(game_id)
         self.teams = []
-        print(players)
+
         for n in range(MAX_PLAYERS_MATCH):
             for team in current_players:
                 if team not in self.teams:
