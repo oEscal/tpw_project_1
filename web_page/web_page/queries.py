@@ -427,6 +427,8 @@ def update_stadium(data):
         print(e)
         transaction.rollback()
         return False, "Errno na base de dados a editar as informações do estadio!"
+
+
 def update_player_to_game(data):
     transaction.set_autocommit(False)
 
@@ -454,6 +456,8 @@ def update_player_to_game(data):
         print(e)
         transaction.rollback()
         return False, "Erro na base de dados a editar jogadores que jogam nesse jogo!"
+
+
 def update_player(data):
     transaction.set_autocommit(False)
 
@@ -512,3 +516,16 @@ def remove_player(id):
     except Exception as e:
         print(e)
         return False, "Erro ao eliminar o jogador"
+
+
+def remove_allplayersFrom_game(game_id):
+    try:
+        for p in PlayerPlayGame.objects.filter(game=game_id):
+            p.delete()
+        return True, "Todos os jogadores removidos com sucesso do jogo!"
+    except PlayerPlayGame.DoesNotExist:
+        return False, "Jogo inexistente!"
+
+    except Exception as e:
+        print(e)
+        return False, "Erro ao eliminar todos os jogadores do jogo!"
