@@ -1,4 +1,5 @@
 import base64
+
 from django.contrib.auth.models import User
 from django.shortcuts import render, redirect
 
@@ -500,30 +501,36 @@ def update_player(request, id):
             try:
                 if request.POST:
                     form = forms.Player(player_info, request.POST, request.FILES)
-
-                    if form.is_valid():
-                        data = form.cleaned_data
-
-                        player_serializer = PlayerSerializer(data=data)
-                        print(data)
-                        if not player_serializer.is_valid():
-                            print(player_serializer.errors)
-                            error_messages = ["Campos inválidos!"]
+                    if 'remove_button' in request.POST:
+                        remove_status, message = queries.remove_player(id)
+                        if remove_status:
+                            return redirect('/teams')
                         else:
-                            # encode logo
-                            data['photo'] = image_to_base64(data['photo'])
-                            data['id'] = id
-
-                            add_status, message = queries.update_player(data)
-                            if add_status:
-                                success_messages = [message]
-                            else:
-                                error_messages = [message]
+                            error_messages = [message]
                     else:
-                        error_messages = ["Corrija os erros abaixo referidos!"]
+                        if form.is_valid():
+                            data = form.cleaned_data
+
+                            player_serializer = PlayerSerializer(data=data)
+                            print(data)
+                            if not player_serializer.is_valid():
+                                print(player_serializer.errors)
+                                error_messages = ["Campos inválidos!"]
+                            else:
+                                # encode logo
+                                data['photo'] = image_to_base64(data['photo'])
+                                data['id'] = id
+
+                                add_status, message = queries.update_player(data)
+                                if add_status:
+                                    success_messages = [message]
+                                else:
+                                    error_messages = [message]
+                        else:
+                            error_messages = ["Corrija os erros abaixo referidos!"]
             except Exception as e:
                 print(e)
                 error_messages = ["Erro ao editar jogador!"]
 
     return create_response(request, html_page, data=form, page_name=page_name,
-                           error_messages=error_messages, success_messages=success_messages)
+                           error_messages=error_messages, success_messages=success_messages, do_update=True)
