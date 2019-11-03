@@ -539,7 +539,7 @@ def update_stadium(request, name):
         if not stadium_info:
             error_messages = [message]
         else:
-            success_messages = [message]
+
             form = forms.Stadium(stadium_info)
             try:
                 if request.POST:
@@ -568,5 +568,8 @@ def update_stadium(request, name):
                 print(e)
                 error_messages = ["Erro ao editar jogador!"]
 
-    return create_response(request, html_page, data=form, page_name=page_name,
-                           error_messages=error_messages, success_messages=success_messages)
+    if new_name is not None:
+        return redirect(f'/update_stadium/{new_name}')
+    else:
+        return create_response(request, html_page, data=form, page_name=page_name,
+                               error_messages=error_messages, success_messages=success_messages)
