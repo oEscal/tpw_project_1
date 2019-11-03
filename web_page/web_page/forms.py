@@ -31,8 +31,8 @@ class Stadium(forms.Form):
             self.fields['address'].widget.attrs['readonly'] = "readonly"
             self.fields['address'].required = False
             for field_name, field in self.fields.items():
-                field.initial = stadium[field_name]
-
+                if field_name != 'picture':
+                    field.initial = stadium[field_name]
 
 class Team(forms.Form):
     name = forms.CharField(label="Nome da equipa", help_text="Insira o nome da equipa", required=True, max_length=200)
@@ -66,7 +66,8 @@ class Team(forms.Form):
             self.fields['name'].widget.attrs['readonly'] = "readonly"
             self.fields['name'].required = False
             for field_name, field in self.fields.items():
-                field.initial = team[field_name]
+                if field_name != 'logo':
+                    field.initial = team[field_name]
 
 
 class Player(forms.Form):
@@ -107,29 +108,36 @@ class Player(forms.Form):
 
         if player:
             for field_name, field in self.fields.items():
-                field.initial = player[field_name]
+                if field_name != "photo":
+                    field.initial = player[field_name]
 
 
 class PlayersToGame(forms.Form):
     def __init__(self, players=None, game_id=None, *args, **kwargs):
-        players = get_game_team_players(game_id)
+        super(PlayersToGame, self).__init__(*args, **kwargs)
+
+        current_players = get_game_team_players(game_id)
         self.teams = []
 
-        super(PlayersToGame, self).__init__(*args, **kwargs)
         for n in range(MAX_PLAYERS_MATCH):
-            for t in players:
-                if t not in self.teams:
-                    self.teams.append(t)
-                self.fields[f"{t}-{n}"] = \
+            for team in current_players:
+                if team not in self.teams:
+                    self.teams.append(team)
+                self.fields[f"{team}-{n}"] = \
                     forms.ChoiceField(label=f"Jogador {n + 1}", help_text="Escolha um jogador", required=True)
 
-                player_field = self.fields[f"{t}-{n}"]
+                player_field = self.fields[f"{team}-{n}"]
                 player_field.widget.attrs['class'] = 'form-control'
 
                 choices = [("-", player_field.help_text)]
-                for player in players[t]:
+                for player in current_players[team]:
                     choices.append((player['id'], player['name']))
                 player_field.choices = choices
+
+                if players:
+                    if len(players[team]) > 0:
+                        player_field.initial = players[team][0]['id']
+                        players[team].remove(players[team][0])
 
 
 class Game(forms.Form):

@@ -298,10 +298,13 @@ def get_stadium(name):
     result = {}
 
     try:
-        result.update(StadiumSerializer(Stadium.objects.get(name=name)).data)
+        stadium = Stadium.objects.get(name=name)
+
+        result.update(StadiumSerializer(stadium).data)
         result.update({
             'team': Team.objects.get(stadium__name=name).name
         })
+        result['picture'] = stadium.picture
     except Stadium.DoesNotExist:
         return None, "Não existe nenhum estádio com esse nome na base de dados!"
     except Exception as e:
@@ -349,6 +352,27 @@ def get_games():
         return None, "Erro na base de dados a obter todos os jogos!"
 
     return result, "Sucesso"
+
+
+def get_players_per_game(game_id):
+    result = {}
+
+    try:
+        for p in PlayerPlayGame.objects.filter(game_id=game_id):
+            player = p.player
+            team = player.team.name
+            if team not in result:
+                result[team] = []
+            result[team].append({
+                'id': player.id,
+                'name': player.name
+            })
+        return result, "Sucesso!"
+    except Game.DoesNotExist:
+        return None, "Jogo inexistente!"
+    except Exception as e:
+        print(e)
+        return None, "Erro na base de dados a obter os jogadores por jogo!"
 
 
 ######################### Update #########################
@@ -403,6 +427,33 @@ def update_stadium(data):
         print(e)
         transaction.rollback()
         return False, "Errno na base de dados a editar as informações do estadio!"
+def update_player_to_game(data):
+    transaction.set_autocommit(False)
+
+    try:
+        for team in data['teams']:
+            players_game = PlayerPlayGame.objects.filter(Q(game__id=data['id']) & Q(player__team__name=team))
+
+            players_game.delete()
+
+        add_status, message = add_player_to_game(data)
+
+        if not add_status:
+            transaction.rollback()
+            return False, message
+
+        transaction.set_autocommit(True)
+        return True, "Jogadores que jogam nesse jogo editados com sucesso"
+    except Game.DoesNotExist:
+        transaction.rollback()
+        return False, "Jogo não existente!"
+    except Player.DoesNotExist:
+        transaction.rollback()
+        return False, "Jogador não existente!"
+    except Exception as e:
+        print(e)
+        transaction.rollback()
+        return False, "Erro na base de dados a editar jogadores que jogam nesse jogo!"
 def update_player(data):
     transaction.set_autocommit(False)
 
@@ -435,3 +486,17 @@ def update_player(data):
         print(e)
         transaction.rollback()
         return False, "Erro na base de dados a editar as informações do jogador!"
+
+
+######################### Remove #########################
+
+def remove_team(name):
+    try:
+        Team.objects.get(name=name).delete()
+        return True,"Equipa removida com sucesso"
+    except Team.DoesNotExist:
+        return False, "Equipa inexistente!"
+
+    except Exception as e:
+        print(e)
+        return False, "Erro ao eliminar a equipa"
