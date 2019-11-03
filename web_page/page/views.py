@@ -1,5 +1,4 @@
 import base64
-
 from django.contrib.auth.models import User
 from django.shortcuts import render, redirect
 
@@ -38,12 +37,14 @@ def image_to_base64(image):
 ######################### Add #########################
 
 
-def create_response(request, html_page, data=None, page_name=None, success_messages=None, error_messages=None):
+def create_response(request, html_page, data=None, page_name=None, success_messages=None, error_messages=None,
+                    had_remove=False):
     return render(request, html_page, {
         "data": data,
         "success_messages": success_messages,
         "error_messages": error_messages,
-        "page_name": page_name
+        "page_name": page_name,
+        "had_remove": had_remove,
     })
 
 
@@ -447,30 +448,37 @@ def update_team(request, name):
             try:
                 if request.POST:
                     form = forms.Team(team_info, request.POST, request.FILES)
-
-                    if form.is_valid():
-                        data = form.cleaned_data
-
-                        team_serializer = TeamSerializer(data=data)
-                        if not team_serializer.is_valid():
-                            error_messages = ["Campos inválidos!"]
+                    print(request.POST)
+                    if 'remove_button' in request.POST:
+                        remove_status, message = queries.remove_team(name)
+                        if remove_status:
+                            return redirect('/teams')
                         else:
-                            # encode logo
-                            data['logo'] = image_to_base64(data['logo'])
-
-                            add_status, message = queries.update_team(data)
-                            if add_status:
-                                success_messages = [message]
-                            else:
-                                error_messages = [message]
+                            error_messages = [message]
                     else:
-                        error_messages = ["Corrija os erros abaixo referidos!"]
+                        if form.is_valid():
+                            data = form.cleaned_data
+
+                            team_serializer = TeamSerializer(data=data)
+                            if not team_serializer.is_valid():
+                                error_messages = ["Campos inválidos!"]
+                            else:
+                                # encode logo
+                                data['logo'] = image_to_base64(data['logo'])
+
+                                add_status, message = queries.update_team(data)
+                                if add_status:
+                                    success_messages = [message]
+                                else:
+                                    error_messages = [message]
+                        else:
+                            error_messages = ["Corrija os erros abaixo referidos!"]
             except Exception as e:
                 print(e)
                 error_messages = ["Erro ao editar equipa!"]
 
     return create_response(request, html_page, data=form, page_name=page_name,
-                           error_messages=error_messages, success_messages=success_messages)
+                           error_messages=error_messages, success_messages=success_messages, had_remove=True)
 
 
 def update_player(request, id):

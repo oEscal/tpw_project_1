@@ -412,3 +412,17 @@ def update_player(data):
         print(e)
         transaction.rollback()
         return False, "Erro na base de dados a editar as informações do jogador!"
+
+
+######################### Remove #########################
+
+def remove_team(name):
+    try:
+        Team.objects.get(name=name).delete()
+        return True,"Equipa removida com sucesso"
+    except Team.DoesNotExist:
+        return False, "Equipa inexistente!"
+
+    except Exception as e:
+        print(e)
+        return False, "Erro ao eliminar a equipa"
