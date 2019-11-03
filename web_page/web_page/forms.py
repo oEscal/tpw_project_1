@@ -29,8 +29,8 @@ class Stadium(forms.Form):
         # for the update form
         if stadium:
             for field_name, field in self.fields.items():
-                field.initial = stadium[field_name]
-
+                if field_name != 'picture':
+                    field.initial = stadium[field_name]
 
 
 class Team(forms.Form):
@@ -65,7 +65,8 @@ class Team(forms.Form):
             self.fields['name'].widget.attrs['readonly'] = "readonly"
             self.fields['name'].required = False
             for field_name, field in self.fields.items():
-                field.initial = team[field_name]
+                if field_name != 'logo':
+                    field.initial = team[field_name]
 
 
 class Player(forms.Form):
@@ -106,7 +107,8 @@ class Player(forms.Form):
 
         if player:
             for field_name, field in self.fields.items():
-                field.initial = player[field_name]
+                if field_name != "photo":
+                    field.initial = player[field_name]
 
 
 class PlayersToGame(forms.Form):
