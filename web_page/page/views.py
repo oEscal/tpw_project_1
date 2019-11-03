@@ -179,7 +179,7 @@ def add_player(request):
 
         except Exception as e:
             print(e)
-            error_messages = ["Erro ao adicionar nova jogador"]
+            error_messages = ["Erro ao adicionar novo jogador"]
 
     return create_response(request, html_page, data=form, page_name=page_name,
                            error_messages=error_messages, success_messages=success_messages, is_admin=is_admin)
@@ -244,7 +244,7 @@ def add_players_game(request, id):
 
         except Exception as e:
             print(e)
-            error_messages = ["Erro ao adicionar nova jogador"]
+            error_messages = ["Erro ao adicionar novo jogador"]
 
     form = {
         'form': form,
@@ -252,7 +252,7 @@ def add_players_game(request, id):
         'min_players': MIN_PLAYERS_MATCH,
         'teams': form.teams
     }
-    return create_response(request, html_page, data=form, error_messages=error_messages,
+    return create_response(request, html_page, data=form, error_messages=error_messages, page_name=page_name,
                            success_messages=success_messages, is_admin=is_admin)
 
 
