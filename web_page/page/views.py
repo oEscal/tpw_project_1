@@ -564,7 +564,8 @@ def update_player(request, id):
                 error_messages = ["Erro ao editar jogador!"]
 
     return create_response(request, html_page, data=form, page_name=page_name,
-                           error_messages=error_messages, success_messages=success_messages,is_admin=is_admin,do_update=True)
+                           error_messages=error_messages, success_messages=success_messages, is_admin=is_admin,
+                           do_update=True)
 
 
 def update_stadium(request, name):
@@ -593,35 +594,40 @@ def update_stadium(request, name):
             try:
                 if request.POST:
                     form = forms.Stadium(stadium_info, request.POST, request.FILES)
-
-                    if form.is_valid():
-                        data = form.cleaned_data
-                        stadium_serializer = StadiumSerializer(data=data)
-                        if not stadium_serializer.is_valid():
-                            error_messages = ["Campos inválidos!"]
+                    if 'remove_button' in request.POST:
+                        remove_status, message = queries.remove_stadium(name)
+                        if remove_status:
+                            return redirect('/')
                         else:
-                            # encode logo
-                            data['picture'] = image_to_base64(data['picture'])
+                            error_messages = [message]
+                            if form.is_valid():
+                                data = form.cleaned_data
+                                stadium_serializer = StadiumSerializer(data=data)
+                                if not stadium_serializer.is_valid():
+                                    error_messages = ["Campos inválidos!"]
+                                else:
+                                    # encode logo
+                                    data['picture'] = image_to_base64(data['picture'])
 
-                            data['current_name'] = stadium_info['name']
+                                    data['current_name'] = stadium_info['name']
 
-                            add_status, message = queries.update_stadium(data)
-                            if add_status:
-                                success_messages = [message]
-                                new_name = data['name']
+                                    add_status, message = queries.update_stadium(data)
+                                    if add_status:
+                                        success_messages = [message]
+                                        new_name = data['name']
+                                    else:
+                                        error_messages = [message]
                             else:
-                                error_messages = [message]
-                    else:
-                        error_messages = ["Corrija os erros abaixo referidos!"]
+                                error_messages = ["Corrija os erros abaixo referidos!"]
             except Exception as e:
                 print(e)
-                error_messages = ["Erro ao editar jogador!"]
+                error_messages = ["Erro ao editar estadio!"]
 
     if new_name is not None:
         return redirect(f'/update_stadium/{new_name}?status=Sucesso')
     else:
         return create_response(request, html_page, data=form, page_name=page_name,
-                               error_messages=error_messages, success_messages=success_messages)
+                               error_messages=error_messages, success_messages=success_messages, do_update=True)
 
 
 def update_player_game(request, id):
