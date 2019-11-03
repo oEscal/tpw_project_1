@@ -530,11 +530,16 @@ def update_stadium(request, name):
     success_messages = []
     form = forms.Stadium()
     new_name = None
+
     if not verify_if_admin(request.user):
         error_messages = ["Login invalido!"]
         return redirect('login')
     else:
         stadium_info, message = queries.get_stadium(name)
+
+        status_param = request.GET.get('status', '')
+        if status_param:
+            success_messages = [status_param]
 
         if not stadium_info:
             error_messages = [message]
@@ -569,7 +574,7 @@ def update_stadium(request, name):
                 error_messages = ["Erro ao editar jogador!"]
 
     if new_name is not None:
-        return redirect(f'/update_stadium/{new_name}')
+        return redirect(f'/update_stadium/{new_name}?status=Sucesso')
     else:
         return create_response(request, html_page, data=form, page_name=page_name,
                                error_messages=error_messages, success_messages=success_messages)
