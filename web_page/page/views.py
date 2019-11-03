@@ -38,13 +38,13 @@ def image_to_base64(image):
 
 
 def create_response(request, html_page, data=None, page_name=None, success_messages=None, error_messages=None,
-                    had_remove=False):
+                    do_update=False):
     return render(request, html_page, {
         "data": data,
         "success_messages": success_messages,
         "error_messages": error_messages,
         "page_name": page_name,
-        "had_remove": had_remove,
+        "do_update": do_update,
     })
 
 
@@ -448,7 +448,6 @@ def update_team(request, name):
             try:
                 if request.POST:
                     form = forms.Team(team_info, request.POST, request.FILES)
-                    print(request.POST)
                     if 'remove_button' in request.POST:
                         remove_status, message = queries.remove_team(name)
                         if remove_status:
@@ -478,7 +477,7 @@ def update_team(request, name):
                 error_messages = ["Erro ao editar equipa!"]
 
     return create_response(request, html_page, data=form, page_name=page_name,
-                           error_messages=error_messages, success_messages=success_messages, had_remove=True)
+                           error_messages=error_messages, success_messages=success_messages, do_update=True)
 
 
 def update_player(request, id):
