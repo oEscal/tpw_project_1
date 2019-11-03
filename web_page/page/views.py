@@ -487,6 +487,7 @@ def update_stadium(request, name):
         if not stadium_info:
             error_messages = [message]
         else:
+            success_messages = [message]
             form = forms.Stadium(stadium_info)
             try:
                 if request.POST:
