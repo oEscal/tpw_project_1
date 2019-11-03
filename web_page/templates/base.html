@@ -99,15 +99,38 @@
         </nav>
     </header>
 
-    <div class="site-blocks-cover overlay" style="background-image: url({% static "images/hero_bg_3.jpg" %});"
-         data-aos="fade" data-stellar-background-ratio="0.5">
+    <div class="slide-one-item home-slider owl-carousel">
+      <div class="site-blocks-cover overlay" style="background-image: url({% static 'images/hero_bg_2.jpg' %});" data-aos="fade" data-stellar-background-ratio="0.5">
         <div class="container">
-            <div class="row align-items-center justify-content-start">
-                <div class="col-md-6 text-center text-md-left" data-aos="fade-up" data-aos-delay="400">
-                    <h1 class="bg-text-line">{% block title_on_page %}{% endblock title_on_page %}</h1>
-                </div>
+          <div class="row align-items-center justify-content-start">
+            <div class="col-md-6 text-center text-md-left" data-aos="fade-up" data-aos-delay="400">
+              <h1 class="bg-text-line" id="owl_with_text">
+                  {% block title_on_page %}{% endblock %}
+              </h1>
             </div>
+          </div>
         </div>
+      </div>
+
+      <div class="site-blocks-cover overlay" style="background-image: url({%  static 'images/hero_bg_4.jpg' %});" data-aos="fade" data-stellar-background-ratio="0.5">
+        <div class="container">
+          <div class="row align-items-center justify-content-start">
+            <div class="col-md-6 text-center text-md-left" data-aos="fade-up" data-aos-delay="400">
+              <h1 class="bg-text-line owl_without_text"></h1>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="site-blocks-cover overlay" style="background-image: url({% static 'images/hero_bg_3.jpg' %});" data-aos="fade" data-stellar-background-ratio="0.5">
+        <div class="container">
+          <div class="row align-items-center justify-content-start">
+            <div class="col-md-6 text-center text-md-left" data-aos="fade-up" data-aos-delay="400">
+              <h1 class="bg-text-line owl_without_text"></h1>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     {% block content %}{% endblock %}
@@ -164,6 +187,16 @@
 <script src="{% static "js/jquery.magnific-popup.min.js" %}"></script>
 <script src="{% static "js/aos.js" %}"></script>
 <script src="{% static "js/main.js" %}"></script>
+
+<!-- Carousel script -->
+<script>
+    $(document).ready(function() {
+        $(".owl_without_text").each(function() {
+            $(this).text($("#owl_with_text").text());
+        });
+    });
+</script>
+
 {% block script %}{% endblock %}
 </body>
 </html>
