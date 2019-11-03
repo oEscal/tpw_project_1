@@ -34,18 +34,6 @@ def image_to_base64(image):
     return None
 
 
-######################### Index #########################
-
-
-def index(request):
-    return render(request, 'index.html', {
-        'just_menu': True
-    })
-
-
-######################### Add #########################
-
-
 def create_response(request, html_page, data=None, page_name=None, success_messages=None, error_messages=None,
                     do_update=False, is_admin=False):
     return render(request, html_page, {
@@ -56,6 +44,22 @@ def create_response(request, html_page, data=None, page_name=None, success_messa
         "do_update": do_update,
         "is_admin": is_admin
     })
+
+
+######################### Index #########################
+
+
+def index(request):
+    html_page = "index.html"
+    is_admin = False
+
+    if verify_if_admin(request.user):
+        is_admin = True
+
+    return create_response(request, html_page, is_admin=is_admin)
+
+
+######################### Add #########################
 
 
 def add_stadium(request):
@@ -94,7 +98,7 @@ def add_stadium(request):
             error_messages = ["Erro a adicionar novo estádio!"]
 
     return create_response(request, html_page, data=form, error_messages=error_messages,
-                           success_messages=success_messages, is_admin=is_admin)
+                           success_messages=success_messages, page_name=page_name, is_admin=is_admin)
 
 
 def add_team(request):
