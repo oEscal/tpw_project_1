@@ -493,10 +493,22 @@ def update_player(data):
 def remove_team(name):
     try:
         Team.objects.get(name=name).delete()
-        return True,"Equipa removida com sucesso"
+        return True, "Equipa removida com sucesso"
     except Team.DoesNotExist:
         return False, "Equipa inexistente!"
 
     except Exception as e:
         print(e)
         return False, "Erro ao eliminar a equipa"
+
+
+def remove_player(id):
+    try:
+        Player.objects.get(id=id).delete()
+        return True, "Jogador removido com sucesso"
+
+    except Player.DoesNotExist:
+        return False, "Jogador inexistente!"
+    except Exception as e:
+        print(e)
+        return False, "Erro ao eliminar o jogador"
