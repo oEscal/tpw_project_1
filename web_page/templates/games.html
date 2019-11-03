@@ -207,9 +207,9 @@
                                     <div class="d-inline-block">
                                         <h4 class="mb-2"><small class="text-uppercase text-black font-weight-bold">
                                             {{ g.stadium }}</small></h4>
-                                        <div class="mx-auto col-4">
-                                            <img src="{% if data.stadium_picture %}
-                                                        data:image/png;base64,{{ data.stadium_picture }}
+                                        <div class="mx-auto col-8">
+                                            <img src="{% if g.stadium_picture %}
+                                                        data:image/png;base64,{{ g.stadium_picture }}
                                                         {% endif %}" alt="" class="img-fluid">
                                         </div>
                                     </div>
