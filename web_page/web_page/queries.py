@@ -119,7 +119,7 @@ def add_game(data):
 
 def add_player(data):
     # verify is player already is on that team
-    if Player.objects.filter(team__name=data['team_name'], name=data['name']):
+    if Player.objects.filter(team__name=data['team'], name=data['name']):
         return False, "Ja existe um jogador com este nome na equipa!"
 
     try:
@@ -129,8 +129,8 @@ def add_player(data):
             birth_date=data['birth_date'] if 'birth_date' in data else None,
             photo=data['photo'] if 'photo' in data else None,
             nick=data['nick'] if 'nick' in data else None,
-            position=Position.objects.get(name=data['position_name']),
-            team=Team.objects.get(name=data['team_name'])
+            position=Position.objects.get(name=data['position']),
+            team=Team.objects.get(name=data['team'])
         )
         return True, "Jogador adicionado com sucesso"
     except Position.DoesNotExist:
@@ -236,7 +236,9 @@ def get_minimal_team(name):
     result = {}
 
     try:
-        result.update(TeamSerializer(Team.objects.get(name=name)).data)
+        team = Team.objects.get(name=name)
+        result.update(TeamSerializer(team).data)
+        result['logo'] = team.logo
 
         result['stadium'] = Stadium.objects.get(team__name=name).name
     except Team.DoesNotExist:
@@ -261,6 +263,7 @@ def get_team(name):
         result['players'] = []
         for p in Player.objects.filter(team__name=name):
             p_info = PlayerMinimalSerializer(p).data
+            p_info['photo'] = p.photo
             p_info.update({
                 'position': p.position.name
             })
@@ -276,7 +279,10 @@ def get_player(id):
     result = {}
 
     try:
-        result.update(PlayerSerializer(Player.objects.get(id=id)).data)
+        player = Player.objects.get(id=id)
+        result.update(PlayerSerializer(player).data)
+
+        result['photo'] = player.photo
         result['position'] = Position.objects.get(player__id=id).name
         result['team'] = Team.objects.get(player__id=id).name
     except Player.DoesNotExist:
@@ -292,10 +298,13 @@ def get_stadium(name):
     result = {}
 
     try:
-        result.update(StadiumSerializer(Stadium.objects.get(name=name)).data)
+        stadium = Stadium.objects.get(name=name)
+
+        result.update(StadiumSerializer(stadium).data)
         result.update({
             'team': Team.objects.get(stadium__name=name).name
         })
+        result['picture'] = stadium.picture
     except Stadium.DoesNotExist:
         return None, "Não existe nenhum estádio com esse nome na base de dados!"
     except Exception as e:
@@ -345,6 +354,27 @@ def get_games():
     return result, "Sucesso"
 
 
+def get_players_per_game(game_id):
+    result = {}
+
+    try:
+        for p in PlayerPlayGame.objects.filter(game_id=game_id):
+            player = p.player
+            team = player.team.name
+            if team not in result:
+                result[team] = []
+            result[team].append({
+                'id': player.id,
+                'name': player.name
+            })
+        return result, "Sucesso!"
+    except Game.DoesNotExist:
+        return None, "Jogo inexistente!"
+    except Exception as e:
+        print(e)
+        return None, "Erro na base de dados a obter os jogadores por jogo!"
+
+
 def get_info_game(id):
     result = {}
 
@@ -372,7 +402,7 @@ def get_info_game(id):
         result['home_corners'] = home.corners
         result['away_corners'] = away.corners
 
-    
+
     except Game.DoesNotExist:
         return None, "Jogo inexistente!"
 
@@ -393,11 +423,11 @@ def update_team(data):
         if not team.exists():
             return False, "Equipa a editar não existe na base de dados!"
 
-        if data['foundation_date']:
+        if data['foundation_date'] is not None:
             team.update(foundation_date=data['foundation_date'])
-        if data['logo']:
+        if data['logo'] is not None:
             team.update(logo=data['logo'])
-        if data['stadium']:
+        if data['stadium'] is not None:
             team.update(stadium=Stadium.objects.get(name=data['stadium']))
 
         transaction.set_autocommit(True)
@@ -408,36 +438,6 @@ def update_team(data):
         print(e)
         transaction.rollback()
         return False, "Erro na base de dados a editar as informações da equipa!"
-
-    # for i in range(len(data['teams'])):
-    #     team_model = Team.objects.get(name=data['teams'][i])
-
-    #     # verify if these teams already have had at least one game on that day
-
-    #
-
-    #     players_per_team = get_players_per_team(team_model.name)
-
-    #     if len(players_per_team) < 14:
-    #         transaction.rollback()
-    #         return False, f"A equipa {data['teams'][i]} não tem jogadores suficientes inscritos (minimo 14) !"
-
-    #     goal_keeper_number = len(players_per_team.filter(position=Position.objects.get(id=1)))
-
-    #     if goal_keeper_number < 1:
-    #         transaction.rollback()
-    #         return False, f"A equipa {data['teams'][i]} não tem o numero pelo menos 1 guarda-redes!"
-
-    #     GameStatus.objects.create(
-    #         game=new_game,
-    #         team=team_model,
-    #         goals=data['goals'][i],
-    #         shots=data['shots'][i],
-    #         ball_possession=data['ball_possessions'][i],
-    #         corners=data['corners'][i]
-    #     )
-
-    # transaction.set_autocommit(True)
 
 
 def update_game(data):
@@ -457,11 +457,10 @@ def update_game(data):
         if data['stadium']:
             game.update(stadium=Stadium.objects.get(name=data['stadium']))
 
-        game_status = GameStatus.objects.filter(game=game.get(id=data['id']))
+        teams = game[0].teams.all()
 
-        if not game_status.exists() or len(game_status) != 2:
-            transaction.rollback()
-            return False, "As informaçoes deste jogo nao existem na base de dados!"
+        game_status_home = GameStatus.objects.filter(Q(game=data['id']) & Q(team=teams[0]))
+        game_status_away = GameStatus.objects.filter(Q(game=data['id']) & Q(team=teams[1]))
 
         home_ball_pos, away_ball_pos = None, None
 
@@ -474,58 +473,58 @@ def update_game(data):
             if home_ball_pos + away_ball_pos != 100:
                 transaction.rollback()
                 return False, "A soma das posses de bola das duas equipas deve ser igual a 100!"
+            else:
+                game_status_home.update(ball_possession=home_ball_pos)
+                game_status_away.update(ball_possession=away_ball_pos)
 
-        # TODO update ball_possesion
+       # home_team, away_team = None, None
+       # if data['home_team']:
+       #     home_team = Team.objects.get(name=data['home_team'])
+       # if data['away_team']:
+       #     away_team = Team.objects.get(name=data['away_team'])
 
-        home_team, away_team = None, None
-        if data['home_team']:
-            home_team = Team.objects.get(name=data['home_team'])
-        if data['away_team']:
-            away_team = Team.objects.get(name=data['away_team'])
+        #if home_team is not None and away_team is not None:
+        #    teams = [home_team, away_team]
+#
+        #    for team in teams:
+        #        if Game.objects.filter(Q(date=data['date']) & Q(gamestatus__team=team)):
+        #            transaction.rollback()
+        #            return False, f"A equipa {team.name} já jogou no referido dia!"
+#
+        #        if Game.objects.filter(Q(journey=data['journey']) & Q(gamestatus__team=team)):
+        #            transaction.rollback()
+        #            return False, f"A equipa {team.name} já jogou na referida jornada!"
+#
+        #        players_per_team = get_players_per_team(team.name)
+#
+        #        if len(players_per_team) < 14:
+        #            transaction.rollback()
+        #            return False, f"A equipa {team.name} não tem jogadores suficientes inscritos (minimo 14) !"
+#
+        #        goal_keeper_number = len(players_per_team.filter(position=Position.objects.get(id=1)))
+        #        if goal_keeper_number < 1:
+        #            transaction.rollback()
+        #            return False, f"A equipa {team.name} não tem o numero pelo menos 1 guarda-redes!"
 
-        if home_team is not None and away_team is not None:
-            teams = [home_team, away_team]
 
-            for team in teams:
-                if Game.objects.filter(Q(date=data['date']) & Q(gamestatus__team=team)):
-                    transaction.rollback()
-                    return False, f"A equipa {team.name} já jogou no referido dia!"
-
-                if Game.objects.filter(Q(journey=data['journey']) & Q(gamestatus__team=team)):
-                    transaction.rollback()
-                    return False, f"A equipa {team.name} já jogou na referida jornada!"
-
-                players_per_team = get_players_per_team(team.name)
-
-                if len(players_per_team) < 14:
-                    transaction.rollback()
-                    return False, f"A equipa {team.name} não tem jogadores suficientes inscritos (minimo 14) !"
-
-                goal_keeper_number = len(players_per_team.filter(position=Position.objects.get(id=1)))
-                if goal_keeper_number < 1:
-                    transaction.rollback()
-                    return False, f"A equipa {team.name} não tem o numero pelo menos 1 guarda-redes!"
-
-        # TODO update teams
 
         if data['home_goals']:
-            # TODO update
-            pass
+            game_status_home.update(goals=data['home_goals'])
+
         if data['away_goals']:
-            # TODO update
-            pass
+            game_status_away.update(goals=data['away_goals'])
+
         if data['home_shots']:
-            # TODO update
-            pass
+            game_status_home.update(shots=data['home_shots'])
+
         if data['away_shots']:
-            # TODO update
-            pass
+            game_status_away.update(shots=data['away_shots'])
+
         if data['home_corners']:
-            # TODO update
-            pass
+            game_status_home.update(corners=data['home_corners'])
+
         if data['away_corners']:
-            # TODO update
-            pass
+            game_status_away.update(corners=data['away_corners'])
 
         transaction.set_autocommit(True)
         return True, "Sucesso!"
@@ -546,3 +545,117 @@ def update_game(data):
         print(e)
         transaction.rollback()
         return False, "Erro na base de dados ao editar as informações do jogo"
+
+
+def update_stadium(data):
+    transaction.set_autocommit(False)
+
+    try:
+        stadium = Stadium.objects.filter(name=data['current_name'])
+
+        if not stadium.exists():
+            return False, "Estadio a editar mao existe na base de dados"
+
+        if data['name'] is not None:
+            stadium.update(name=data['name'])
+            stadium = Stadium.objects.filter(name=data['name'])
+        if data['number_seats'] is not None:
+            stadium.update(number_seats=data['number_seats'])
+        if data['picture'] is not None:
+            stadium.update(picture=data['picture'])
+
+        transaction.set_autocommit(True)
+        return True, "Estadio editado com sucesso"
+    except Exception as e:
+        print(e)
+        transaction.rollback()
+        return False, "Errno na base de dados a editar as informações do estadio!"
+
+
+def update_player_to_game(data):
+    transaction.set_autocommit(False)
+
+    try:
+        for team in data['teams']:
+            players_game = PlayerPlayGame.objects.filter(Q(game__id=data['id']) & Q(player__team__name=team))
+
+            players_game.delete()
+
+        add_status, message = add_player_to_game(data)
+
+        if not add_status:
+            transaction.rollback()
+            return False, message
+
+        transaction.set_autocommit(True)
+        return True, "Jogadores que jogam nesse jogo editados com sucesso"
+    except Game.DoesNotExist:
+        transaction.rollback()
+        return False, "Jogo não existente!"
+    except Player.DoesNotExist:
+        transaction.rollback()
+        return False, "Jogador não existente!"
+    except Exception as e:
+        print(e)
+        transaction.rollback()
+        return False, "Erro na base de dados a editar jogadores que jogam nesse jogo!"
+
+
+def update_player(data):
+    transaction.set_autocommit(False)
+
+    try:
+        player = Player.objects.filter(id=data['id'])
+
+        if not player.exists():
+            return False, "Jogador a editar não existe na base de dados!"
+
+        if data['name'] is not None:
+            player.update(name=data['name'])
+        if data['photo'] is not None:
+            player.update(photo=data['photo'])
+        if data['position'] is not None:
+            player.update(position=Position.objects.get(name=data['position']))
+        if data['birth_date'] is not None:
+            player.update(birth_date=data['birth_date'])
+        if data['nick'] is not None:
+            player.update(nick=data['nick'])
+        if data['team'] is not None:
+            player.update(team=Team.objects.get(name=data['team']))
+
+        transaction.set_autocommit(True)
+        return True, "Jogador editada com sucesso"
+    except Team.DoesNotExist:
+        return False, "Equipa inexistente!"
+    except Position.DoesNotExist:
+        return False, "Posição inexistente!"
+    except Exception as e:
+        print(e)
+        transaction.rollback()
+        return False, "Erro na base de dados a editar as informações do jogador!"
+
+
+######################### Remove #########################
+
+def remove_team(name):
+    try:
+        Team.objects.get(name=name).delete()
+        return True, "Equipa removida com sucesso"
+    except Team.DoesNotExist:
+        return False, "Equipa inexistente!"
+
+    except Exception as e:
+        print(e)
+        return False, "Erro ao eliminar a equipa"
+
+
+def remove_player(id):
+    try:
+        Player.objects.get(id=id).delete()
+        return True, "Jogador removido com sucesso"
+
+    except Player.DoesNotExist:
+        return False, "Jogador inexistente!"
+    except Exception as e:
+        print(e)
+        return False, "Erro ao eliminar o jogador"

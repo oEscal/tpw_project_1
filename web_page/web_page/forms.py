@@ -1,7 +1,7 @@
 from django import forms
 
 from web_page.help_queries import *
-from web_page.settings import MIN_PLAYERS_MATCH, MAX_PLAYERS_MATCH
+from web_page.settings import MAX_PLAYERS_MATCH
 
 
 class DateInput(forms.DateInput):
@@ -28,9 +28,11 @@ class Stadium(forms.Form):
 
         # for the update form
         if stadium:
+            self.fields['address'].widget.attrs['readonly'] = "readonly"
+            self.fields['address'].required = False
             for field_name, field in self.fields.items():
-                field.initial = stadium[field_name]
-
+                if field_name != 'picture':
+                    field.initial = stadium[field_name]
 
 
 class Team(forms.Form):
@@ -65,7 +67,8 @@ class Team(forms.Form):
             self.fields['name'].widget.attrs['readonly'] = "readonly"
             self.fields['name'].required = False
             for field_name, field in self.fields.items():
-                field.initial = team[field_name]
+                if field_name != 'logo':
+                    field.initial = team[field_name]
 
 
 class Player(forms.Form):
@@ -75,23 +78,29 @@ class Player(forms.Form):
     photo = forms.ImageField(label="Foto do jogador", help_text="Insira a foto do jogador", required=False)
     nick = forms.CharField(label="Alcunha do jogador", help_text="Insira a alcunha do jogador", required=False,
                            max_length=200)
-    position_name = forms.ChoiceField(label="Posição do Jogador", help_text="Insira a posição do jogador",
-                                      required=True)
-    team_name = forms.CharField(label="Equipa do Jogador", help_text="Insira a equipa do jogador", required=True,
-                                max_length=200)
+    position = forms.ChoiceField(label="Posição do Jogador", help_text="Insira a posição do jogador",
+                                 required=True)
+    team = forms.ChoiceField(label="Equipa do Jogador", help_text="Insira a equipa do jogador", required=True)
 
     def __init__(self, player=None, *args, **kwargs):
         super(forms.Form, self).__init__(*args, **kwargs)
 
-        position_field = self.fields['position_name']
+        position_field = self.fields['position']
+        team_field = self.fields['team']
 
         all_positions = get_all_positions()
+        all_teams = get_all_teams()
         position_choices = [("-", position_field.help_text)]
+        team_choices = [("-", team_field.help_text)]
 
         for position in all_positions:
             position_choices.append((position.name, position.name))
 
+        for team in all_teams:
+            team_choices.append((team.name, team.name))
+
         position_field.choices = position_choices
+        team_field.choices = team_choices
 
         for field_name, field in self.fields.items():
             if field_name != 'photo':
@@ -99,31 +108,37 @@ class Player(forms.Form):
                 field.widget.attrs['placeholder'] = field.help_text
 
         if player:
-            data = player["data"]
             for field_name, field in self.fields.items():
-                field.initial = data[field_name]
+                if field_name != "photo":
+                    field.initial = player[field_name]
 
 
 class PlayersToGame(forms.Form):
     def __init__(self, players=None, game_id=None, *args, **kwargs):
-        players = get_game_team_players(game_id)
+        super(PlayersToGame, self).__init__(*args, **kwargs)
+
+        current_players = get_game_team_players(game_id)
         self.teams = []
 
-        super(PlayersToGame, self).__init__(*args, **kwargs)
         for n in range(MAX_PLAYERS_MATCH):
-            for t in players:
-                if t not in self.teams:
-                    self.teams.append(t)
-                self.fields[f"{t}-{n}"] = \
+            for team in current_players:
+                if team not in self.teams:
+                    self.teams.append(team)
+                self.fields[f"{team}-{n}"] = \
                     forms.ChoiceField(label=f"Jogador {n + 1}", help_text="Escolha um jogador", required=True)
 
-                player_field = self.fields[f"{t}-{n}"]
+                player_field = self.fields[f"{team}-{n}"]
                 player_field.widget.attrs['class'] = 'form-control'
 
                 choices = [("-", player_field.help_text)]
-                for player in players[t]:
+                for player in current_players[team]:
                     choices.append((player['id'], player['name']))
                 player_field.choices = choices
+
+                if players:
+                    if len(players[team]) > 0:
+                        player_field.initial = players[team][0]['id']
+                        players[team].remove(players[team][0])
 
 
 class Game(forms.Form):
@@ -147,7 +162,8 @@ class Game(forms.Form):
     home_ball_pos = forms.IntegerField(label="Posse de bola da equipa local",
                                        help_text="Insira a posse de bola da equipa local", min_value=0, required=True)
     away_ball_pos = forms.IntegerField(label="Posse de bola da equipa visitante",
-                                       help_text="Insira a posse de bola da equipa visitante", min_value=0, required=True)
+                                       help_text="Insira a posse de bola da equipa visitante", min_value=0,
+                                       required=True)
     home_corners = forms.IntegerField(label="Cantos da equipa local", help_text="Insira os cantos da equipa local",
                                       min_value=0, required=True)
     away_corners = forms.IntegerField(label="Cantos da equipa visitante",
@@ -183,6 +199,10 @@ class Game(forms.Form):
         if game:
             for field_name, field in self.fields.items():
                 field.initial = game[field_name]
+            self.fields['home_team'].choices = [(game['home_team'], game['home_team'])]
+            self.fields['home_team'].required = False
+            self.fields['away_team'].choices = [(game['away_team'], game['away_team'])]
+            self.fields['away_team'].required = False
 
 
 class Event(forms.Form):

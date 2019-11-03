@@ -38,20 +38,25 @@ def image_to_base64(image):
 ######################### Add #########################
 
 
-def create_response(request, html_page, data=None, page_name=None, success_messages=None, error_messages=None):
+def create_response(request, html_page, data=None, page_name=None, success_messages=None, error_messages=None,
+                    do_update=False, is_admin=False):
     return render(request, html_page, {
         "data": data,
         "success_messages": success_messages,
         "error_messages": error_messages,
-        "page_name": page_name
+        "page_name": page_name,
+        "do_update": do_update,
+        "is_admin": is_admin
     })
 
 
 def add_stadium(request):
     html_page = "add_stadium.html"
+    page_name = "Novo Estadio"
     error_messages = []
     success_messages = []
     form = forms.Stadium()
+    is_admin = True
 
     if not verify_if_admin(request.user):
         error_messages = ["Login inválido!"]
@@ -81,7 +86,7 @@ def add_stadium(request):
             error_messages = ["Erro a adicionar novo estádio!"]
 
     return create_response(request, html_page, data=form, error_messages=error_messages,
-                           success_messages=success_messages)
+                           success_messages=success_messages, is_admin=is_admin)
 
 
 def add_team(request):
@@ -90,6 +95,7 @@ def add_team(request):
     error_messages = []
     success_messages = []
     form = forms.Team()
+    is_admin = True
 
     if not verify_if_admin(request.user):
         error_messages = ["Login invalido!"]
@@ -107,7 +113,6 @@ def add_team(request):
                         error_messages = ["Campos inválidos"]
                     else:
                         # encode logo
-
                         data['logo'] = image_to_base64(data['logo'])
 
                         add_status, message = queries.add_team(data=data)
@@ -122,14 +127,16 @@ def add_team(request):
             error_messages = ["Erro ao adicionar nova equipa"]
 
     return create_response(request, html_page, data=form, page_name=page_name,
-                           error_messages=error_messages, success_messages=success_messages)
+                           error_messages=error_messages, success_messages=success_messages, is_admin=is_admin)
 
 
 def add_player(request):
     html_page = 'add_player.html'
+    page_name = "Novo jogador"
     error_messages = []
     success_messages = []
     form = forms.Player()
+    is_admin = True
 
     if not verify_if_admin(request.user):
         error_messages = ["Login inválido!"]
@@ -137,16 +144,19 @@ def add_player(request):
     else:
         try:
             if request.POST:
-                form = forms.Player(None, request.POST)
+                form = forms.Player(None, request.POST, request.FILES)
 
                 if form.is_valid():
-                    player_serializer = PlayerSerializer(data=form.cleaned_data)
+                    data = form.cleaned_data
 
+                    player_serializer = PlayerSerializer(data=data)
                     if not player_serializer.is_valid():
                         error_messages = ["Campos inválidos"]
-
                     else:
-                        add_status, message = queries.add_player(data=player_serializer.data)
+                        # encode photo
+                        data['photo'] = image_to_base64(data['photo'])
+
+                        add_status, message = queries.add_player(data=data)
                         if add_status:
                             success_messages = [message]
                         else:
@@ -158,17 +168,19 @@ def add_player(request):
             print(e)
             error_messages = ["Erro ao adicionar nova jogador"]
 
-    return create_response(request, html_page, data=form, error_messages=error_messages,
-                           success_messages=success_messages)
+    return create_response(request, html_page, data=form, page_name=page_name,
+                           error_messages=error_messages, success_messages=success_messages, is_admin=is_admin)
 
 
 def add_players_game(request, id):
     # TODO -> se houver tempo, adicionar a verificação de se a equipa tem pelo menos 14 jogadores
 
     html_page = 'players_to_game.html'
+    page_name = 'Adicionar jogador a um jogo'
     error_messages = []
     success_messages = []
     form = forms.PlayersToGame(None, id)
+    is_admin = True
 
     if not verify_if_admin(request.user):
         error_messages = ["Login inválido!"]
@@ -228,7 +240,7 @@ def add_players_game(request, id):
         'teams': form.teams
     }
     return create_response(request, html_page, data=form, error_messages=error_messages,
-                           success_messages=success_messages)
+                           success_messages=success_messages, is_admin=is_admin)
 
 
 def reformat_game_data(data):
@@ -266,6 +278,7 @@ def add_game(request):
     error_messages = []
     success_messages = []
     form = forms.Game()
+    is_admin = True
 
     if not verify_if_admin(request.user):
         error_messages = ["Login inválido!"]
@@ -296,7 +309,7 @@ def add_game(request):
             error_messages = ["Erro ao adicionar novo jogo"]
 
     return create_response(request, html_page, data=form, error_messages=error_messages,
-                           success_messages=success_messages)
+                           success_messages=success_messages, is_admin=is_admin)
 
 
 def add_event(request, id):
@@ -304,6 +317,7 @@ def add_event(request, id):
     error_messages = []
     success_messages = []
     form = forms.Event(None, id)
+    is_admin = True
 
     if not verify_if_admin(request.user):
         error_messages = ["Login inválido!"]
@@ -333,7 +347,7 @@ def add_event(request, id):
             error_messages = ["Erro ao adicionar novo evento!"]
 
     return create_response(request, html_page, data=form, error_messages=error_messages,
-                           success_messages=success_messages)
+                           success_messages=success_messages, is_admin=is_admin)
 
 
 ######################### Get #########################
@@ -343,6 +357,10 @@ def teams(request):
     html_page = 'teams.html'
     error_messages = []
     data = []
+    is_admin = False
+
+    if verify_if_admin(request.user):
+        is_admin = True
 
     try:
         data, message = queries.get_teams()
@@ -352,13 +370,17 @@ def teams(request):
         print(e)
         error_messages = ["Erro a obter todas as equipas!"]
 
-    return create_response(request, html_page, data=data, error_messages=error_messages)
+    return create_response(request, html_page, data=data, error_messages=error_messages, is_admin=is_admin)
 
 
 def team(request, name):
     html_page = 'team.html'
     error_messages = []
     data = {}
+    is_admin = False
+
+    if verify_if_admin(request.user):
+        is_admin = True
 
     try:
         data, message = queries.get_team(name)
@@ -368,13 +390,17 @@ def team(request, name):
         print(e)
         error_messages = ["Erro a obter a equipa!"]
 
-    return create_response(request, html_page, data=data, error_messages=error_messages)
+    return create_response(request, html_page, data=data, error_messages=error_messages, is_admin=is_admin)
 
 
 def player(request, id):
     html_page = 'player.html'
     error_messages = []
     data = []
+    is_admin = False
+
+    if verify_if_admin(request.user):
+        is_admin = True
 
     try:
         data, message = queries.get_player(id)
@@ -384,13 +410,17 @@ def player(request, id):
         print(e)
         error_messages = ["Erro a obter o jogador!"]
 
-    return create_response(request, html_page, data=data, error_messages=error_messages)
+    return create_response(request, html_page, data=data, error_messages=error_messages, is_admin=is_admin)
 
 
 def stadium(request, name):
     html_page = 'stadium.html'
     error_messages = []
     data = []
+    is_admin = False
+
+    if verify_if_admin(request.user):
+        is_admin = True
 
     try:
         data, message = queries.get_stadium(name)
@@ -401,13 +431,17 @@ def stadium(request, name):
         print(e)
         error_messages = ["Erro a obter o estádio!"]
 
-    return create_response(request, html_page, data=data, error_messages=error_messages)
+    return create_response(request, html_page, data=data, error_messages=error_messages, is_admin=is_admin)
 
 
 def games(request):
     html_page = 'games.html'
     error_messages = []
     data = []
+    is_admin = False
+
+    if verify_if_admin(request.user):
+        is_admin = True
 
     try:
         data, message = queries.get_games()
@@ -418,7 +452,7 @@ def games(request):
         print(e)
         error_messages = ["Erro a obter todos os jogos"]
 
-    return create_response(request, html_page, data=data, error_messages=error_messages)
+    return create_response(request, html_page, data=data, error_messages=error_messages, is_admin=is_admin)
 
 
 ######################### Update #########################
@@ -430,6 +464,7 @@ def update_team(request, name):
     error_messages = []
     success_messages = []
     form = forms.Team()
+    is_admin = True
 
     if not verify_if_admin(request.user):
         error_messages = ["Login invalido!"]
@@ -444,30 +479,223 @@ def update_team(request, name):
             try:
                 if request.POST:
                     form = forms.Team(team_info, request.POST, request.FILES)
+                    if 'remove_button' in request.POST:
+                        remove_status, message = queries.remove_team(name)
+                        if remove_status:
+                            return redirect('/teams')
+                        else:
+                            error_messages = [message]
+                    else:
+                        if form.is_valid():
+                            data = form.cleaned_data
+
+                            team_serializer = TeamSerializer(data=data)
+                            if not team_serializer.is_valid():
+                                error_messages = ["Campos inválidos!"]
+                            else:
+                                # encode logo
+                                data['logo'] = image_to_base64(data['logo'])
+
+                                add_status, message = queries.update_team(data)
+                                if add_status:
+                                    success_messages = [message]
+                                else:
+                                    error_messages = [message]
+                        else:
+                            error_messages = ["Corrija os erros abaixo referidos!"]
+            except Exception as e:
+                print(e)
+                error_messages = ["Erro ao editar equipa!"]
+
+    return create_response(request, html_page, data=form, page_name=page_name, error_messages=error_messages,
+                           success_messages=success_messages, do_update=True, is_admin=is_admin)
+
+
+def update_player(request, id):
+    html_page = "add_player.html"
+    page_name = "Editar jogador"
+    error_messages = []
+    success_messages = []
+    form = forms.Player()
+    is_admin = True
+
+    if not verify_if_admin(request.user):
+        error_messages = ["Login invalido!"]
+        return redirect('login')
+    else:
+        player_info, message = queries.get_player(id)
+
+        if not player_info:
+            error_messages = [message]
+        else:
+            form = forms.Player(player=player_info)
+            try:
+                if request.POST:
+                    form = forms.Player(player_info, request.POST, request.FILES)
+                    if 'remove_button' in request.POST:
+                        remove_status, message = queries.remove_player(id)
+                        if remove_status:
+                            return redirect('/teams')
+                        else:
+                            error_messages = [message]
+                    else:
+                        if form.is_valid():
+                            data = form.cleaned_data
+
+                            player_serializer = PlayerSerializer(data=data)
+                            print(data)
+                            if not player_serializer.is_valid():
+                                print(player_serializer.errors)
+                                error_messages = ["Campos inválidos!"]
+                            else:
+                                # encode logo
+                                data['photo'] = image_to_base64(data['photo'])
+                                data['id'] = id
+
+                                add_status, message = queries.update_player(data)
+                                if add_status:
+                                    success_messages = [message]
+                                else:
+                                    error_messages = [message]
+                        else:
+                            error_messages = ["Corrija os erros abaixo referidos!"]
+            except Exception as e:
+                print(e)
+                error_messages = ["Erro ao editar jogador!"]
+
+    return create_response(request, html_page, data=form, page_name=page_name,
+                           error_messages=error_messages, success_messages=success_messages, is_admin=is_admin,
+                           do_update=True)
+
+
+def update_stadium(request, name):
+    html_page = "add_stadium.html"
+    page_name = "Editar estadio"
+    error_messages = []
+    success_messages = []
+    form = forms.Stadium()
+    new_name = None
+
+    if not verify_if_admin(request.user):
+        error_messages = ["Login invalido!"]
+        return redirect('login')
+    else:
+        stadium_info, message = queries.get_stadium(name)
+
+        status_param = request.GET.get('status', '')
+        if status_param:
+            success_messages = [status_param]
+
+        if not stadium_info:
+            error_messages = [message]
+        else:
+
+            form = forms.Stadium(stadium_info)
+            try:
+                if request.POST:
+                    form = forms.Stadium(stadium_info, request.POST, request.FILES)
 
                     if form.is_valid():
                         data = form.cleaned_data
-
-                        team_serializer = TeamSerializer(data=data)
-                        if not team_serializer.is_valid():
+                        stadium_serializer = StadiumSerializer(data=data)
+                        if not stadium_serializer.is_valid():
                             error_messages = ["Campos inválidos!"]
                         else:
                             # encode logo
-                            data['logo'] = image_to_base64(data['logo'])
+                            data['picture'] = image_to_base64(data['picture'])
 
-                            add_status, message = queries.update_team(data)
+                            data['current_name'] = stadium_info['name']
+
+                            add_status, message = queries.update_stadium(data)
                             if add_status:
                                 success_messages = [message]
+                                new_name = data['name']
                             else:
                                 error_messages = [message]
                     else:
                         error_messages = ["Corrija os erros abaixo referidos!"]
             except Exception as e:
                 print(e)
-                error_messages = ["Erro ao editar equipa!"]
+                error_messages = ["Erro ao editar jogador!"]
 
-    return create_response(request, html_page, data=form, page_name=page_name,
-                           error_messages=error_messages, success_messages=success_messages)
+    if new_name is not None:
+        return redirect(f'/update_stadium/{new_name}?status=Sucesso')
+    else:
+        return create_response(request, html_page, data=form, page_name=page_name,
+                               error_messages=error_messages, success_messages=success_messages)
+
+
+def update_player_game(request, id):
+    html_page = 'players_to_game.html'
+    page_name = 'Editar jogadores num jogo'
+    error_messages = []
+    success_messages = []
+    form = forms.PlayersToGame(None, id)
+
+    if not verify_if_admin(request.user):
+        error_messages = ["Login inválido!"]
+        return redirect('login')
+    else:
+        try:
+            players, message = queries.get_players_per_game(id)
+
+            if not players:
+                error_messages = [message]
+            else:
+
+                form = forms.PlayersToGame(players, id)
+                if request.POST:
+                    form = forms.PlayersToGame(players, id, request.POST)
+                    if form.is_valid():
+                        form_data = form.cleaned_data
+
+                        data = {}
+                        make_query = True
+                        for p in form_data:
+                            data_split = p.split('-')
+                            team = data_split[0]
+                            order = int(data_split[1])
+                            if team not in data:
+                                data[team] = []
+                            if form_data[p].isdigit():
+                                if form_data[p] in data[team]:
+                                    error_messages.append(f"Jogador {order + 1} da equipa {team} já foi escolhido!")
+                                    make_query = False
+                                data[team].append(form_data[p])
+
+                        # verify if number of players is greater or smaller than the constraints
+                        for t in data:
+                            if len(set(data[t])) > MAX_PLAYERS_MATCH or len(set(data[t])) < MIN_PLAYERS_MATCH:
+                                error_messages.append(
+                                    f"Tem de escolher entre {MIN_PLAYERS_MATCH} e {MAX_PLAYERS_MATCH} "
+                                    f"jogadores na equipa {t}!"
+                                )
+                                make_query = False
+                        if make_query:
+                            players, message = queries.get_players_per_game(id)
+                            add_status, message = queries.update_player_to_game({
+                                'id': id,
+                                'teams': data
+                            })
+                            if add_status:
+                                success_messages = [message]
+                            else:
+                                error_messages = [message]
+                    else:
+                        error_messages = ["Corrija os erros abaixo referidos"]
+
+        except Exception as e:
+            print(e)
+            error_messages = ["Erro ao adicionar nova jogador"]
+
+    form = {
+        'form': form,
+        'max_players': MAX_PLAYERS_MATCH,
+        'min_players': MIN_PLAYERS_MATCH,
+        'teams': form.teams
+    }
+    return create_response(request, html_page, data=form, page_name=page_name, error_messages=error_messages,
+                           success_messages=success_messages)
 
 
 def update_game(request, id):
@@ -495,7 +723,7 @@ def update_game(request, id):
                         data = form.cleaned_data
                         data['id'] = id
                         serializer_data = reformat_game_data(data)
-
+                        print(serializer_data)
                         game_serializer = GameSerializer(data=serializer_data)
                         if not game_serializer.is_valid():
                             error_messages = ["Campos inválidos!"]

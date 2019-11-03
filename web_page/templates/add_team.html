@@ -3,7 +3,7 @@
 {% block title_on_page %}{{ page_name }}{% endblock %}
 
 {% load static %}
-
+{% include modal.html %}
 {% block content %}
 
     <div class="site-section bg-light" data-aos="fade-up">
@@ -29,7 +29,16 @@
                     {% endif %}
                     <form method="post" class="bg-white" enctype="multipart/form-data">
                         {% csrf_token %}
+
                         <div class="p-3 p-lg-5 border">
+                            {% if do_update %}
+                                <div class="form-group row">
+                                <div class="col-md-4 offset-md-8">
+                                    <input type="button" class="btn btn-outline-danger btn-lg btn-block"
+                                           value="Remover equipa" data-toggle="modal" data-target="#myModal">
+                                </div>
+                            {% endif %}
+                            </div>
                             <div class="form-group row">
                                 <div class="col-md-6">
                                     <label for="c_fname" class="text-black">{{ data.name.label_tag }} <span
@@ -84,6 +93,8 @@
                                     <input type="submit" class="btn btn-primary btn-lg btn-block"
                                            value="{{ page_name }}">
                                 </div>
+
+
                             </div>
                         </div>
                     </form>
@@ -91,4 +102,6 @@
             </div>
         </div>
     </div>
+
+
 {% endblock content %}
