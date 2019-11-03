@@ -303,6 +303,13 @@
                                                                                             debits
                                                                                             {% endif %}">
                                                                     <ul class="timeline-panel-ul">
+                                                                        <div class="image image-small text-center mb-3 mb-lg-0 mr-lg-3">
+                                                                            <img src="{% if e.photo %}
+                                                                                data:image/png;base64,{{ e.photo }}
+                                                                                {% else %}
+                                                                                https://domingoasdez.com/images/default-emblem.png
+                                                                                {% endif %}" alt="Image" class="img-fluid">
+                                                                        </div>
                                                                         <li>
                                                                             <span class="importo">
                                                                                 {{ e.player }}
