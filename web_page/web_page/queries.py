@@ -464,9 +464,9 @@ def update_game(data):
 
         home_ball_pos, away_ball_pos = None, None
 
-        if data['home_ball_pos']:
+        if data['home_ball_pos'] is not None:
             home_ball_pos = data['home_ball_pos']
-        if data['away_ball_pos']:
+        if data['away_ball_pos'] is not None:
             away_ball_pos = data['away_ball_pos']
 
         if home_ball_pos is not None and away_ball_pos is not None:
@@ -476,37 +476,6 @@ def update_game(data):
             else:
                 game_status_home.update(ball_possession=home_ball_pos)
                 game_status_away.update(ball_possession=away_ball_pos)
-
-       # home_team, away_team = None, None
-       # if data['home_team']:
-       #     home_team = Team.objects.get(name=data['home_team'])
-       # if data['away_team']:
-       #     away_team = Team.objects.get(name=data['away_team'])
-
-        #if home_team is not None and away_team is not None:
-        #    teams = [home_team, away_team]
-#
-        #    for team in teams:
-        #        if Game.objects.filter(Q(date=data['date']) & Q(gamestatus__team=team)):
-        #            transaction.rollback()
-        #            return False, f"A equipa {team.name} já jogou no referido dia!"
-#
-        #        if Game.objects.filter(Q(journey=data['journey']) & Q(gamestatus__team=team)):
-        #            transaction.rollback()
-        #            return False, f"A equipa {team.name} já jogou na referida jornada!"
-#
-        #        players_per_team = get_players_per_team(team.name)
-#
-        #        if len(players_per_team) < 14:
-        #            transaction.rollback()
-        #            return False, f"A equipa {team.name} não tem jogadores suficientes inscritos (minimo 14) !"
-#
-        #        goal_keeper_number = len(players_per_team.filter(position=Position.objects.get(id=1)))
-        #        if goal_keeper_number < 1:
-        #            transaction.rollback()
-        #            return False, f"A equipa {team.name} não tem o numero pelo menos 1 guarda-redes!"
-
-
 
         if data['home_goals']:
             game_status_home.update(goals=data['home_goals'])
