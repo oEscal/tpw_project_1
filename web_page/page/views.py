@@ -343,11 +343,14 @@ def add_event(request, id):
 
                 if form.is_valid():
                     data = form.cleaned_data
-                    if not data['player1'].isdigit() and not data['player2'].isdigit() or data['team'] == '-':
+                    team_choices = [c[0] for c in form.fields['team'].choices.copy()[1:]]
+
+                    if (not data['player1'].isdigit() and data['team'] == team_choices[0] or
+                          not data['player2'].isdigit() and data['team'] == team_choices[1]) or data['team'] == '-':
                         error_messages = ["Tem de adicionar um jogador!"]
                     else:
                         data['game'] = id
-                        data['player'] = data['player1'] if data['player1'].isdigit() else data['player2']
+                        data['player'] = data['player1'] if data['team'] == team_choices[0] else data['player2']
                         add_status, message = queries.add_event(data=data)
                         if add_status:
                             success_messages = [message]

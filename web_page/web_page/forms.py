@@ -222,8 +222,6 @@ class Event(forms.Form):
         else:
             fill_form = get_info_for_add_event(game_id)
 
-        print(fill_form)
-
         teams_field = self.fields['team']
         players1_field = self.fields['player1']
         players2_field = self.fields['player2']
