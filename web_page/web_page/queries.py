@@ -2,7 +2,6 @@ from django.db import transaction
 from django.db.models import Max, Q
 
 from page.serializers import *
-from web_page.help_queries import get_players_per_team
 from web_page.settings import MAX_PLAYERS_MATCH, MIN_PLAYERS_MATCH
 
 
@@ -12,6 +11,10 @@ def next_id(model):
         max_id = 0
 
     return max_id + 1
+
+
+def get_players_per_team(team_name):
+    return Player.objects.filter(team__name=team_name).all()
 
 
 ######################### Add queries #########################
@@ -435,6 +438,8 @@ def update_player_to_game(data):
     try:
         for team in data['teams']:
             players_game = PlayerPlayGame.objects.filter(Q(game__id=data['id']) & Q(player__team__name=team))
+            for p in players_game:
+                p.event.all().delete()
 
             players_game.delete()
 
@@ -521,7 +526,9 @@ def remove_player(id):
 def remove_allplayersFrom_game(game_id):
     try:
         for p in PlayerPlayGame.objects.filter(game=game_id):
+            p.event.all().delete()
             p.delete()
+
         return True, "Todos os jogadores removidos com sucesso do jogo!"
     except PlayerPlayGame.DoesNotExist:
         return False, "Jogo inexistente!"

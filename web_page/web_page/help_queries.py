@@ -29,11 +29,6 @@ def get_game_team_players(game_id):
 def get_all_stadium():
     return Stadium.objects.all()
 
-
-def get_players_per_team(team_name):
-    return Player.objects.filter(team__name=team_name).all()
-
-
 def get_all_teams():
     return Team.objects.all()
 

@@ -439,13 +439,15 @@
 
 {% block script %}
     <script>
-        $(".more_info_btn").click(function () {
-            $(".more_info").hide(1000);
-            $("#more_info_" + this.id).show(1000);
-        });
+        $(document).ready(function () {
+            $(".more_info_btn").click(function () {
+                $(".more_info").hide(1000);
+                $("#more_info_" + this.id).show(1000);
+            });
 
-        $(".less_info_btn").click(function () {
-            $("#more_info_" + this.id).hide(1000);
+            $(".less_info_btn").click(function () {
+                $("#more_info_" + this.id).hide(1000);
+            });
         });
     </script>
 
