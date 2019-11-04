@@ -378,9 +378,45 @@ def get_players_per_game(game_id):
         return None, "Erro na base de dados a obter os jogadores por jogo!"
 
 
+def get_info_game(id):
+    result = {}
+
+    try:
+        game = Game.objects.get(id=id)
+
+        result['id'] = id
+        result['date'] = game.date
+        result['journey'] = game.journey
+        result['stadium'] = game.stadium.name
+
+        game_status = GameStatus.objects.filter(game=game)
+
+        home = game_status[0]
+        away = game_status[1]
+
+        result['home_team'] = home.team.name
+        result['away_team'] = away.team.name
+        result['home_goals'] = home.goals
+        result['away_goals'] = away.goals
+        result['home_shots'] = home.shots
+        result['away_shots'] = away.shots
+        result['home_ball_pos'] = home.ball_possession
+        result['away_ball_pos'] = away.ball_possession
+        result['home_corners'] = home.corners
+        result['away_corners'] = away.corners
+
+
+    except Game.DoesNotExist:
+        return None, "Jogo inexistente!"
+
+    except Exception as e:
+        print(e)
+        return None, "Erro na base de dados a obter a informação do jogo!"
+
+    return result, "Sucesso"
+
+
 ######################### Update #########################
-
-
 def update_team(data):
     transaction.set_autocommit(False)
 
@@ -405,6 +441,82 @@ def update_team(data):
         print(e)
         transaction.rollback()
         return False, "Erro na base de dados a editar as informações da equipa!"
+
+
+def update_game(data):
+    transaction.set_autocommit(False)
+
+    try:
+        game = Game.objects.filter(id=data['id'])
+
+        if not game.exists():
+            transaction.rollback()
+            return False, "Jogo a editar nao existe na base de dados!"
+
+        if data['date']:
+            game.update(date=data['date'])
+        if data['journey']:
+            game.update(journey=data['journey'])
+        if data['stadium']:
+            game.update(stadium=Stadium.objects.get(name=data['stadium']))
+
+        teams = game[0].teams.all()
+
+        game_status_home = GameStatus.objects.filter(Q(game=data['id']) & Q(team=teams[0]))
+        game_status_away = GameStatus.objects.filter(Q(game=data['id']) & Q(team=teams[1]))
+
+        home_ball_pos, away_ball_pos = None, None
+
+        if data['home_ball_pos'] is not None:
+            home_ball_pos = data['home_ball_pos']
+        if data['away_ball_pos'] is not None:
+            away_ball_pos = data['away_ball_pos']
+
+        if home_ball_pos is not None and away_ball_pos is not None:
+            if home_ball_pos + away_ball_pos != 100:
+                transaction.rollback()
+                return False, "A soma das posses de bola das duas equipas deve ser igual a 100!"
+            else:
+                game_status_home.update(ball_possession=home_ball_pos)
+                game_status_away.update(ball_possession=away_ball_pos)
+
+        if data['home_goals']:
+            game_status_home.update(goals=data['home_goals'])
+
+        if data['away_goals']:
+            game_status_away.update(goals=data['away_goals'])
+
+        if data['home_shots']:
+            game_status_home.update(shots=data['home_shots'])
+
+        if data['away_shots']:
+            game_status_away.update(shots=data['away_shots'])
+
+        if data['home_corners']:
+            game_status_home.update(corners=data['home_corners'])
+
+        if data['away_corners']:
+            game_status_away.update(corners=data['away_corners'])
+
+        transaction.set_autocommit(True)
+        return True, "Sucesso!"
+
+    except Team.DoesNotExist:
+        transaction.rollback()
+        return False, "Equipa nao existente"
+
+    except Stadium.DoesNotExist:
+        transaction.rollback()
+        return False, "Estadio nao existente!"
+
+    except Game.DoesNotExist:
+        transaction.rollback()
+        return False, "Jogo nao existente!"
+
+    except Exception as e:
+        print(e)
+        transaction.rollback()
+        return False, "Erro na base de dados ao editar as informações do jogo"
 
 
 def update_stadium(data):

@@ -715,4 +715,49 @@ def update_player_game(request, id):
         'teams': form.teams
     }
     return create_response(request, html_page, data=form, page_name=page_name, error_messages=error_messages,
-                           success_messages=success_messages, do_update=True)
+                           success_messages=success_messages,do_update=True)
+
+
+def update_game(request, id):
+    html_page = "add_game.html"
+    page_name = "Editar jogo"
+    error_messages = []
+    success_messages = []
+    form = forms.Game()
+
+    if not verify_if_admin(request.user):
+        error_messages = ["Login invalido!"]
+        return redirect('login')
+    else:
+        game_info, message = queries.get_info_game(id)
+
+        if not game_info:
+            error_messages = [message]
+        else:
+            form = forms.Game(game_info)
+            try:
+                if request.POST:
+                    form = forms.Game(game_info, request.POST, request.FILES)
+
+                    if form.is_valid():
+                        data = form.cleaned_data
+                        data['id'] = id
+                        serializer_data = reformat_game_data(data)
+                        print(serializer_data)
+                        game_serializer = GameSerializer(data=serializer_data)
+                        if not game_serializer.is_valid():
+                            error_messages = ["Campos inválidos!"]
+                        else:
+                            add_status, message = queries.update_game(data)
+                            if add_status:
+                                success_messages = [message]
+                            else:
+                                error_messages = [message]
+                    else:
+                        error_messages = ["Corrija os erros abaixo referidos!"]
+            except Exception as e:
+                print(e)
+                error_messages = ["Erro ao editar equipa!"]
+
+    return create_response(request, html_page, data=form, page_name=page_name,
+                           error_messages=error_messages, success_messages=success_messages)

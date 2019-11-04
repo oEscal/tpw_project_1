@@ -1,3 +1,6 @@
+from django.db.models import Q
+
+from page.models import *
 from web_page.queries import *
 
 
@@ -40,3 +43,6 @@ def get_info_for_add_event(game_id):
     }
 
     return result
+
+
+
