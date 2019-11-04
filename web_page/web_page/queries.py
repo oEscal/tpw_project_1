@@ -636,16 +636,26 @@ def remove_player(id):
 
 
 def remove_stadium(name):
+    transaction.set_autocommit(False)
     try:
-        Stadium.objects.get(name=name).delete()
+        stadium = Stadium.objects.get(name=name)
+        team = Team.objects.get(stadium=stadium)
+
+        # code to delete team
+
+        # stadium.delete()
+        transaction.set_autocommit(True)
         return True, "Estadio removido com sucesso"
 
     except Stadium.DoesNotExist:
+        transaction.rollback()
         return False, "Estadio inexistente!"
 
     except Exception as e:
+        transaction.rollback()
         print(e)
         return False, "Erro ao eliminar o estadio"
+
 
 def remove_allplayersFrom_game(game_id):
     try:
