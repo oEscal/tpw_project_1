@@ -1,5 +1,7 @@
 from django.db.models import Q
+
 from page.models import *
+from web_page.queries import *
 
 
 def get_all_stadium_for_team(except_stadium):
@@ -30,11 +32,6 @@ def get_game_team_players(game_id):
 def get_all_stadium():
     return Stadium.objects.all()
 
-
-def get_players_per_team(team_name):
-    return Player.objects.filter(team__name=team_name).all()
-
-
 def get_all_teams():
     return Team.objects.all()
 
@@ -60,6 +57,11 @@ def get_info_for_add_event(game_id=None, event_id=None):
             'name': player.name
         })
 
-    result['events'] = [k.name for k in KindEvent.objects.all()]
+
+def get_info_for_add_event(game_id):
+    result = {
+        'teams': get_players_per_game(game_id)[0],
+        'events': [k.name for k in KindEvent.objects.all()]
+    }
 
     return result

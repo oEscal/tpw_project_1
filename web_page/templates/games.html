@@ -156,8 +156,8 @@
                                     <div class="text-center text-lg-left">
                                         <div class="d-block d-lg-flex align-items-center">
                                             <div class="image mx-auto mb-3 mb-lg-0 mr-lg-3">
-                                                <img src="{% if data.teams.0.logo %}
-                                                        data:image/png;base64,{{ data.teams.0.logo }}
+                                                <img src="{% if g.teams.0.logo %}
+                                                        data:image/png;base64,{{ g.teams.0.logo }}
                                                         {% else %}
                                                         https://domingoasdez.com/images/default-emblem.png
                                                         {% endif %}" alt="Image" class="img-fluid">
@@ -187,8 +187,8 @@
                                     <div class="">
                                         <div class="d-block d-lg-flex align-items-center">
                                             <div class="image mx-auto ml-lg-3 mb-3 mb-lg-0 order-2">
-                                                <img src="{% if data.teams.1.logo %}
-                                                        data:image/png;base64,{{ data.teams.1.logo }}
+                                                <img src="{% if g.teams.1.logo %}
+                                                        data:image/png;base64,{{ g.teams.1.logo }}
                                                         {% else %}
                                                         https://domingoasdez.com/images/default-emblem.png
                                                         {% endif %}" alt="Image" class="img-fluid">
@@ -207,9 +207,9 @@
                                     <div class="d-inline-block">
                                         <h4 class="mb-2"><small class="text-uppercase text-black font-weight-bold">
                                             {{ g.stadium }}</small></h4>
-                                        <div class="mx-auto col-4">
-                                            <img src="{% if data.stadium_picture %}
-                                                        data:image/png;base64,{{ data.stadium_picture }}
+                                        <div class="mx-auto col-8">
+                                            <img src="{% if g.stadium_picture %}
+                                                        data:image/png;base64,{{ g.stadium_picture }}
                                                         {% endif %}" alt="" class="img-fluid">
                                         </div>
                                     </div>
@@ -296,25 +296,59 @@
 
                                                     <div class="col-sm-6  timeline-item p-1">
                                                         <div class="row">
-                                                            <div class="col-sm-offset-1 col-sm-11">
+                                                            <div class="col-sm-12">
                                                                 <div class="timeline-panel {% if e.team == g.teams.1.name %}
                                                                                             credits
                                                                                             {% else %}
                                                                                             debits
                                                                                             {% endif %}">
                                                                     <ul class="timeline-panel-ul">
-                                                                        <li>
-                                                                            <span class="importo">
-                                                                                {{ e.player }}
-                                                                            </span>
-                                                                        </li>
-                                                                        <li>
-                                                                            <p>
-                                                                                <small class="text-muted">
-                                                                                    {{ e.kind_event }}
-                                                                                </small>
-                                                                            </p>
-                                                                        </li>
+                                                                        <div class="text-center col-12 row">
+                                                                            <div class="col-12">
+                                                                                <li class="{% if e.team == g.teams.1.name %}
+                                                                                            pull-right
+                                                                                            {% else %}
+                                                                                            pull-left
+                                                                                            {% endif %}">
+                                                                                    <span class="importo h4">
+                                                                                        {{ e.player }}
+                                                                                    </span>
+                                                                                </li>
+                                                                            </div>
+                                                                            {% if e.team == g.teams.1.name %}
+                                                                                <div class="col-9">
+                                                                                    <p class="pull-left">
+                                                                                        <small class="text-muted h5">
+                                                                                            {{ e.kind_event }}
+                                                                                        </small>
+                                                                                    </p>
+                                                                                </div>
+                                                                                <div class="col-3">
+                                                                                    <img src="{% if e.photo %}
+                                                                                data:image/png;base64,{{ e.photo }}
+                                                                                {% else %}
+                                                                                https://www.library.caltech.edu/sites/default/files/styles/headshot/public/default_images/user.png?itok=1HlTtL2d
+                                                                                {% endif %}" alt="Image"
+                                                                                         class="img-fluid pull-right">
+                                                                                </div>
+                                                                            {% else %}
+                                                                                <div class="col-3">
+                                                                                    <img src="{% if e.photo %}
+                                                                                data:image/png;base64,{{ e.photo }}
+                                                                                {% else %}
+                                                                                https://www.library.caltech.edu/sites/default/files/styles/headshot/public/default_images/user.png?itok=1HlTtL2d
+                                                                                {% endif %}" alt="Image"
+                                                                                         class="img-fluid pull-left">
+                                                                                </div>
+                                                                                <div class="col-9">
+                                                                                    <p class="pull-right">
+                                                                                        <small class="text-muted h5">
+                                                                                            {{ e.kind_event }}
+                                                                                        </small>
+                                                                                    </p>
+                                                                                </div>
+                                                                            {% endif %}
+                                                                        </div>
                                                                     </ul>
                                                                 </div>
 
@@ -355,8 +389,8 @@
                                 <div class="text-center text-lg-left">
                                     <div class="d-block d-lg-flex align-items-center">
                                         <div class="image image-small text-center mb-3 mb-lg-0 mr-lg-3">
-                                            <img src="{% if data.teams.0.logo %}
-                                                        data:image/png;base64,{{ data.teams.0.logo }}
+                                            <img src="{% if g.teams.0.logo %}
+                                                        data:image/png;base64,{{ g.teams.0.logo }}
                                                         {% else %}
                                                         https://domingoasdez.com/images/default-emblem.png
                                                         {% endif %}" alt="Image" class="img-fluid">
@@ -382,8 +416,8 @@
                                 <div class="">
                                     <div class="d-block d-lg-flex align-items-center">
                                         <div class="image image-small ml-lg-3 mb-3 mb-lg-0 order-2">
-                                            <img src="{% if data.teams.1.logo %}
-                                                        data:image/png;base64,{{ data.teams.1.logo }}
+                                            <img src="{% if g.teams.1.logo %}
+                                                        data:image/png;base64,{{ g.teams.1.logo }}
                                                         {% else %}
                                                         https://domingoasdez.com/images/default-emblem.png
                                                         {% endif %}" alt="Image" class="img-fluid">
@@ -405,13 +439,15 @@
 
 {% block script %}
     <script>
-        $(".more_info_btn").click(function () {
-            $(".more_info").hide(1000);
-            $("#more_info_" + this.id).show(1000);
-        });
+        $(document).ready(function () {
+            $(".more_info_btn").click(function () {
+                $(".more_info").hide(1000);
+                $("#more_info_" + this.id).show(1000);
+            });
 
-        $(".less_info_btn").click(function () {
-            $("#more_info_" + this.id).hide(1000);
+            $(".less_info_btn").click(function () {
+                $("#more_info_" + this.id).hide(1000);
+            });
         });
     </script>
 
