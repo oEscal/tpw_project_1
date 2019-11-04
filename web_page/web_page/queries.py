@@ -631,3 +631,14 @@ def remove_player(id):
     except Exception as e:
         print(e)
         return False, "Erro ao eliminar o jogador"
+
+
+def remove_game(game_id):
+    try:
+        game = Game.objects.filter(id=game_id)
+        game_status = GameStatus.objects.filter(game=game)
+        player_in_game = PlayerPlayGame
+        return True, "Jogo removido com sucesso!"
+    except Exception as e:
+        print(e)
+        return False, "Erro ao eliminar o jogo!"

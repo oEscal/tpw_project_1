@@ -731,26 +731,32 @@ def update_game(request, id):
             try:
                 if request.POST:
                     form = forms.Game(game_info, request.POST, request.FILES)
-
-                    if form.is_valid():
-                        data = form.cleaned_data
-                        data['id'] = id
-                        serializer_data = reformat_game_data(data)
-                        print(serializer_data)
-                        game_serializer = GameSerializer(data=serializer_data)
-                        if not game_serializer.is_valid():
-                            error_messages = ["Campos inválidos!"]
+                    if 'remove_button' in request.POST:
+                        remove_status, message = queries.remove_game(id)
+                        if remove_status:
+                            return redirect('/')
                         else:
-                            add_status, message = queries.update_game(data)
-                            if add_status:
-                                success_messages = [message]
-                            else:
-                                error_messages = [message]
+                            error_messages = [message]
                     else:
-                        error_messages = ["Corrija os erros abaixo referidos!"]
+                        if form.is_valid():
+                            data = form.cleaned_data
+                            data['id'] = id
+                            serializer_data = reformat_game_data(data)
+                            # print(serializer_data)
+                            game_serializer = GameSerializer(data=serializer_data)
+                            if not game_serializer.is_valid():
+                                error_messages = ["Campos inválidos!"]
+                            else:
+                                add_status, message = queries.update_game(data)
+                                if add_status:
+                                    success_messages = [message]
+                                else:
+                                    error_messages = [message]
+                        else:
+                            error_messages = ["Corrija os erros abaixo referidos!"]
             except Exception as e:
                 print(e)
                 error_messages = ["Erro ao editar equipa!"]
 
     return create_response(request, html_page, data=form, page_name=page_name,
-                           error_messages=error_messages, success_messages=success_messages)
+                           error_messages=error_messages, success_messages=success_messages, do_update=True)
