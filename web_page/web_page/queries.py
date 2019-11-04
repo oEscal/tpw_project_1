@@ -613,7 +613,14 @@ def update_player(data):
 
 def remove_team(name):
     try:
-        Team.objects.get(name=name).delete()
+        team = Team.objects.get(name=name)
+        players = Player.objects.filter(team=team)
+        # code to remove all game in which appears this team(this will remove player_game and their events)
+        for p in players:
+            # code to remove players
+            pass
+        # code to remove team
+        # team.delete() 
         return True, "Equipa removida com sucesso"
     except Team.DoesNotExist:
         return False, "Equipa inexistente!"
@@ -655,7 +662,7 @@ def remove_game(game_id):
     try:
         game = Game.objects.filter(id=game_id)
         game_status = GameStatus.objects.filter(game=game_id)
-        remove_players_status, message = remove_allplayersFrom_game(game_id)
+        remove_players_status, message = remove_allplayersFrom_game(game_id)  # remove player form game and their events
         if not remove_players_status:
             return False, message
 
