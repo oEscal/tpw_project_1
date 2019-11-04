@@ -34,6 +34,7 @@ class Stadium(forms.Form):
                 if field_name != 'picture':
                     field.initial = stadium[field_name]
 
+
 class Team(forms.Form):
     name = forms.CharField(label="Nome da equipa", help_text="Insira o nome da equipa", required=True, max_length=200)
     foundation_date = forms.DateField(label="Data de fundação", help_text="Insira a data de fundação  da equipa",
@@ -196,9 +197,12 @@ class Game(forms.Form):
             field.widget.attrs['placeholder'] = field.help_text
 
         if game:
-            data = game["data"]
             for field_name, field in self.fields.items():
-                field.initial = data[field_name]
+                field.initial = game[field_name]
+            self.fields['home_team'].choices = [(game['home_team'], game['home_team'])]
+            self.fields['home_team'].required = False
+            self.fields['away_team'].choices = [(game['away_team'], game['away_team'])]
+            self.fields['away_team'].required = False
 
 
 class Event(forms.Form):
