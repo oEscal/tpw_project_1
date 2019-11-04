@@ -591,6 +591,7 @@ def update_stadium(request, name):
     error_messages = []
     success_messages = []
     form = forms.Stadium()
+    is_admin = True
     new_name = None
 
     if not verify_if_admin(request.user):
@@ -639,8 +640,8 @@ def update_stadium(request, name):
     if new_name is not None:
         return redirect(f'/update_stadium/{new_name}?status=Sucesso')
     else:
-        return create_response(request, html_page, data=form, page_name=page_name,
-                               error_messages=error_messages, success_messages=success_messages)
+        return create_response(request, html_page, data=form, page_name=page_name, error_messages=error_messages,
+                               success_messages=success_messages, is_admin=is_admin)
 
 
 def update_player_game(request, id):
@@ -649,6 +650,7 @@ def update_player_game(request, id):
     error_messages = []
     success_messages = []
     form = forms.PlayersToGame(None, id)
+    is_admin = True
 
     if not verify_if_admin(request.user):
         error_messages = ["Login inválido!"]
@@ -720,7 +722,7 @@ def update_player_game(request, id):
         'teams': form.teams
     }
     return create_response(request, html_page, data=form, page_name=page_name, error_messages=error_messages,
-                           success_messages=success_messages, do_update=True)
+                           success_messages=success_messages, do_update=True, is_admin=is_admin)
 
 
 def update_game(request, id):
@@ -729,6 +731,7 @@ def update_game(request, id):
     error_messages = []
     success_messages = []
     form = forms.Game()
+    is_admin = True
 
     if not verify_if_admin(request.user):
         error_messages = ["Login invalido!"]
@@ -770,8 +773,8 @@ def update_game(request, id):
                 print(e)
                 error_messages = ["Erro ao editar equipa!"]
 
-    return create_response(request, html_page, data=form, page_name=page_name,
-                           error_messages=error_messages, success_messages=success_messages)
+    return create_response(request, html_page, data=form, page_name=page_name, error_messages=error_messages,
+                           success_messages=success_messages, is_admin=is_admin)
 
 
 def update_event(request, id):
@@ -780,6 +783,7 @@ def update_event(request, id):
     error_messages = []
     success_messages = []
     form = forms.Event()
+    is_admin = True
 
     if not verify_if_admin(request.user):
         error_messages = ["Login invalido!"]
@@ -816,5 +820,5 @@ def update_event(request, id):
                 print(e)
                 error_messages = ["Erro ao editar evento!"]
 
-    return create_response(request, html_page, data=form, page_name=page_name, error_messages=error_messages,
-                           success_messages=success_messages, do_update=True)
+    return create_response(request, html_page, data=form, page_name=page_name, error_messages=error_messages, 
+                            success_messages=success_messages, do_update=True, is_admin=is_admin)
