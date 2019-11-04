@@ -357,6 +357,30 @@ def get_games():
     return result, "Sucesso"
 
 
+def get_minimal_event(id):
+    try:
+        pg = PlayerPlayGame.objects.get(event__id=id)
+        event = Event.objects.get(id=id)
+        result = {
+            'id': id,
+            'team': pg.player.team.name,
+            'player': pg.player.id,
+            'kind_event': event.kind_event.name,
+            'minute': event.minute
+        }
+        return result, "Sucesso"
+    except PlayerPlayGame.DoesNotExist:
+        return None, "Não existe nenhum jogador atribuido a esse evento!"
+    except Event.DoesNotExist:
+        return None, "Esse evento não existe!"
+    except Exception as e:
+        print(e)
+        return None, "Erro na base de dados a obter o evento!"
+
+
+######################### Update #########################
+
+
 def get_players_per_game(game_id):
     result = {}
 
@@ -609,7 +633,48 @@ def update_player(data):
         return False, "Erro na base de dados a editar as informações do jogador!"
 
 
+def update_event(data):
+    transaction.set_autocommit(False)
+
+    try:
+        event = Event.objects.filter(id=data['id'])
+        player_game = PlayerPlayGame.objects.filter(event__id=data['id'])
+
+        if not event.exists():
+            transaction.rollback()
+            return False, "Evento a editar não existe na base de dados!"
+
+        if not player_game.exists():
+            transaction.rollback()
+            return False, "Não existe nenhum jogador atribuido ao evento a editar!"
+
+        if data['minute'] is not None:
+            event.update(minute=data['minute'])
+        if data['kind_event'] is not None:
+            event.update(kind_event=KindEvent.objects.get(name=data['kind_event']))
+        if data['player'] is not None:
+            PlayerPlayGame.objects.filter(event__id=data['id']).delete()
+            PlayerPlayGame.objects.get(player__id=data['player']).event.add(Event.objects.get(id=data['id']))
+
+        transaction.set_autocommit(True)
+        return True, "Jogador editada com sucesso"
+    except Event.DoesNotExist:
+        transaction.rollback()
+        return False, "Evento a editar não existe na base de dados!"
+    except PlayerPlayGame.DoesNotExist:
+        transaction.rollback()
+        return False, "Jogador selecionado não jogou no referido jogo!"
+    except Game.DoesNotExist:
+        transaction.rollback()
+        return False, "Jogo inexistente!"
+    except Exception as e:
+        print(e)
+        transaction.rollback()
+        return False, "Erro na base de dados a editar as informações do evento!"
+
+
 ######################### Remove #########################
+
 
 def remove_team(name):
     try:
@@ -630,14 +695,45 @@ def remove_team(name):
         return False, "Erro ao eliminar a equipa"
 
 
-def remove_player(id):
+def remove_all_events_player_and_game(player_id):
+    transaction.set_autocommit(False)
     try:
-        Player.objects.get(id=id).delete()
+        player_game = PlayerPlayGame.objects.filter(player=player_id)
+        for p in player_game:
+            remove_status, message = remove_allplayersFrom_game(p.game)
+            if not remove_status:
+                transaction.rollback()
+                return False, message
+            remove_status, message = remove_game(p.game.id)
+            if not remove_status:
+                transaction.rollback()
+                return False, message
+        transaction.set_autocommit(True)
+        return True, "Eventos do jogador removidos com sucesso"
+    except Exception as e:
+        transaction.rollback()
+        print(e)
+        return False, "Erro ao remover todos os eventos do jogador!"
+
+
+def remove_player(id):
+    transaction.set_autocommit(False)
+    try:
+        player = Player.objects.get(id=id)
+        remove_status, message = remove_all_events_player_and_game(player.id)
+        if not remove_status:
+            transaction.rollback()
+            return False, message
+
+        player.delete()
+        transaction.set_autocommit(True)
         return True, "Jogador removido com sucesso"
 
     except Player.DoesNotExist:
+        transaction.rollback()
         return False, "Jogador inexistente!"
     except Exception as e:
+        transaction.rollback()
         print(e)
         return False, "Erro ao eliminar o jogador"
 
