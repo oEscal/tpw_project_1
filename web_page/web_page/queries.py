@@ -677,20 +677,33 @@ def update_event(data):
 
 
 def remove_team(name):
+    transaction.set_autocommit(False)
     try:
         team = Team.objects.get(name=name)
         players = Player.objects.filter(team=team)
+
         # code to remove all game in which appears this team(this will remove player_game and their events)
+        games = GameStatus.objects.filter(team=team)
+        for g in games:
+            remove_game_status, message = remove_game(g.id)
+            if not remove_game_status:
+                transaction.rollback()
+                return False, message
+
         for p in players:
-            # code to remove players
-            pass
-        # code to remove team
-        # team.delete() 
+            remove_player_status, message = remove_player(p.id)
+            if not remove_player_status:
+                transaction.rollback()
+                return False, message
+        team.delete()
+        transaction.set_autocommit(False)
         return True, "Equipa removida com sucesso"
     except Team.DoesNotExist:
+        transaction.rollback()
         return False, "Equipa inexistente!"
 
     except Exception as e:
+        transaction.rollback()
         print(e)
         return False, "Erro ao eliminar a equipa"
 
