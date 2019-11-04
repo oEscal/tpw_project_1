@@ -288,6 +288,7 @@ def reformat_game_data(data):
 
 def add_game(request):
     html_page = 'add_game.html'
+    page_name = "Adicionar jogo"
     error_messages = []
     success_messages = []
     form = forms.Game()
@@ -322,7 +323,7 @@ def add_game(request):
             error_messages = ["Erro ao adicionar novo jogo"]
 
     return create_response(request, html_page, data=form, error_messages=error_messages,
-                           success_messages=success_messages, is_admin=is_admin)
+                           success_messages=success_messages, is_admin=is_admin, page_name=page_name)
 
 
 def add_event(request, id):
@@ -612,7 +613,7 @@ def update_stadium(request, name):
                     if form.is_valid():
                         data = form.cleaned_data
                         stadium_serializer = StadiumSerializer(data=data)
-                        
+
                         if not stadium_serializer.is_valid():
                             error_messages = ["Campos inválidos!"]
                         else:
@@ -717,7 +718,7 @@ def update_player_game(request, id):
         'teams': form.teams
     }
     return create_response(request, html_page, data=form, page_name=page_name, error_messages=error_messages,
-                           success_messages=success_messages,do_update=True)
+                           success_messages=success_messages, do_update=True)
 
 
 def update_game(request, id):
@@ -812,5 +813,5 @@ def update_event(request, id):
                 print(e)
                 error_messages = ["Erro ao editar evento!"]
 
-    return create_response(request, html_page, data=form, page_name=page_name, error_messages=error_messages, 
-                            success_messages=success_messages, do_update=True)
+    return create_response(request, html_page, data=form, page_name=page_name, error_messages=error_messages,
+                           success_messages=success_messages, do_update=True)
