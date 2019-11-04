@@ -32,6 +32,7 @@ def get_game_team_players(game_id):
 def get_all_stadium():
     return Stadium.objects.all()
 
+
 def get_all_teams():
     return Team.objects.all()
 
