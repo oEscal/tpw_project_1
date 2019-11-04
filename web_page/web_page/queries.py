@@ -764,3 +764,12 @@ def remove_game(game_id):
         transaction.rollback()
         print(e)
         return False, "Erro ao eliminar o jogo!"
+
+
+def remove_event(id):
+    try:
+        Event.objects.filter(id=id).delete()
+        return True, "Evento eliminado com sucesso!"
+    except Exception as e:
+        print(e)
+        return False, "Erro ao eliminar o evento!"

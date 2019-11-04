@@ -791,23 +791,29 @@ def update_event(request, id):
             try:
                 if request.POST:
                     form = forms.Event(event_info, None, request.POST, request.FILES)
-
-                    if form.is_valid():
-                        data = form.cleaned_data
-                        if not data['player1'].isdigit() and not data['player2'].isdigit() or data['team'] == '-':
-                            error_messages = ["Tem de adicionar um jogador!"]
+                    if 'remove_button' in request.POST:
+                        remove_status, message = queries.remove_event(id)
+                        if remove_status:
+                            return redirect('/')
                         else:
-                            data['game'] = id
-                            data['player'] = data['player1'] if data['player1'].isdigit() else data['player2']
-                            data['id'] = id
-
-                            add_status, message = queries.update_event(data=data)
-                            if add_status:
-                                success_messages = [message]
-                            else:
-                                error_messages = [message]
+                            error_messages = [message]
                     else:
-                        error_messages = ["Corrija os erros abaixo referidos!"]
+                        if form.is_valid():
+                            data = form.cleaned_data
+                            if not data['player1'].isdigit() and not data['player2'].isdigit() or data['team'] == '-':
+                                error_messages = ["Tem de adicionar um jogador!"]
+                            else:
+                                data['game'] = id
+                                data['player'] = data['player1'] if data['player1'].isdigit() else data['player2']
+                                data['id'] = id
+
+                                add_status, message = queries.update_event(data=data)
+                                if add_status:
+                                    success_messages = [message]
+                                else:
+                                    error_messages = [message]
+                        else:
+                            error_messages = ["Corrija os erros abaixo referidos!"]
             except Exception as e:
                 print(e)
                 error_messages = ["Erro ao editar evento!"]
