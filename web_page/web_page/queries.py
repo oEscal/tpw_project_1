@@ -381,11 +381,18 @@ def get_minimal_event(id):
 ######################### Update #########################
 
 
-def get_players_per_game(game_id):
+def get_players_per_game(game_id, event_id=None):
     result = {}
 
+    if not event_id:
+        player_game = PlayerPlayGame.objects.filter(game_id=game_id)
+    else:
+        player_game = PlayerPlayGame.objects.filter(
+            game=PlayerPlayGame.objects.get(event__id=event_id).game
+        )
+
     try:
-        for p in PlayerPlayGame.objects.filter(game_id=game_id):
+        for p in player_game:
             player = p.player
             team = player.team.name
             if team not in result:
