@@ -428,21 +428,22 @@
                                     </div>
                                 </div>
                             </div>
-
-                            <div class="col-12 text-center mb-4 p-3 row">
-                                <div class="col-6">
-                                    <button type="button" class="btn btn-success col-10 pull-left"
-                                            onclick="window.open('{% url 'add_event' id=g.id %}', '_blank');">
-                                        Adicionar eventos
-                                    </button>
+                            {% if is_admin %}
+                                <div class="col-12 text-center mb-4 p-3 row">
+                                    <div class="col-6">
+                                        <button type="button" class="btn btn-success col-10 pull-left"
+                                                onclick="window.open('{% url 'add_event' id=g.id %}', '_blank');">
+                                            Adicionar eventos
+                                        </button>
+                                    </div>
+                                    <div class="col-6">
+                                        <button type="button" class="btn btn-success col-10 pull-right"
+                                                onclick="window.open('{% url 'add_players_game' id=g.id %}', '_blank');">
+                                            Adicionar jogadores
+                                        </button>
+                                    </div>
                                 </div>
-                                <div class="col-6">
-                                    <button type="button" class="btn btn-success col-10 pull-right"
-                                            onclick="window.open('{% url 'add_players_game' id=g.id %}', '_blank');">
-                                        Adicionar jogadores
-                                    </button>
-                                </div>
-                            </div>
+                            {% endif %}
                         </div>
                     {% endfor %}
                 </div>
