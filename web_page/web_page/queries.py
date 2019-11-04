@@ -550,6 +550,8 @@ def update_player_to_game(data):
     try:
         for team in data['teams']:
             players_game = PlayerPlayGame.objects.filter(Q(game__id=data['id']) & Q(player__team__name=team))
+            for p in players_game:
+                p.event.all().delete()
 
             players_game.delete()
 
@@ -633,12 +635,36 @@ def remove_player(id):
         return False, "Erro ao eliminar o jogador"
 
 
+def remove_allplayersFrom_game(game_id):
+    try:
+        for p in PlayerPlayGame.objects.filter(game=game_id):
+            p.event.all().delete()
+            p.delete()
+
+        return True, "Todos os jogadores removidos com sucesso do jogo!"
+    except PlayerPlayGame.DoesNotExist:
+        return False, "Jogo inexistente!"
+
+    except Exception as e:
+        print(e)
+        return False, "Erro ao eliminar todos os jogadores do jogo!"
+
+
 def remove_game(game_id):
+    transaction.set_autocommit(False)
     try:
         game = Game.objects.filter(id=game_id)
-        game_status = GameStatus.objects.filter(game=game)
-        player_in_game = PlayerPlayGame
+        game_status = GameStatus.objects.filter(game=game_id)
+        remove_players_status, message = remove_allplayersFrom_game(game_id)
+        if not remove_players_status:
+            return False, message
+
+        game.delete()
+        game_status.delete()
+
+        transaction.set_autocommit(True)
         return True, "Jogo removido com sucesso!"
     except Exception as e:
+        transaction.rollback()
         print(e)
         return False, "Erro ao eliminar o jogo!"

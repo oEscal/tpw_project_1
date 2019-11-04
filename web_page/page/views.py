@@ -659,43 +659,50 @@ def update_player_game(request, id):
                 form = forms.PlayersToGame(players, id)
                 if request.POST:
                     form = forms.PlayersToGame(players, id, request.POST)
-                    if form.is_valid():
-                        form_data = form.cleaned_data
-
-                        data = {}
-                        make_query = True
-                        for p in form_data:
-                            data_split = p.split('-')
-                            team = data_split[0]
-                            order = int(data_split[1])
-                            if team not in data:
-                                data[team] = []
-                            if form_data[p].isdigit():
-                                if form_data[p] in data[team]:
-                                    error_messages.append(f"Jogador {order + 1} da equipa {team} já foi escolhido!")
-                                    make_query = False
-                                data[team].append(form_data[p])
-
-                        # verify if number of players is greater or smaller than the constraints
-                        for t in data:
-                            if len(set(data[t])) > MAX_PLAYERS_MATCH or len(set(data[t])) < MIN_PLAYERS_MATCH:
-                                error_messages.append(
-                                    f"Tem de escolher entre {MIN_PLAYERS_MATCH} e {MAX_PLAYERS_MATCH} "
-                                    f"jogadores na equipa {t}!"
-                                )
-                                make_query = False
-                        if make_query:
-                            players, message = queries.get_players_per_game(id)
-                            add_status, message = queries.update_player_to_game({
-                                'id': id,
-                                'teams': data
-                            })
-                            if add_status:
-                                success_messages = [message]
-                            else:
-                                error_messages = [message]
+                    if 'remove_button' in request.POST:
+                        remove_status, message = queries.remove_allplayersFrom_game(id)
+                        if remove_status:
+                            return redirect('/')
+                        else:
+                            error_messages = [message]
                     else:
-                        error_messages = ["Corrija os erros abaixo referidos"]
+                        if form.is_valid():
+                            form_data = form.cleaned_data
+
+                            data = {}
+                            make_query = True
+                            for p in form_data:
+                                data_split = p.split('-')
+                                team = data_split[0]
+                                order = int(data_split[1])
+                                if team not in data:
+                                    data[team] = []
+                                if form_data[p].isdigit():
+                                    if form_data[p] in data[team]:
+                                        error_messages.append(f"Jogador {order + 1} da equipa {team} já foi escolhido!")
+                                        make_query = False
+                                    data[team].append(form_data[p])
+
+                            # verify if number of players is greater or smaller than the constraints
+                            for t in data:
+                                if len(set(data[t])) > MAX_PLAYERS_MATCH or len(set(data[t])) < MIN_PLAYERS_MATCH:
+                                    error_messages.append(
+                                        f"Tem de escolher entre {MIN_PLAYERS_MATCH} e {MAX_PLAYERS_MATCH} "
+                                        f"jogadores na equipa {t}!"
+                                    )
+                                    make_query = False
+                            if make_query:
+                                players, message = queries.get_players_per_game(id)
+                                add_status, message = queries.update_player_to_game({
+                                    'id': id,
+                                    'teams': data
+                                })
+                                if add_status:
+                                    success_messages = [message]
+                                else:
+                                    error_messages = [message]
+                        else:
+                            error_messages = ["Corrija os erros abaixo referidos"]
 
         except Exception as e:
             print(e)
@@ -708,7 +715,7 @@ def update_player_game(request, id):
         'teams': form.teams
     }
     return create_response(request, html_page, data=form, page_name=page_name, error_messages=error_messages,
-                           success_messages=success_messages)
+                           success_messages=success_messages,do_update=True)
 
 
 def update_game(request, id):
