@@ -2,7 +2,6 @@ from django.db import transaction
 from django.db.models import Max, Q
 
 from page.serializers import *
-from web_page.help_queries import get_players_per_team
 from web_page.settings import MAX_PLAYERS_MATCH, MIN_PLAYERS_MATCH
 
 
@@ -12,6 +11,10 @@ def next_id(model):
         max_id = 0
 
     return max_id + 1
+
+
+def get_players_per_team(team_name):
+    return Player.objects.filter(team__name=team_name).all()
 
 
 ######################### Add queries #########################

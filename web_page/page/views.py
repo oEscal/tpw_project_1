@@ -35,9 +35,6 @@ def image_to_base64(image):
     return None
 
 
-######################### Add #########################
-
-
 def create_response(request, html_page, data=None, page_name=None, success_messages=None, error_messages=None,
                     do_update=False, is_admin=False):
     return render(request, html_page, {
@@ -48,6 +45,22 @@ def create_response(request, html_page, data=None, page_name=None, success_messa
         "do_update": do_update,
         "is_admin": is_admin
     })
+
+
+######################### Index #########################
+
+
+def index(request):
+    html_page = "index.html"
+    is_admin = False
+
+    if verify_if_admin(request.user):
+        is_admin = True
+
+    return create_response(request, html_page, is_admin=is_admin)
+
+
+######################### Add #########################
 
 
 def add_stadium(request):
@@ -86,7 +99,7 @@ def add_stadium(request):
             error_messages = ["Erro a adicionar novo estádio!"]
 
     return create_response(request, html_page, data=form, error_messages=error_messages,
-                           success_messages=success_messages, is_admin=is_admin)
+                           success_messages=success_messages, page_name=page_name, is_admin=is_admin)
 
 
 def add_team(request):
@@ -166,7 +179,7 @@ def add_player(request):
 
         except Exception as e:
             print(e)
-            error_messages = ["Erro ao adicionar nova jogador"]
+            error_messages = ["Erro ao adicionar novo jogador"]
 
     return create_response(request, html_page, data=form, page_name=page_name,
                            error_messages=error_messages, success_messages=success_messages, is_admin=is_admin)
@@ -231,7 +244,7 @@ def add_players_game(request, id):
 
         except Exception as e:
             print(e)
-            error_messages = ["Erro ao adicionar nova jogador"]
+            error_messages = ["Erro ao adicionar novo jogador"]
 
     form = {
         'form': form,
@@ -239,7 +252,7 @@ def add_players_game(request, id):
         'min_players': MIN_PLAYERS_MATCH,
         'teams': form.teams
     }
-    return create_response(request, html_page, data=form, error_messages=error_messages,
+    return create_response(request, html_page, data=form, error_messages=error_messages, page_name=page_name,
                            success_messages=success_messages, is_admin=is_admin)
 
 
