@@ -218,9 +218,9 @@ class Event(forms.Form):
 
         # fill form
         if event:
-            fill_form = get_info_for_add_event(event_id=event['id'])
+            fill_form = get_info_for_add_event(None, event['id'])
         else:
-            fill_form = get_info_for_add_event(game_id=game_id)
+            fill_form = get_info_for_add_event(game_id)
 
         teams_field = self.fields['team']
         players1_field = self.fields['player1']
