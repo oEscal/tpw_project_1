@@ -346,7 +346,7 @@ def add_event(request, id):
                     team_choices = [c[0] for c in form.fields['team'].choices.copy()[1:]]
 
                     if (not data['player1'].isdigit() and data['team'] == team_choices[0] or
-                          not data['player2'].isdigit() and data['team'] == team_choices[1]) or data['team'] == '-':
+                        not data['player2'].isdigit() and data['team'] == team_choices[1]) or data['team'] == '-':
                         error_messages = ["Tem de adicionar um jogador!"]
                     else:
                         data['game'] = id
@@ -615,7 +615,7 @@ def update_stadium(request, name):
                     if form.is_valid():
                         data = form.cleaned_data
                         stadium_serializer = StadiumSerializer(data=data)
-                        
+
                         if not stadium_serializer.is_valid():
                             error_messages = ["Campos inválidos!"]
                         else:
@@ -720,7 +720,7 @@ def update_player_game(request, id):
         'teams': form.teams
     }
     return create_response(request, html_page, data=form, page_name=page_name, error_messages=error_messages,
-                           success_messages=success_messages,do_update=True)
+                           success_messages=success_messages, do_update=True)
 
 
 def update_game(request, id):
@@ -797,14 +797,15 @@ def update_event(request, id):
 
                     if form.is_valid():
                         data = form.cleaned_data
-                        if not data['player1'].isdigit() and not data['player2'].isdigit() or data['team'] == '-':
+                        team_choices = [c[0] for c in form.fields['team'].choices.copy()[1:]]
+
+                        if (not data['player1'].isdigit() and data['team'] == team_choices[0] or
+                            not data['player2'].isdigit() and data['team'] == team_choices[1]) or data['team'] == '-':
                             error_messages = ["Tem de adicionar um jogador!"]
                         else:
                             data['game'] = id
-                            data['player'] = data['player1'] if data['player1'].isdigit() else data['player2']
-                            data['id'] = id
-
-                            add_status, message = queries.update_event(data=data)
+                            data['player'] = data['player1'] if data['team'] == team_choices[0] else data['player2']
+                            add_status, message = queries.add_event(data=data)
                             if add_status:
                                 success_messages = [message]
                             else:
@@ -815,5 +816,5 @@ def update_event(request, id):
                 print(e)
                 error_messages = ["Erro ao editar evento!"]
 
-    return create_response(request, html_page, data=form, page_name=page_name, error_messages=error_messages, 
-                            success_messages=success_messages, do_update=True)
+    return create_response(request, html_page, data=form, page_name=page_name, error_messages=error_messages,
+                           success_messages=success_messages, do_update=True)
