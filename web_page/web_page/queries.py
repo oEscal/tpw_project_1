@@ -623,7 +623,7 @@ def remove_team(name):
         return False, "Erro ao eliminar a equipa"
 
 
-def remove_all_events_player(player_id):
+def remove_all_events_player_and_game(player_id):
     transaction.set_autocommit(False)
     try:
         player_game = PlayerPlayGame.objects.filter(player=player_id)
@@ -632,7 +632,10 @@ def remove_all_events_player(player_id):
             if not remove_status:
                 transaction.rollback()
                 return False, message
-
+            remove_status, message = remove_game(p.game.id)
+            if not remove_status:
+                transaction.rollback()
+                return False, message
         transaction.set_autocommit(True)
         return True, "Eventos do jogador removidos com sucesso"
     except Exception as e:
@@ -645,7 +648,7 @@ def remove_player(id):
     transaction.set_autocommit(False)
     try:
         player = Player.objects.get(id=id)
-        remove_status, message = remove_all_events_player(player.id)
+        remove_status, message = remove_all_events_player_and_game(player.id)
         if not remove_status:
             transaction.rollback()
             return False, message
