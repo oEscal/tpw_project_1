@@ -264,7 +264,7 @@ def get_team(name):
             return data, message
 
         result['players'] = []
-        for p in Player.objects.filter(team__name=name):
+        for p in Player.objects.filter(team__name=name).order_by('position__id'):
             p_info = PlayerMinimalSerializer(p).data
             p_info['photo'] = p.photo
             p_info.update({
