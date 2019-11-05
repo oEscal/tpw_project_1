@@ -288,6 +288,7 @@ def get_player(id):
         result['photo'] = player.photo
         result['position'] = Position.objects.get(player__id=id).name
         result['team'] = Team.objects.get(player__id=id).name
+        result['id'] = id
     except Player.DoesNotExist:
         return None, "O jogador não existe!"
     except Exception as e:
