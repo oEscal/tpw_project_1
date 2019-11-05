@@ -163,7 +163,11 @@
                                                         {% endif %}" alt="Image" class="img-fluid">
                                             </div>
                                             <div class="text">
-                                                <h3 class="h5 mb-0 text-black">{{ g.teams.0.name }}</h3>
+                                                <h3 class="h5 mb-0 text-black">
+                                                    <a href="{% url 'team' name=g.teams.0.name %}" target="_blank">
+                                                        {{ g.teams.0.name }}
+                                                    </a>
+                                                </h3>
                                                 <span class="text-uppercase small country text-black">Casa</span>
                                             </div>
                                         </div>
@@ -194,7 +198,11 @@
                                                         {% endif %}" alt="Image" class="img-fluid">
                                             </div>
                                             <div class="text order-1">
-                                                <h3 class="h5 mb-0 text-black">{{ g.teams.1.name }}</h3>
+                                                <h3 class="h5 mb-0 text-black">
+                                                    <a href="{% url 'team' name=g.teams.1.name %}" target="_blank">
+                                                        {{ g.teams.1.name }}
+                                                    </a>
+                                                </h3>
                                                 <span class="text-uppercase small country text-black">Fora</span>
                                             </div>
                                         </div>
@@ -422,7 +430,11 @@
                                                         {% endif %}" alt="Image" class="img-fluid">
                                         </div>
                                         <div class="text">
-                                            <h3 class="h5 mb-0 text-black">{{ g.teams.0.name }}</h3>
+                                            <h3 class="h5 mb-0 text-black">
+                                                <a href="{% url 'team' name=g.teams.0.name %}" target="_blank">
+                                                    {{ g.teams.0.name }}
+                                                </a>
+                                            </h3>
                                             <span class="text-uppercase small country">Casa</span>
                                         </div>
                                     </div>
@@ -448,7 +460,11 @@
                                                         {% endif %}" alt="Image" class="img-fluid">
                                         </div>
                                         <div class="text order-1 w-100">
-                                            <h3 class="h5 mb-0 text-black">{{ g.teams.1.name }}</h3>
+                                            <h3 class="h5 mb-0 text-black">
+                                                <a href="{% url 'team' name=g.teams.1.name %}" target="_blank">
+                                                    {{ g.teams.1.name }}
+                                                </a>
+                                            </h3>
                                             <span class="text-uppercase small country">Fora</span>
                                         </div>
                                     </div>
