@@ -342,8 +342,10 @@ def get_games():
                 for event in pg.event.all():
                     current_game['events'].append({
                         'kind_event': event.kind_event.name,
+                        'id': event.id,
                         'minute': event.minute,
                         'player': pg.player.name,
+                        'player_id': pg.player.id,
                         'photo': pg.player.photo,
                         'team': pg.player.team.name
                     })

@@ -321,7 +321,9 @@
                                                                                             pull-left
                                                                                             {% endif %}">
                                                                                     <span class="importo h4">
-                                                                                        {{ e.player }}
+                                                                                        <a href="{% url 'player' id=e.player_id %}" target="_blank">
+                                                                                            {{ e.player }}
+                                                                                        </a>
                                                                                     </span>
                                                                                 </li>
                                                                             </div>
