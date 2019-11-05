@@ -755,12 +755,13 @@ def remove_allplayersFrom_game(game_id):
 
 def remove_game(game_id):
     transaction.set_autocommit(False)
+
     try:
         game = Game.objects.filter(id=game_id)
         game_status = GameStatus.objects.filter(game=game_id)
         remove_players_status, message = remove_allplayersFrom_game(game_id)
         if not remove_players_status:
-            return False, message
+            return False, message, None
 
         game.delete()
         game_status.delete()
@@ -770,4 +771,4 @@ def remove_game(game_id):
     except Exception as e:
         transaction.rollback()
         print(e)
-        return False, "Erro ao eliminar o jogo!"
+        return False, "Erro ao eliminar o jogo!", None

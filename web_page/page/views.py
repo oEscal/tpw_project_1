@@ -36,14 +36,15 @@ def image_to_base64(image):
 
 
 def create_response(request, html_page, data=None, page_name=None, success_messages=None, error_messages=None,
-                    do_update=False, is_admin=False):
+                    do_update=False, is_admin=False, remove_info=None):
     return render(request, html_page, {
         "data": data,
         "success_messages": success_messages,
         "error_messages": error_messages,
         "page_name": page_name,
         "do_update": do_update,
-        "is_admin": is_admin
+        "is_admin": is_admin,
+        "remove_info": remove_info if remove_info is not None else ""
     })
 
 
@@ -733,7 +734,7 @@ def update_game(request, id):
     success_messages = []
     form = forms.Game()
     is_admin = True
-
+    remove_info = "Remover o jogo implica:\n- Remover as estatisticas do jogo\n- Remover os jogadores inscritos no jogo".split("\n")
     if not verify_if_admin(request.user):
         error_messages = ["Login invalido!"]
         return redirect('login')
@@ -748,6 +749,7 @@ def update_game(request, id):
                 if request.POST:
                     form = forms.Game(game_info, request.POST, request.FILES)
                     if 'remove_button' in request.POST:
+
                         remove_status, message = queries.remove_game(id)
                         if remove_status:
                             return redirect('/')
@@ -775,7 +777,8 @@ def update_game(request, id):
                 error_messages = ["Erro ao editar equipa!"]
 
     return create_response(request, html_page, data=form, page_name=page_name, error_messages=error_messages,
-                           success_messages=success_messages, is_admin=is_admin)
+                           success_messages=success_messages, is_admin=is_admin, do_update=True,
+                           remove_info=remove_info)
 
 
 def update_event(request, id):
@@ -821,5 +824,5 @@ def update_event(request, id):
                 print(e)
                 error_messages = ["Erro ao editar evento!"]
 
-    return create_response(request, html_page, data=form, page_name=page_name, error_messages=error_messages, 
-                            success_messages=success_messages, do_update=True, is_admin=is_admin)
+    return create_response(request, html_page, data=form, page_name=page_name, error_messages=error_messages,
+                           success_messages=success_messages, do_update=True, is_admin=is_admin)
