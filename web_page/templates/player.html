@@ -25,6 +25,14 @@
                     {% endif %}
                     <h1>{{ data.name }}</h1>
                     <div class="p-4 border mb-3 bg-white row">
+                        {% if is_admin %}
+                            <div class="col-12">
+                                <button class="btn btn-warning col-1 pull-right"
+                                        onclick="window.open('{% url 'update_player' id=data.id %}', '_blank');">
+                                    Editar
+                                </button>
+                            </div>
+                        {% endif %}
                         <div class="col-8">
                             <h2>Informação pessoal</h2>
                             <p class="mb-0 font-weight-bold">Nickname</p>

@@ -32,17 +32,15 @@ def get_game_team_players(game_id):
 def get_all_stadium():
     return Stadium.objects.all()
 
+
 def get_all_teams():
     return Team.objects.all()
 
 
-def get_info_for_add_event(game_id):
+def get_info_for_add_event(game_id, event_id=None):
     result = {
-        'teams': get_players_per_game(game_id)[0],
+        'teams': get_players_per_game(game_id, event_id)[0],
         'events': [k.name for k in KindEvent.objects.all()]
     }
 
     return result
-
-
-

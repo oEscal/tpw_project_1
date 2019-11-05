@@ -206,9 +206,9 @@ class Game(forms.Form):
 
 
 class Event(forms.Form):
-    teams = forms.ChoiceField(label="Equipa", help_text="Escolha a equipa", required=True)
-    players1 = forms.ChoiceField(label="Jogador", help_text="Escolha o jogador", required=True)
-    players2 = forms.ChoiceField(label="Jogador", help_text="Escolha o jogador", required=True)
+    team = forms.ChoiceField(label="Equipa", help_text="Escolha a equipa", required=True)
+    player1 = forms.ChoiceField(label="Jogador", help_text="Escolha o jogador", required=True)
+    player2 = forms.ChoiceField(label="Jogador", help_text="Escolha o jogador", required=True)
     kind_event = forms.ChoiceField(label="Tipo de evento", help_text="Escolha o tipo de evento", required=True)
     minute = forms.IntegerField(label="Minuto do evento", help_text="Escolha o minuto do evento",
                                 min_value=0, required=True)
@@ -217,11 +217,14 @@ class Event(forms.Form):
         super(forms.Form, self).__init__(*args, **kwargs)
 
         # fill form
-        fill_form = get_info_for_add_event(game_id)
+        if event:
+            fill_form = get_info_for_add_event(None, event['id'])
+        else:
+            fill_form = get_info_for_add_event(game_id)
 
-        teams_field = self.fields['teams']
-        players1_field = self.fields['players1']
-        players2_field = self.fields['players2']
+        teams_field = self.fields['team']
+        players1_field = self.fields['player1']
+        players2_field = self.fields['player2']
         events_field = self.fields['kind_event']
 
         teams_field.choices = [("-", teams_field.help_text)]
@@ -243,11 +246,18 @@ class Event(forms.Form):
         players1_field.widget.attrs['style'] = f"display: none;"
         players2_field.widget.attrs['style'] = f"display: none;"
 
-        for event in fill_form['events']:
-            events_field.choices.append((event, event))
+        for kind_event in fill_form['events']:
+            events_field.choices.append((kind_event, kind_event))
 
         for field_name, field in self.fields.items():
-            if field_name != 'players1' and field_name != 'players2':
+            if field_name != 'player1' and field_name != 'player2':
                 field.widget.attrs['class'] = 'form-control'
 
             field.widget.attrs['placeholder'] = field.help_text
+
+        if event:
+            for field_name, field in self.fields.items():
+                if field_name == 'player1' or field_name == 'player2':
+                    field.initial = event['player']
+                else:
+                    field.initial = event[field_name]

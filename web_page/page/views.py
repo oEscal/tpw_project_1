@@ -288,6 +288,7 @@ def reformat_game_data(data):
 
 def add_game(request):
     html_page = 'add_game.html'
+    page_name = "Adicionar jogo"
     error_messages = []
     success_messages = []
     form = forms.Game()
@@ -322,11 +323,12 @@ def add_game(request):
             error_messages = ["Erro ao adicionar novo jogo"]
 
     return create_response(request, html_page, data=form, error_messages=error_messages,
-                           success_messages=success_messages, is_admin=is_admin)
+                           success_messages=success_messages, is_admin=is_admin, page_name=page_name)
 
 
 def add_event(request, id):
     html_page = 'add_event.html'
+    page_name = "Adicionar evento"
     error_messages = []
     success_messages = []
     form = forms.Event(None, id)
@@ -342,11 +344,14 @@ def add_event(request, id):
 
                 if form.is_valid():
                     data = form.cleaned_data
-                    if not data['players1'].isdigit() and not data['players2'].isdigit() or data['teams'] == '-':
+                    team_choices = [c[0] for c in form.fields['team'].choices.copy()[1:]]
+
+                    if (not data['player1'].isdigit() and data['team'] == team_choices[0] or
+                        not data['player2'].isdigit() and data['team'] == team_choices[1]) or data['team'] == '-':
                         error_messages = ["Tem de adicionar um jogador!"]
                     else:
                         data['game'] = id
-                        data['player'] = data['players1'] if data['players1'].isdigit() else data['players2']
+                        data['player'] = data['player1'] if data['team'] == team_choices[0] else data['player2']
                         add_status, message = queries.add_event(data=data)
                         if add_status:
                             success_messages = [message]
@@ -359,8 +364,8 @@ def add_event(request, id):
             print(e)
             error_messages = ["Erro ao adicionar novo evento!"]
 
-    return create_response(request, html_page, data=form, error_messages=error_messages,
-                           success_messages=success_messages, is_admin=is_admin)
+    return create_response(request, html_page, data=form, page_name=page_name,
+                           error_messages=error_messages, success_messages=success_messages, is_admin=is_admin)
 
 
 ######################### Get #########################
@@ -495,7 +500,7 @@ def update_team(request, name):
                     if 'remove_button' in request.POST:
                         remove_status, message = queries.remove_team(name)
                         if remove_status:
-                            return redirect('/teams')
+                            return redirect('/')
                         else:
                             error_messages = [message]
                     else:
@@ -548,7 +553,7 @@ def update_player(request, id):
                     if 'remove_button' in request.POST:
                         remove_status, message = queries.remove_player(id)
                         if remove_status:
-                            return redirect('/teams')
+                            return redirect('/')
                         else:
                             error_messages = [message]
                     else:
@@ -587,6 +592,7 @@ def update_stadium(request, name):
     error_messages = []
     success_messages = []
     form = forms.Stadium()
+    is_admin = True
     new_name = None
 
     if not verify_if_admin(request.user):
@@ -641,7 +647,8 @@ def update_stadium(request, name):
         return redirect(f'/update_stadium/{new_name}?status=Sucesso')
     else:
         return create_response(request, html_page, data=form, page_name=page_name,
-                               error_messages=error_messages, success_messages=success_messages, do_update=True)
+                               error_messages=error_messages, success_messages=success_messages, do_update=True,
+                               is_admin=is_admin)
 
 
 def update_player_game(request, id):
@@ -650,6 +657,7 @@ def update_player_game(request, id):
     error_messages = []
     success_messages = []
     form = forms.PlayersToGame(None, id)
+    is_admin = True
 
     if not verify_if_admin(request.user):
         error_messages = ["Login inválido!"]
@@ -721,7 +729,7 @@ def update_player_game(request, id):
         'teams': form.teams
     }
     return create_response(request, html_page, data=form, page_name=page_name, error_messages=error_messages,
-                           success_messages=success_messages,do_update=True)
+                           success_messages=success_messages, do_update=True, is_admin=is_admin)
 
 
 def update_game(request, id):
@@ -730,6 +738,7 @@ def update_game(request, id):
     error_messages = []
     success_messages = []
     form = forms.Game()
+    is_admin = True
 
     if not verify_if_admin(request.user):
         error_messages = ["Login invalido!"]
@@ -755,7 +764,7 @@ def update_game(request, id):
                             data = form.cleaned_data
                             data['id'] = id
                             serializer_data = reformat_game_data(data)
-                            # print(serializer_data)
+
                             game_serializer = GameSerializer(data=serializer_data)
                             if not game_serializer.is_valid():
                                 error_messages = ["Campos inválidos!"]
@@ -771,5 +780,59 @@ def update_game(request, id):
                 print(e)
                 error_messages = ["Erro ao editar equipa!"]
 
-    return create_response(request, html_page, data=form, page_name=page_name,
-                           error_messages=error_messages, success_messages=success_messages, do_update=True)
+    return create_response(request, html_page, data=form, page_name=page_name, error_messages=error_messages,
+                           success_messages=success_messages, is_admin=is_admin, do_update=True)
+
+
+def update_event(request, id):
+    html_page = "add_event.html"
+    page_name = "Editar jogador"
+    error_messages = []
+    success_messages = []
+    form = forms.Event()
+    is_admin = True
+
+    if not verify_if_admin(request.user):
+        error_messages = ["Login invalido!"]
+        return redirect('login')
+    else:
+        event_info, message = queries.get_minimal_event(id)
+
+        if not event_info:
+            error_messages = [message]
+        else:
+            form = forms.Event(event=event_info)
+            try:
+                if request.POST:
+                    form = forms.Event(event_info, None, request.POST, request.FILES)
+                    if 'remove_button' in request.POST:
+                        remove_status, message = queries.remove_event(id)
+                        if remove_status:
+                            return redirect('/')
+                        else:
+                            error_messages = [message]
+                    else:
+                        if form.is_valid():
+                            data = form.cleaned_data
+                            team_choices = [c[0] for c in form.fields['team'].choices.copy()[1:]]
+
+                            if (not data['player1'].isdigit() and data['team'] == team_choices[0] or
+                                not data['player2'].isdigit() and data['team'] == team_choices[1]) or data[
+                                'team'] == '-':
+                                error_messages = ["Tem de adicionar um jogador!"]
+                            else:
+                                data['game'] = id
+                                data['player'] = data['player1'] if data['team'] == team_choices[0] else data['player2']
+                                add_status, message = queries.add_event(data=data)
+                                if add_status:
+                                    success_messages = [message]
+                                else:
+                                    error_messages = [message]
+                        else:
+                            error_messages = ["Corrija os erros abaixo referidos!"]
+            except Exception as e:
+                print(e)
+                error_messages = ["Erro ao editar evento!"]
+
+    return create_response(request, html_page, data=form, page_name=page_name, error_messages=error_messages,
+                           success_messages=success_messages, do_update=True, is_admin=is_admin)
