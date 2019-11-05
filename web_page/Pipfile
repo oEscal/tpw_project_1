@@ -7,7 +7,7 @@ verify_ssl = true
 
 [packages]
 django = "==2.2.5"
-djangorestframework = "==3.7.7"
+djangorestframework = "==3.9.1"
 django-rest-swagger = "*"
 requests = "*"
 mysqlclient = "*"

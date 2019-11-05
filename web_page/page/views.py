@@ -6,6 +6,7 @@ from django.shortcuts import render, redirect
 # Create your views here.
 from page.serializers import *
 from web_page import queries, forms
+from web_page import queries, forms
 from web_page.settings import MIN_PLAYERS_MATCH, MAX_PLAYERS_MATCH
 
 
@@ -466,7 +467,6 @@ def games(request):
         data, message = queries.get_games()
         if not data:
             error_messages = [message]
-        print(data)
     except Exception as e:
         print(e)
         error_messages = ["Erro a obter todos os jogos"]

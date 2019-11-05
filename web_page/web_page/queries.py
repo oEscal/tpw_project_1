@@ -338,17 +338,18 @@ def get_games():
                 current_game['teams'].append(current_info)
 
             current_game['events'] = []
-            for pg in PlayerPlayGame.objects.filter(game__id=g.id).order_by('event__minute'):
-                for event in pg.event.all():
-                    current_game['events'].append({
-                        'kind_event': event.kind_event.name,
-                        'id': event.id,
-                        'minute': event.minute,
-                        'player': pg.player.name,
-                        'player_id': pg.player.id,
-                        'photo': pg.player.photo,
-                        'team': pg.player.team.name
-                    })
+
+            for event in Event.objects.filter(playerplaygame__game__id=g.id).order_by('minute'):
+                pg = PlayerPlayGame.objects.get(event=event)
+                current_game['events'].append({
+                    'kind_event': event.kind_event.name,
+                    'id': event.id,
+                    'minute': event.minute,
+                    'player': pg.player.name,
+                    'player_id': pg.player.id,
+                    'photo': pg.player.photo,
+                    'team': pg.player.team.name
+                })
 
             result.append(current_game)
     except Exception as e:
