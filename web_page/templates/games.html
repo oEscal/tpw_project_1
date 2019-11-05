@@ -163,7 +163,11 @@
                                                         {% endif %}" alt="Image" class="img-fluid">
                                             </div>
                                             <div class="text">
-                                                <h3 class="h5 mb-0 text-black">{{ g.teams.0.name }}</h3>
+                                                <h3 class="h5 mb-0 text-black">
+                                                    <a href="{% url 'team' name=g.teams.0.name %}" target="_blank">
+                                                        {{ g.teams.0.name }}
+                                                    </a>
+                                                </h3>
                                                 <span class="text-uppercase small country text-black">Casa</span>
                                             </div>
                                         </div>
@@ -194,7 +198,11 @@
                                                         {% endif %}" alt="Image" class="img-fluid">
                                             </div>
                                             <div class="text order-1">
-                                                <h3 class="h5 mb-0 text-black">{{ g.teams.1.name }}</h3>
+                                                <h3 class="h5 mb-0 text-black">
+                                                    <a href="{% url 'team' name=g.teams.1.name %}" target="_blank">
+                                                        {{ g.teams.1.name }}
+                                                    </a>
+                                                </h3>
                                                 <span class="text-uppercase small country text-black">Fora</span>
                                             </div>
                                         </div>
@@ -279,6 +287,16 @@
                                     </h2>
                                 </div>
                                 <div class="collapse" id="collapseExample">
+                                    {% if is_admin %}
+                                        <div class="container">
+                                            <button class="btn btn-warning col-3 pull-right"
+                                                    onclick="window.open('{% url 'update_players_game' id=g.id %}', '_blank');">
+                                                Editar jogadores do jogo
+                                            </button>
+                                        </div>
+                                        <br>
+                                        <br>
+                                    {% endif %}
                                     <div class="container">
                                         <br>
                                         <h4 style="color: #4997cd">Minuto</h4>
@@ -311,7 +329,10 @@
                                                                                             pull-left
                                                                                             {% endif %}">
                                                                                     <span class="importo h4">
-                                                                                        {{ e.player }}
+                                                                                        <a href="{% url 'player' id=e.player_id %}"
+                                                                                           target="_blank">
+                                                                                            {{ e.player }}
+                                                                                        </a>
                                                                                     </span>
                                                                                 </li>
                                                                             </div>
@@ -346,6 +367,19 @@
                                                                                             {{ e.kind_event }}
                                                                                         </small>
                                                                                     </p>
+                                                                                </div>
+                                                                            {% endif %}
+                                                                            {% if is_admin %}
+                                                                                <div class="col-12">
+                                                                                    <button class="btn btn-warning col-3 {% if e.team == g.teams.1.name %}
+                                                                                            pull-left
+                                                                                            {% else %}
+                                                                                            pull-right
+                                                                                            {% endif %}
+                                                                                            "
+                                                                                            onclick="window.open('{% url 'update_event' id=e.id %}', '_blank');">
+                                                                                        Editar
+                                                                                    </button>
                                                                                 </div>
                                                                             {% endif %}
                                                                         </div>
@@ -396,7 +430,11 @@
                                                         {% endif %}" alt="Image" class="img-fluid">
                                         </div>
                                         <div class="text">
-                                            <h3 class="h5 mb-0 text-black">{{ g.teams.0.name }}</h3>
+                                            <h3 class="h5 mb-0 text-black">
+                                                <a href="{% url 'team' name=g.teams.0.name %}" target="_blank">
+                                                    {{ g.teams.0.name }}
+                                                </a>
+                                            </h3>
                                             <span class="text-uppercase small country">Casa</span>
                                         </div>
                                     </div>
@@ -405,13 +443,14 @@
                             </div>
                             <div class="col-md-4 col-lg-4 text-center mb-4 mb-lg-0">
                                 <div class="d-inline-block">
+                                    <p class="mb-0"><small class="text-uppercase text-black font-weight-bold">10
+                                            {{ g.date }}</small></p>
                                     <div class="bg-black py-2 px-4 mb-2 text-white d-inline-block rounded"><span
                                             class="h5">{{ g.teams.0.goals }}:{{ g.teams.1.goals }}</span></div>
                                 </div>
                                 <br>
                                 <button class="btn btn-dark more_info_btn" id="{{ g.id }}">Mais info</button>
                             </div>
-
                             <div class="col-md-4 col-lg-4 text-center text-lg-right">
                                 <div class="">
                                     <div class="d-block d-lg-flex align-items-center">
@@ -423,12 +462,38 @@
                                                         {% endif %}" alt="Image" class="img-fluid">
                                         </div>
                                         <div class="text order-1 w-100">
-                                            <h3 class="h5 mb-0 text-black">{{ g.teams.1.name }}</h3>
+                                            <h3 class="h5 mb-0 text-black">
+                                                <a href="{% url 'team' name=g.teams.1.name %}" target="_blank">
+                                                    {{ g.teams.1.name }}
+                                                </a>
+                                            </h3>
                                             <span class="text-uppercase small country">Fora</span>
                                         </div>
                                     </div>
                                 </div>
                             </div>
+                            {% if is_admin %}
+                                <div class="col-12 text-center mb-4 p-3 row">
+                                    <div class="col-5 p-2">
+                                        <button type="button" class="btn btn-success col-12 pull-left"
+                                                onclick="window.open('{% url 'add_event' id=g.id %}', '_blank');">
+                                            Adicionar eventos
+                                        </button>
+                                    </div>
+                                    <div class="col-2 p-2">
+                                        <button class="btn btn-warning col-12 pull-right"
+                                                onclick="window.open('{% url 'update_game' id=g.id %}', '_blank');">
+                                            Editar
+                                        </button>
+                                    </div>
+                                    <div class="col-5 p-2">
+                                        <button type="button" class="btn btn-success col-12 pull-right"
+                                                onclick="window.open('{% url 'add_players_game' id=g.id %}', '_blank');">
+                                            Adicionar jogadores
+                                        </button>
+                                    </div>
+                                </div>
+                            {% endif %}
                         </div>
                     {% endfor %}
                 </div>

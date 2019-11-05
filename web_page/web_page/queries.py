@@ -288,6 +288,7 @@ def get_player(id):
         result['photo'] = player.photo
         result['position'] = Position.objects.get(player__id=id).name
         result['team'] = Team.objects.get(player__id=id).name
+        result['id'] = id
     except Player.DoesNotExist:
         return None, "O jogador não existe!"
     except Exception as e:
@@ -321,7 +322,7 @@ def get_games():
     result = []
 
     try:
-        for g in Game.objects.all():
+        for g in Game.objects.all().order_by('date'):
             current_game = GameMinimalSerializer(g).data
             current_game['id'] = g.id
             current_game['stadium'] = g.stadium.name
@@ -341,8 +342,10 @@ def get_games():
                 for event in pg.event.all():
                     current_game['events'].append({
                         'kind_event': event.kind_event.name,
+                        'id': event.id,
                         'minute': event.minute,
                         'player': pg.player.name,
+                        'player_id': pg.player.id,
                         'photo': pg.player.photo,
                         'team': pg.player.team.name
                     })
@@ -381,11 +384,18 @@ def get_minimal_event(id):
 ######################### Update #########################
 
 
-def get_players_per_game(game_id):
+def get_players_per_game(game_id, event_id=None):
     result = {}
 
+    if not event_id:
+        player_game = PlayerPlayGame.objects.filter(game_id=game_id)
+    else:
+        player_game = PlayerPlayGame.objects.filter(
+            game=PlayerPlayGame.objects.get(event__id=event_id).game
+        )
+
     try:
-        for p in PlayerPlayGame.objects.filter(game_id=game_id):
+        for p in player_game:
             player = p.player
             team = player.team.name
             if team not in result:
@@ -785,3 +795,12 @@ def remove_game(game_id):
         transaction.rollback()
         print(e)
         return False, "Erro ao eliminar o jogo!"
+
+
+def remove_event(id):
+    try:
+        Event.objects.filter(id=id).delete()
+        return True, "Evento eliminado com sucesso!"
+    except Exception as e:
+        print(e)
+        return False, "Erro ao eliminar o evento!"
