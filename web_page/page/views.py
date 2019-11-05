@@ -775,7 +775,7 @@ def update_game(request, id):
                 error_messages = ["Erro ao editar equipa!"]
 
     return create_response(request, html_page, data=form, page_name=page_name, error_messages=error_messages,
-                           success_messages=success_messages, is_admin=is_admin)
+                           success_messages=success_messages, is_admin=is_admin, do_update=True)
 
 
 def update_event(request, id):
@@ -811,7 +811,8 @@ def update_event(request, id):
                             team_choices = [c[0] for c in form.fields['team'].choices.copy()[1:]]
 
                             if (not data['player1'].isdigit() and data['team'] == team_choices[0] or
-                                not data['player2'].isdigit() and data['team'] == team_choices[1]) or data['team'] == '-':
+                                not data['player2'].isdigit() and data['team'] == team_choices[1]) or data[
+                                'team'] == '-':
                                 error_messages = ["Tem de adicionar um jogador!"]
                             else:
                                 data['game'] = id
@@ -827,5 +828,5 @@ def update_event(request, id):
                 print(e)
                 error_messages = ["Erro ao editar evento!"]
 
-    return create_response(request, html_page, data=form, page_name=page_name, error_messages=error_messages, 
-                            success_messages=success_messages, do_update=True, is_admin=is_admin)
+    return create_response(request, html_page, data=form, page_name=page_name, error_messages=error_messages,
+                           success_messages=success_messages, do_update=True, is_admin=is_admin)
