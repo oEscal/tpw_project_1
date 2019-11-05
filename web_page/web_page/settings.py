@@ -25,7 +25,7 @@ SECRET_KEY = 'f(_jv5rf5wd)326&uetluc7rm(%+v^q%qrzp47o*&w-et(dm!('
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['escaleira.pythonanywhere.com']
 
 # Application definition
 
@@ -74,6 +74,21 @@ WSGI_APPLICATION = 'web_page.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
+
+# for pythonanywhere
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'escaleira$fool',
+        'USER': "escaleira",
+        'PASSWORD': "olaadeus",
+        'HOST': "escaleira.mysql.pythonanywhere-services.com",
+        'PORT': "3306",
+    }
+}
+
+
+'''
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
@@ -84,6 +99,7 @@ DATABASES = {
         'PORT': "3306",
     }
 }
+'''
 
 
 # Password validation
@@ -121,9 +137,15 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
+
+
 STATICFILES_DIRS = (
-    os.path.join(BASE_DIR, 'templates/static'),
+    os.path.join(BASE_DIR, 'static'),
 )
+
+
+# for pythonanywhere
+STATIC_ROOT = '/home/escaleira/tpw_project_1/web_page/static'
 
 STATIC_URL = '/static/'
 
