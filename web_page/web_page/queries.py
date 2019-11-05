@@ -322,7 +322,7 @@ def get_games():
     result = []
 
     try:
-        for g in Game.objects.all():
+        for g in Game.objects.all().order_by('date'):
             current_game = GameMinimalSerializer(g).data
             current_game['id'] = g.id
             current_game['stadium'] = g.stadium.name
