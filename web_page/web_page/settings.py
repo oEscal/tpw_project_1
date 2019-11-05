@@ -25,7 +25,7 @@ SECRET_KEY = 'f(_jv5rf5wd)326&uetluc7rm(%+v^q%qrzp47o*&w-et(dm!('
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['escaleira.pythonanywhere.com']
+ALLOWED_HOSTS = []
 
 # Application definition
 
@@ -76,6 +76,7 @@ WSGI_APPLICATION = 'web_page.wsgi.application'
 
 
 # for pythonanywhere
+'''
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
@@ -86,9 +87,8 @@ DATABASES = {
         'PORT': "3306",
     }
 }
-
-
 '''
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
@@ -99,7 +99,6 @@ DATABASES = {
         'PORT': "3306",
     }
 }
-'''
 
 
 # Password validation
@@ -145,7 +144,7 @@ STATICFILES_DIRS = (
 
 
 # for pythonanywhere
-STATIC_ROOT = '/home/escaleira/tpw_project_1/web_page/static'
+# STATIC_ROOT = '/home/escaleira/tpw_project_1/web_page/static'
 
 STATIC_URL = '/static/'
 
