@@ -4,7 +4,7 @@
  - Num terminal aberto no diretório do projeto, correr:
  ```bash
  $ pipenv shell
- $ pipenv install djangorestframework==2.2.5 ; pipenv install django-rest-swagger ; pipenv install requests ; pipenv install django ; pipenv install mysqlclient ; pipenv install python3-docutils
+ $ pipenv install djangorestframework==2.2.5 ; pipenv install django-rest-swagger ; pipenv install requests ; pipenv install django ; pipenv install mysqlclient ; pipenv install python3-docutils; pipenv install pillow
  ```
 
 ## Configuração da base de dados
