@@ -279,6 +279,16 @@
                                     </h2>
                                 </div>
                                 <div class="collapse" id="collapseExample">
+                                    {% if is_admin %}
+                                        <div class="container">
+                                            <button class="btn btn-warning col-3 pull-right"
+                                                    onclick="window.open('{% url 'update_players_game' id=g.id %}', '_blank');">
+                                                Editar jogadores do jogo
+                                            </button>
+                                        </div>
+                                        <br>
+                                        <br>
+                                    {% endif %}
                                     <div class="container">
                                         <br>
                                         <h4 style="color: #4997cd">Minuto</h4>
