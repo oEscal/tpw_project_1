@@ -236,11 +236,12 @@ class Event(forms.Form):
         for team in fill_form['teams']:
             teams_field.choices.append((team, team))
             for player in fill_form['teams'][team]:
+                team_without_spaces = str.replace(team, " ", "_")
                 if count == 0:
-                    players1_field.widget.attrs['class'] = f"form-control {team}"
+                    players1_field.widget.attrs['class'] = f"form-control {team_without_spaces}"
                     players1_field.choices.append((player['id'], player['name']))
                 else:
-                    players2_field.widget.attrs['class'] = f"form-control {team}"
+                    players2_field.widget.attrs['class'] = f"form-control {team_without_spaces}"
                     players2_field.choices.append((player['id'], player['name']))
             count += 1
         players1_field.widget.attrs['style'] = f"display: none;"
