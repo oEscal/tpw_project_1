@@ -685,7 +685,7 @@ def remove_team(name):
         # code to remove all game in which appears this team(this will remove player_game and their events)
         games = GameStatus.objects.filter(team=team)
         for g in games:
-            remove_game_status, message = remove_game(g.id)
+            remove_game_status, message = remove_game(g.game_id)
             if not remove_game_status:
                 transaction.rollback()
                 return False, message
@@ -771,12 +771,13 @@ def remove_game(game_id):
     try:
         game = Game.objects.filter(id=game_id)
         game_status = GameStatus.objects.filter(game=game_id)
+
         remove_players_status, message = remove_allplayersFrom_game(game_id)  # remove player form game and their events
         if not remove_players_status:
             return False, message
 
-        game.delete()
         game_status.delete()
+        game.delete()
 
         transaction.set_autocommit(True)
         return True, "Jogo removido com sucesso!"
