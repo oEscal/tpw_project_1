@@ -430,14 +430,20 @@
                             </div>
                             {% if is_admin %}
                                 <div class="col-12 text-center mb-4 p-3 row">
-                                    <div class="col-6">
-                                        <button type="button" class="btn btn-success col-10 pull-left"
+                                    <div class="col-5 p-2">
+                                        <button type="button" class="btn btn-success col-12 pull-left"
                                                 onclick="window.open('{% url 'add_event' id=g.id %}', '_blank');">
                                             Adicionar eventos
                                         </button>
                                     </div>
-                                    <div class="col-6">
-                                        <button type="button" class="btn btn-success col-10 pull-right"
+                                    <div class="col-2 p-2">
+                                        <button class="btn btn-warning col-12 pull-right"
+                                                onclick="window.open('{% url 'update_game' id=g.id %}', '_blank');">
+                                            Editar
+                                        </button>
+                                    </div>
+                                    <div class="col-5 p-2">
+                                        <button type="button" class="btn btn-success col-12 pull-right"
                                                 onclick="window.open('{% url 'add_players_game' id=g.id %}', '_blank');">
                                             Adicionar jogadores
                                         </button>
