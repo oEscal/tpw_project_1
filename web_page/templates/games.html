@@ -321,7 +321,8 @@
                                                                                             pull-left
                                                                                             {% endif %}">
                                                                                     <span class="importo h4">
-                                                                                        <a href="{% url 'player' id=e.player_id %}" target="_blank">
+                                                                                        <a href="{% url 'player' id=e.player_id %}"
+                                                                                           target="_blank">
                                                                                             {{ e.player }}
                                                                                         </a>
                                                                                     </span>
@@ -358,6 +359,19 @@
                                                                                             {{ e.kind_event }}
                                                                                         </small>
                                                                                     </p>
+                                                                                </div>
+                                                                            {% endif %}
+                                                                            {% if is_admin %}
+                                                                                <div class="col-12">
+                                                                                    <button class="btn btn-warning col-3 {% if e.team == g.teams.1.name %}
+                                                                                            pull-left
+                                                                                            {% else %}
+                                                                                            pull-right
+                                                                                            {% endif %}
+                                                                                            "
+                                                                                            onclick="window.open('{% url 'update_event' id=e.id %}', '_blank');">
+                                                                                        Editar
+                                                                                    </button>
                                                                                 </div>
                                                                             {% endif %}
                                                                         </div>
