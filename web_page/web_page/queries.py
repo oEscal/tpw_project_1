@@ -288,6 +288,7 @@ def get_player(id):
         result['photo'] = player.photo
         result['position'] = Position.objects.get(player__id=id).name
         result['team'] = Team.objects.get(player__id=id).name
+        result['id'] = id
     except Player.DoesNotExist:
         return None, "O jogador não existe!"
     except Exception as e:
@@ -321,7 +322,7 @@ def get_games():
     result = []
 
     try:
-        for g in Game.objects.all():
+        for g in Game.objects.all().order_by('date'):
             current_game = GameMinimalSerializer(g).data
             current_game['id'] = g.id
             current_game['stadium'] = g.stadium.name
@@ -341,8 +342,10 @@ def get_games():
                 for event in pg.event.all():
                     current_game['events'].append({
                         'kind_event': event.kind_event.name,
+                        'id': event.id,
                         'minute': event.minute,
                         'player': pg.player.name,
+                        'player_id': pg.player.id,
                         'photo': pg.player.photo,
                         'team': pg.player.team.name
                     })
@@ -684,13 +687,33 @@ def update_event(data):
 
 
 def remove_team(name):
+    transaction.set_autocommit(False)
     try:
-        Team.objects.get(name=name).delete()
+        team = Team.objects.get(name=name)
+        players = Player.objects.filter(team=team)
+
+        # code to remove all game in which appears this team(this will remove player_game and their events)
+        games = GameStatus.objects.filter(team=team)
+        for g in games:
+            remove_game_status, message = remove_game(g.game_id)
+            if not remove_game_status:
+                transaction.rollback()
+                return False, message
+
+        for p in players:
+            remove_player_status, message = remove_player(p.id)
+            if not remove_player_status:
+                transaction.rollback()
+                return False, message
+        team.delete()
+        transaction.set_autocommit(False)
         return True, "Equipa removida com sucesso"
     except Team.DoesNotExist:
+        transaction.rollback()
         return False, "Equipa inexistente!"
 
     except Exception as e:
+        transaction.rollback()
         print(e)
         return False, "Erro ao eliminar a equipa"
 
@@ -738,6 +761,30 @@ def remove_player(id):
         return False, "Erro ao eliminar o jogador"
 
 
+def remove_stadium(name):
+    transaction.set_autocommit(False)
+    try:
+        stadium = Stadium.objects.get(name=name)
+        team = Team.objects.get(stadium=stadium)
+        remove_team_status, message = remove_team(team.name)
+        if not remove_team_status:
+            transaction.rollback()
+            return False, message
+
+        stadium.delete()
+        transaction.set_autocommit(True)
+        return True, "Estadio removido com sucesso"
+
+    except Stadium.DoesNotExist:
+        transaction.rollback()
+        return False, "Estadio inexistente!"
+
+    except Exception as e:
+        transaction.rollback()
+        print(e)
+        return False, "Erro ao eliminar o estadio"
+
+
 def remove_allplayersFrom_game(game_id):
     try:
         for p in PlayerPlayGame.objects.filter(game=game_id):
@@ -759,16 +806,26 @@ def remove_game(game_id):
     try:
         game = Game.objects.filter(id=game_id)
         game_status = GameStatus.objects.filter(game=game_id)
-        remove_players_status, message = remove_allplayersFrom_game(game_id)
+
+        remove_players_status, message = remove_allplayersFrom_game(game_id)  # remove player form game and their events
         if not remove_players_status:
             return False, message, None
 
-        game.delete()
         game_status.delete()
+        game.delete()
 
         transaction.set_autocommit(True)
         return True, "Jogo removido com sucesso!"
     except Exception as e:
         transaction.rollback()
         print(e)
-        return False, "Erro ao eliminar o jogo!", None
+        return False, "Erro ao eliminar o jogo!"
+
+
+def remove_event(id):
+    try:
+        Event.objects.filter(id=id).delete()
+        return True, "Evento eliminado com sucesso!"
+    except Exception as e:
+        print(e)
+        return False, "Erro ao eliminar o evento!"
