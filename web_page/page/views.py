@@ -758,7 +758,7 @@ def update_game(request, id):
                             data = form.cleaned_data
                             data['id'] = id
                             serializer_data = reformat_game_data(data)
-                            # print(serializer_data)
+
                             game_serializer = GameSerializer(data=serializer_data)
                             if not game_serializer.is_valid():
                                 error_messages = ["Campos inválidos!"]
