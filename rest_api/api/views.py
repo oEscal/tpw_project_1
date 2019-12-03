@@ -62,6 +62,9 @@ def login(request):
 @csrf_exempt
 @api_view(["POST"])
 def add_stadium(request):
+    status = HTTP_200_OK
+    message = ""
+
     if not verify_if_admin(request.user):
         return create_response("Login inválido!", HTTP_401_UNAUTHORIZED)
 
@@ -69,15 +72,17 @@ def add_stadium(request):
     try:
         stadium_serializer = StadiumSerializer(data=request.data)
         if not stadium_serializer.is_valid():
-            return create_response("Dados inválidos!", HTTP_400_BAD_REQUEST, token=token,
-                                   data=stadium_serializer.errors)
-
-        add_status, message = queries.add_stadium(stadium_serializer.data)
-        return create_response(message, HTTP_200_OK if add_status else HTTP_404_NOT_FOUND, token=token)
+            status = HTTP_400_BAD_REQUEST
+            message = "Dados inválidos!"
+        else:
+            add_status, message = queries.add_stadium(stadium_serializer.data)
+            status = HTTP_200_OK if add_status else HTTP_404_NOT_FOUND
     except Exception as e:
         print(e)
-        return create_response("Erro a adicionar novo estádio!", HTTP_403_FORBIDDEN, token=token)
+        status = HTTP_403_FORBIDDEN
+        message = "Erro a adicionar novo estádio!"
 
+    return create_response(message, status, token=token)
 
 @csrf_exempt
 @api_view(["POST"])
@@ -168,6 +173,7 @@ def add_player_to_game(request):
         return create_response("Login inválido!", HTTP_401_UNAUTHORIZED)
 
     token = Token.objects.get(user=request.user).key
+    # noinspection PyInterpreter
     try:
         player_game_serializer = PlayerGameSerializer(data=request.data)
         if not player_game_serializer.is_valid():

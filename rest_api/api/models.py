@@ -9,19 +9,19 @@ from rest_api.settings import MAX_JOURNEY, MIN_JOURNEY
 
 class Stadium(models.Model):
     address = models.CharField(max_length=200, primary_key=True)
-    name = models.CharField(max_length=200)
+    name = models.CharField(max_length=200, unique=True)
     number_seats = models.IntegerField(
         validators=[
             MinValueValidator(0)
         ]
     )
-    picture = models.ImageField(null=True, blank=True)
+    picture = models.TextField(null=True, blank=True)
 
 
 class Team(models.Model):
-    name = models.CharField(primary_key=True, max_length=200)
+    name = models.CharField(primary_key=True, max_length=200, unique=True)
     foundation_date = models.DateField()
-    logo = models.ImageField(null=True, blank=True)
+    logo = models.TextField(null=True, blank=True)
     stadium = models.OneToOneField(Stadium, on_delete=models.CASCADE, unique=True)
 
 
@@ -33,7 +33,7 @@ class Game(models.Model):
         MinValueValidator(MIN_JOURNEY)
     ])
     stadium = models.ForeignKey(Stadium, on_delete=models.CASCADE)
-    team = models.ManyToManyField(Team, through='GameStatus')
+    teams = models.ManyToManyField(Team, through='GameStatus')
 
 
 class GameStatus(models.Model):
@@ -49,6 +49,9 @@ class GameStatus(models.Model):
     corners = models.IntegerField(validators=[
         MinValueValidator(0)
     ])
+    goals = models.IntegerField(validators=[
+        MinValueValidator(0)
+    ])
 
 
 class Position(models.Model):
@@ -60,7 +63,7 @@ class Player(models.Model):
     id = models.IntegerField(primary_key=True)
     name = models.CharField(max_length=200)
     birth_date = models.DateField(null=True, blank=True)
-    photo = models.ImageField(null=True, blank=True)
+    photo = models.TextField(null=True, blank=True)
     nick = models.CharField(max_length=200, null=True, blank=True)
     position = models.ForeignKey(Position, on_delete=models.CASCADE)
     team = models.ForeignKey(Team, on_delete=models.CASCADE)
@@ -68,7 +71,7 @@ class Player(models.Model):
 
 class KindEvent(models.Model):
     id = models.IntegerField(primary_key=True)
-    name = models.CharField(max_length=200)
+    name = models.CharField(max_length=200, unique=True)
 
 
 class Event(models.Model):
@@ -76,6 +79,7 @@ class Event(models.Model):
     minute = models.IntegerField(validators=[
         MinValueValidator(0)
     ])
+    kind_event = models.ForeignKey(KindEvent, on_delete=models.CASCADE)
 
 
 class PlayerPlayGame(models.Model):
